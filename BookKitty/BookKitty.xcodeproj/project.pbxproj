@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		603741532D40EBC100E6A9B1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,6 +46,7 @@
 		60551C5C2D40E6E800CFC16A = {
 			isa = PBXGroup;
 			children = (
+				603741532D40EBC100E6A9B1 /* .swiftlint.yml */,
 				60551C672D40E6E800CFC16A /* BookKitty */,
 				60551C662D40E6E800CFC16A /* Products */,
 			);
@@ -72,6 +74,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				603741522D40EAC800E6A9B1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				60551C672D40E6E800CFC16A /* BookKitty */,
@@ -107,6 +110,9 @@
 			);
 			mainGroup = 60551C5C2D40E6E800CFC16A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 60551C662D40E6E800CFC16A /* Products */;
 			projectDirPath = "";
@@ -137,6 +143,13 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		603741522D40EAC800E6A9B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		60551C792D40E6EA00CFC16A /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -145,6 +158,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MV89SHQKF4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -177,6 +191,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = MV89SHQKF4;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -343,6 +358,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.58.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
+			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 60551C5D2D40E6E800CFC16A /* Project object */;
 }
