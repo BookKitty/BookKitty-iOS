@@ -1,13 +1,13 @@
 //
-//  ViewController.swift
+//  HomeViewController.swift
 //  BookKitty
 //
-//  Created by 권승용 on 1/22/25.
+//  Created by 권승용 on 1/23/25.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
+class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -17,5 +17,5 @@ class ViewController: UIViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    ViewController()
+    HomeViewController()
 }

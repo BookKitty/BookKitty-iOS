@@ -17,25 +17,25 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		603741532D40EBC100E6A9B1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		60551C772D40E6EA00CFC16A /* Exceptions for "BookKitty" folder in "BookKitty" target */ = {
+		606DA26B2D420CD300C7FAA3 /* Exceptions for "BookKitty" folder in "BookKitty" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				.swiftlint.yml,
+				App/Info.plist,
 			);
 			target = 60551C642D40E6E800CFC16A /* BookKitty */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		60551C672D40E6E800CFC16A /* BookKitty */ = {
+		606DA25A2D420CB100C7FAA3 /* BookKitty */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				60551C772D40E6EA00CFC16A /* Exceptions for "BookKitty" folder in "BookKitty" target */,
+				606DA26B2D420CD300C7FAA3 /* Exceptions for "BookKitty" folder in "BookKitty" target */,
 			);
 			path = BookKitty;
 			sourceTree = "<group>";
@@ -63,8 +63,7 @@
 		60551C5C2D40E6E800CFC16A = {
 			isa = PBXGroup;
 			children = (
-				603741532D40EBC100E6A9B1 /* .swiftlint.yml */,
-				60551C672D40E6E800CFC16A /* BookKitty */,
+				606DA25A2D420CB100C7FAA3 /* BookKitty */,
 				60551C662D40E6E800CFC16A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -95,7 +94,7 @@
 				603741522D40EAC800E6A9B1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				60551C672D40E6E800CFC16A /* BookKitty */,
+				606DA25A2D420CB100C7FAA3 /* BookKitty */,
 			);
 			name = BookKitty;
 			packageProductDependencies = (
@@ -211,7 +210,7 @@
 				DEVELOPMENT_TEAM = MV89SHQKF4;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BookKitty/Info.plist;
+				INFOPLIST_FILE = BookKitty/App/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -245,7 +244,7 @@
 				DEVELOPMENT_TEAM = MV89SHQKF4;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = BookKitty/Info.plist;
+				INFOPLIST_FILE = BookKitty/App/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
