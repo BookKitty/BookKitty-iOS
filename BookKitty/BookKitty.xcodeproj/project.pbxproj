@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23A2D4206C900C7FAA3 /* SnapKit */; };
+		606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23D2D4206F200C7FAA3 /* RxCocoa */; };
+		606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23F2D4206F200C7FAA3 /* RxRelay */; };
+		606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2412D4206F200C7FAA3 /* RxSwift */; };
+		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
+		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
+		606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2492D42079900C7FAA3 /* RxDataSources */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		603741532D40EBC100E6A9B1 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -37,6 +47,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
+				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
+				606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */,
+				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
+				606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */,
+				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
+				606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +84,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 60551C782D40E6EA00CFC16A /* Build configuration list for PBXNativeTarget "BookKitty" */;
 			buildPhases = (
+				606DA2542D4209D300C7FAA3 /* ShellScript */,
 				60551C612D40E6E800CFC16A /* Sources */,
 				60551C622D40E6E800CFC16A /* Frameworks */,
 				60551C632D40E6E800CFC16A /* Resources */,
@@ -81,6 +99,13 @@
 			);
 			name = BookKitty;
 			packageProductDependencies = (
+				606DA23A2D4206C900C7FAA3 /* SnapKit */,
+				606DA23D2D4206F200C7FAA3 /* RxCocoa */,
+				606DA23F2D4206F200C7FAA3 /* RxRelay */,
+				606DA2412D4206F200C7FAA3 /* RxSwift */,
+				606DA2442D42076100C7FAA3 /* Then */,
+				606DA2472D42079900C7FAA3 /* Differentiator */,
+				606DA2492D42079900C7FAA3 /* RxDataSources */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -112,6 +137,10 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+				606DA2392D4206C900C7FAA3 /* XCRemoteSwiftPackageReference "SnapKit" */,
+				606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				606DA2432D42076100C7FAA3 /* XCRemoteSwiftPackageReference "Then" */,
+				606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 60551C662D40E6E800CFC16A /* Products */;
@@ -132,6 +161,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		606DA2542D4209D300C7FAA3 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd BuildTools\nSDKROOT=(xcrun --sdk macosx --show-sdk-path)\n#swift package update #Uncomment this line temporarily to update the version used to the latest matching your BuildTools/Package.swift file\nswift run -c release swiftformat \"$SRCROOT\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		60551C612D40E6E800CFC16A /* Sources */ = {
@@ -159,6 +209,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MV89SHQKF4;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -192,6 +243,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = MV89SHQKF4;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
@@ -368,6 +420,38 @@
 				minimumVersion = 0.58.2;
 			};
 		};
+		606DA2392D4206C900C7FAA3 /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+		606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.8.0;
+			};
+		};
+		606DA2432D42076100C7FAA3 /* XCRemoteSwiftPackageReference "Then" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/devxoul/Then";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+		606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxDataSources.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -375,6 +459,41 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		606DA23A2D4206C900C7FAA3 /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2392D4206C900C7FAA3 /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+		606DA23D2D4206F200C7FAA3 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		606DA23F2D4206F200C7FAA3 /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		606DA2412D4206F200C7FAA3 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		606DA2442D42076100C7FAA3 /* Then */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2432D42076100C7FAA3 /* XCRemoteSwiftPackageReference "Then" */;
+			productName = Then;
+		};
+		606DA2472D42079900C7FAA3 /* Differentiator */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = Differentiator;
+		};
+		606DA2492D42079900C7FAA3 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
