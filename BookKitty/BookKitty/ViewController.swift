@@ -15,7 +15,6 @@ class ViewController: UIViewController {
         view.backgroundColor = .red
     }
 
-
 }
 
 @available(iOS 17.0, *)
