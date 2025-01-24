@@ -19,13 +19,14 @@
 
 /* Begin PBXFileReference section */
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60CCD9462D432621001FEAE3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
+		60CCD95F2D4337DA001FEAE3 /* config.swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = config.swiftformat; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		606DA26B2D420CD300C7FAA3 /* Exceptions for "BookKitty" folder in "BookKitty" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				.swiftlint.yml,
 				App/Info.plist,
 				DesignSystem,
 			);
@@ -66,6 +67,8 @@
 		60551C5C2D40E6E800CFC16A = {
 			isa = PBXGroup;
 			children = (
+				60CCD9462D432621001FEAE3 /* .swiftlint.yml */,
+				60CCD95F2D4337DA001FEAE3 /* config.swiftformat */,
 				606DA25A2D420CB100C7FAA3 /* BookKitty */,
 				606DA50D2D42542700C7FAA3 /* Frameworks */,
 				60551C662D40E6E800CFC16A /* Products */,
@@ -190,7 +193,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd BuildTools\nSDKROOT=(xcrun --sdk macosx --show-sdk-path)\n#swift package update #Uncomment this line temporarily to update the version used to the latest matching your BuildTools/Package.swift file\nswift run -c release swiftformat \"$SRCROOT\"\n";
+			shellScript = "cd BuildTools\nSDKROOT=(xcrun --sdk macosx --show-sdk-path)\n#swift package update #Uncomment this line temporarily to update the version used to the latest matching your BuildTools/Package.swift file\nswift run -c release swiftformat \"$SRCROOT\" --config \"$SRCROOT/config.swiftformat\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

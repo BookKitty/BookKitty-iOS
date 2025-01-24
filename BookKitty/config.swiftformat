@@ -1,0 +1,6 @@
+# format options
+
+# file options
+--swiftversion 5.10 # this is used to specify the swift version so that the rules behave acordingly for that version of swift
+
+# rules
