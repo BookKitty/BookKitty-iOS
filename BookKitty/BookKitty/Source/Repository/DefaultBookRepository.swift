@@ -7,11 +7,13 @@
 
 /// Book 모델을 가져오는 레포지토리
 final class DefaultBookRepository: BookRepository {
-    private let bookPersistence: BookCoreDataManageable
+    // MARK: Lifecycle
 
     init(bookPersistence: BookCoreDataManageable) {
         self.bookPersistence = bookPersistence
     }
+
+    // MARK: Internal
 
     func fetchBookList() {}
 
@@ -20,4 +22,8 @@ final class DefaultBookRepository: BookRepository {
     func saveBookList() {}
 
     func deleteBook() {}
+
+    // MARK: Private
+
+    private let bookPersistence: BookCoreDataManageable
 }
