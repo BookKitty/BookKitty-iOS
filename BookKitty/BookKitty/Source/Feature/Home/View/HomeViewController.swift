@@ -7,12 +7,26 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        view.backgroundColor = .red
+class HomeViewController: BaseViewController {
+    // MARK: Internal
+
+    override func configureHierarchy() {
+        view.addSubview(testLabel)
     }
+
+    override func configureLayout() {
+        testLabel.snp.makeConstraints { $0.center.equalToSuperview() }
+    }
+
+    // MARK: Private
+
+    private let testLabel: UILabel = {
+        let label = UILabel()
+        label.text = "P-001"
+        label.font = .systemFont(ofSize: 30.0, weight: .bold)
+
+        return label
+    }()
 }
 
 @available(iOS 17.0, *)
