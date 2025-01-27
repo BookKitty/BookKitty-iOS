@@ -29,6 +29,7 @@
 			membershipExceptions = (
 				App/Info.plist,
 				DesignSystem,
+				DIContainer,
 			);
 			target = 60551C642D40E6E800CFC16A /* BookKitty */;
 		};
