@@ -1,23 +1,23 @@
 @testable import DIContainer
-import Testing
 import Foundation
+import Testing
 
 /// Container 클래스의 기능을 테스트하기 위한 테스트 스위트
 @Suite
 @MainActor
 final class ContainerTests {
-    // MARK: 생명주기
+    // MARK: Lifecycle
 
     /// 인스턴스가 해제될 때 정리 작업을 수행합니다
     deinit {
         Container.removeAll()
     }
 
-    // MARK: 내부 구현
+    // MARK: Internal
 
     /// 컨테이너 기능을 테스트하기 위한 목업 서비스 클래스
     class TestService {
-        // MARK: 생명주기
+        // MARK: Lifecycle
 
         /// value를 통해 TestService를 초기화합니다
         /// - Parameter value: 저장될 문자열 값
@@ -25,7 +25,7 @@ final class ContainerTests {
             self.value = value
         }
 
-        // MARK: 내부 프로퍼티
+        // MARK: Internal
 
         /// 저장된 문자열 값
         let value: String
