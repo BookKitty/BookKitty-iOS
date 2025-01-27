@@ -14,7 +14,6 @@
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
 		606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2492D42079900C7FAA3 /* RxDataSources */; };
-		606DA50F2D42542700C7FAA3 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA50E2D42542700C7FAA3 /* DesignSystem */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,7 +52,6 @@
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */,
-				606DA50F2D42542700C7FAA3 /* DesignSystem in Frameworks */,
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
 				606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */,
 				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
@@ -119,7 +117,6 @@
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
 				606DA2492D42079900C7FAA3 /* RxDataSources */,
-				606DA50E2D42542700C7FAA3 /* DesignSystem */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -222,7 +219,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MV89SHQKF4;
+				DEVELOPMENT_TEAM = SUHZ238M29;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -256,7 +253,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = MV89SHQKF4;
+				DEVELOPMENT_TEAM = SUHZ238M29;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -508,10 +505,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = RxDataSources;
-		};
-		606DA50E2D42542700C7FAA3 /* DesignSystem */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DesignSystem;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
