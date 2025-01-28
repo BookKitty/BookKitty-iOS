@@ -9,7 +9,7 @@ import Foundation
 import RxSwift
 
 /// 네트워크 기능을 수행하는 객체
-public final class NetworkManager {
+public final class NetworkManager: NetworkManageable {
     // MARK: Lifecycle
 
     init(configuration: URLSessionConfiguration = .default) {
