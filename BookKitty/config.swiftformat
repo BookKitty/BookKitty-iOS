@@ -24,6 +24,7 @@
 
 --disable conditionalAssignment
 --disable redundantRawValues
+--disable wrapMultilineStatementBraces
 
 # options
 --extensionacl on-declarations
