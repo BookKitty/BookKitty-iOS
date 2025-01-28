@@ -3,8 +3,7 @@ import Foundation
 import Testing
 
 /// Container 클래스의 기능을 테스트하기 위한 테스트 스위트
-@Suite
-@MainActor
+@Suite(.serialized)
 final class ContainerTests {
     // MARK: Lifecycle
 
