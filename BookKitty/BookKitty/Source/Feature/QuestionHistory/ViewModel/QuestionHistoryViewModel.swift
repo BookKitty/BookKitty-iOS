@@ -54,7 +54,7 @@ final class QuestionHistoryViewModel: ViewModelType {
         input.viewDidLoad
             .withUnretained(self)
             .flatMapLatest { owner, _ in
-                owner.questionRepository.fetchQuestions()
+                owner.questionRepository.fetchQuestions(offset: owner.offset, limit: owner.limit)
             }
             .bind(to: fetchedQuestions)
             .disposed(by: disposeBag)
@@ -65,7 +65,8 @@ final class QuestionHistoryViewModel: ViewModelType {
             .filter { owner, _ in !owner.isLoading } // 현재 로딩 중이 아닐 경우에만 실행
             .flatMapLatest { owner, _ in
                 owner.isLoading = true // API 호출 전 로딩 상태를 true로 설정
-                return owner.questionRepository.fetchQuestions()
+                owner.offset += owner.limit
+                return owner.questionRepository.fetchQuestions(offset: owner.offset, limit: owner.limit)
             }
             .do(onCompleted: { [weak self] in self?.isLoading = false }) // API 호출이 끝나면 로딩 상태 해제
             .bind(to: fetchedQuestions)
@@ -77,6 +78,9 @@ final class QuestionHistoryViewModel: ViewModelType {
     }
 
     // MARK: Private
+    
+    private var offset: Int = 0
+    private let limit: Int = 10
 
     /// 질문 데이터를 가져오는 Repository (의존성 주입)
     private let questionRepository: QuestionHistoryRepository
