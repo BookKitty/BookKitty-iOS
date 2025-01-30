@@ -2,7 +2,7 @@
 //  TabBarViewModel.swift
 //  BookKitty
 //
-//  Created by 전성규 on 1/26/25.
+//  Created by 전성규 on 1/30/25.
 //
 
 import Foundation
@@ -14,7 +14,7 @@ final class TabBarViewModel: ViewModelType {
 
     struct Output {}
 
-    var disposeBag = DisposeBag()
+    let disposeBag = DisposeBag()
 
     func transform(_: Input) -> Output {
         Output()

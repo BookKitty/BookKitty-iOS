@@ -16,6 +16,8 @@ final class BookCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
+        bookListViewModel = BookListViewModel()
+        bookListViewController = BookListViewController(viewModel: bookListViewModel)
     }
 
     // MARK: Internal
@@ -23,6 +25,8 @@ final class BookCoordinator: Coordinator {
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
+    var bookListViewModel: BookListViewModel
+    var bookListViewController: BookListViewController
 
     func start() { showBookListScreen() }
 
