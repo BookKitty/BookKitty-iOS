@@ -24,9 +24,11 @@ final class BookCoordinator: Coordinator {
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
+
     var navigationController: UINavigationController
-    var bookListViewModel: BookListViewModel
     var bookListViewController: BookListViewController
+
+    var bookListViewModel: BookListViewModel
 
     func start() { showBookListScreen() }
 
@@ -41,15 +43,12 @@ extension BookCoordinator {
     /// 책 목록 화면을 생성하고 ViewModel과 ViewController를 연결
     /// 사용자가 책을 선택하면 책 상세 화면으로 이동
     private func showBookListScreen() {
-        let bookListViewModel = BookListViewModel()
-        let bookListViewController = BookListViewController(viewModel: bookListViewModel)
-
         // 책 상세 화면으로 이동 이벤트 처리
         bookListViewModel
             .navigateToBookDetail
             .withUnretained(self)
-            .subscribe(onNext: { coordinator, _ in
-                coordinator.showBookDetailScreen()
+            .subscribe(onNext: { owner, _ in
+                owner.showBookDetailScreen()
             }).disposed(by: disposeBag)
 
         navigationController.pushViewController(bookListViewController, animated: true)
@@ -58,12 +57,10 @@ extension BookCoordinator {
     /// 책 상세 화면 표시
     ///
     /// 책 상세 화면을 생성하고 ViewModel과 ViewController를 연결
-    /// 탭바를 숨기고 화면을 네비게이션 스택에 추가
     private func showBookDetailScreen() {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
-        bookDetailViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
 }

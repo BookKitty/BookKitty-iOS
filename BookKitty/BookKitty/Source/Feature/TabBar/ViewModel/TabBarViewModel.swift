@@ -19,11 +19,21 @@ final class TabBarViewModel: ViewModelType {
     struct Output {}
 
     let disposeBag = DisposeBag()
-    let navigateRelay = PublishRelay<FloatingMenuItemType>()
+
+    let navigateToAddBook = PublishRelay<Void>()
+    let navigateToAskQuestion = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
         input.selectedFloatingItem
-            .bind(to: navigateRelay)
+            .filter { $0 == .addBook }
+            .map { _ in }
+            .bind(to: navigateToAddBook)
+            .disposed(by: disposeBag)
+
+        input.selectedFloatingItem
+            .filter { $0 == .askQuestion }
+            .map { _ in }
+            .bind(to: navigateToAskQuestion)
             .disposed(by: disposeBag)
 
         return Output()

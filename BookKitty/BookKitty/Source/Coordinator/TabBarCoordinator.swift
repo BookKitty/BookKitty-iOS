@@ -5,6 +5,7 @@
 //  Created by 전성규 on 1/30/25.
 //
 
+import RxSwift
 import UIKit
 
 final class TabBarCoordinator: Coordinator {
@@ -52,6 +53,26 @@ final class TabBarCoordinator: Coordinator {
             bookCoordinator.bookListViewController
         )
 
+        tabBarViewModel.navigateToAddBook
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.showAddBookFlow()
+            }).disposed(by: disposeBag)
+
         navigationController.pushViewController(tabBarController, animated: true)
+    }
+
+    // MARK: Private
+
+    private let disposeBag = DisposeBag()
+}
+
+extension TabBarCoordinator {
+    private func showAddBookFlow() {
+        let addBookCoordinator = DefaultAddBookCoordinator(navigationController)
+
+        addChildCoordinator(addBookCoordinator)
+        addBookCoordinator.parentCoordinator = self
+        addBookCoordinator.start()
     }
 }

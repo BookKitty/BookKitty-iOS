@@ -31,6 +31,20 @@ final class TabBarController: BaseViewController {
     /// 관리할 뷰 컨트롤러 배열
     var viewControllers: [UIViewController] = []
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.isHidden = true
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        if !isHiddenFloating.value {
+            isHiddenFloating.accept(true)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -86,10 +100,10 @@ final class TabBarController: BaseViewController {
     // MARK: Private
 
     private let viewModel: TabBarViewModel
-    
+
     /// 현재 선택된 탭의 인덱스
     private var currentIndex = 0
-    
+
     /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
     private let isHiddenFloating = BehaviorRelay(value: true)
 
@@ -108,7 +122,7 @@ final class TabBarController: BaseViewController {
     }
 
     private let floatingMenu = FloatingMenu()
-    
+
     // MARK: - Rx Binding
 
     /// 탭 바에서 선택된 인덱스를 감지하고 뷰 컨트롤러 전환
