@@ -38,7 +38,8 @@ extension QuestionCoordinator {
     /// 질문 기록 화면을 생성하고, ViewModel과 ViewController를 연결
     /// 질문 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionHistoryScreen() {
-        let questionHistoryViewModel = QuestionHistoryViewModel()
+        let questionHistoryViewModel =
+            QuestionHistoryViewModel(questionRepository: MockQuestionHistoryRepository())
         let questionHistoryViewController =
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
 
