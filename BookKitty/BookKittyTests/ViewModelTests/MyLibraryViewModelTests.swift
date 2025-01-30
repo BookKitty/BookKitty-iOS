@@ -96,6 +96,6 @@ struct MyLibraryViewModelTests {
 }
 
 /// 테스트에서 발생할 수 있는 오류를 정의하는 열거형
-enum MyLibraryViewModelTestError: Error {
+private enum MyLibraryViewModelTestError: Error {
     case timeout
 }
