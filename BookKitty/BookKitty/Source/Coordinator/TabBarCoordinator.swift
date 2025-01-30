@@ -20,7 +20,7 @@ final class TabBarCoordinator: Coordinator {
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
-    
+
     var navigationController: UINavigationController
     var tabBarController: TabBarController
 

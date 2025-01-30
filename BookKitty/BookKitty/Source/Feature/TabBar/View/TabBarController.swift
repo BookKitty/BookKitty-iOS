@@ -8,6 +8,7 @@
 import RxCocoa
 import RxSwift
 import SnapKit
+import Then
 import UIKit
 
 /// 커스텀 탭 바 컨트롤러
@@ -35,10 +36,29 @@ final class TabBarController: BaseViewController {
 
         setupInitialViewController()
         bindTabBar()
+        bindFloatingButton()
+        bindFloatingMenu()
+    }
+
+    override func bind() {
+        let selectedFloatingItem = PublishRelay<FloatingMenuItemType>()
+
+        // 플로팅 메뉴 아이템의 선택 이벤트를 Rx로 바인딩
+        for item in floatingMenu.items {
+            item.rx.selectedItem
+                .bind(to: selectedFloatingItem)
+                .disposed(by: disposeBag)
+        }
+
+        let input = TabBarViewModel.Input(
+            selectedFloatingItem: selectedFloatingItem.asObservable()
+        )
+
+        _ = viewModel.transform(input)
     }
 
     override func configureHierarchy() {
-        [tabBar].forEach { view.addSubview($0) }
+        [tabBar, floatingDimView, floatingButton, floatingMenu].forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
@@ -48,13 +68,48 @@ final class TabBarController: BaseViewController {
             $0.width.equalTo(286.0)
             $0.height.equalTo(48.0)
         }
+
+        floatingButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(24.0)
+            $0.bottom.equalTo(tabBar.snp.bottom)
+            $0.width.height.equalTo(48.0)
+        }
+
+        floatingMenu.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(24.0)
+            $0.bottom.equalTo(floatingButton.snp.top).offset(-20.0)
+            $0.width.equalTo(196.0)
+            $0.height.equalTo(104.0)
+        }
     }
 
     // MARK: Private
 
     private let viewModel: TabBarViewModel
+    
+    /// 현재 선택된 탭의 인덱스
     private var currentIndex = 0
+    
+    /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
+    private let isHiddenFloating = BehaviorRelay(value: true)
+
     private let tabBar = TabBarView()
+    private let floatingButton = UIButton().then {
+        $0.layer.cornerRadius = 24.0
+        $0.backgroundColor = UIColor(red: 0.224, green: 0.756, blue: 0.714, alpha: 1.0)
+        $0.setImage(UIImage(systemName: "plus"), for: .normal)
+        $0.tintColor = .white
+    }
+
+    private lazy var floatingDimView = UIView().then {
+        $0.frame = view.frame
+        $0.backgroundColor = .black.withAlphaComponent(0.3)
+        $0.isHidden = true
+    }
+
+    private let floatingMenu = FloatingMenu()
+    
+    // MARK: - Rx Binding
 
     /// 탭 바에서 선택된 인덱스를 감지하고 뷰 컨트롤러 전환
     private func bindTabBar() {
@@ -67,6 +122,26 @@ final class TabBarController: BaseViewController {
                 owner.currentIndex = index
             }).disposed(by: disposeBag)
     }
+
+    /// 플로팅 버튼 탭 이벤트를 감지하여 플로팅 메뉴 표시 여부를 토글
+    private func bindFloatingButton() {
+        floatingButton.rx.tap
+            .withLatestFrom(isHiddenFloating)
+            .map { !$0 }
+            .bind(to: isHiddenFloating)
+            .disposed(by: disposeBag)
+    }
+
+    /// 플로팅 메뉴의 표시 여부를 감지하여 UI 업데이트
+    private func bindFloatingMenu() {
+        isHiddenFloating
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .bind(onNext: { owner, state in
+                owner.floatingMenu.rx.isHidden.onNext(state)
+                owner.floatingDimView.rx.isHidden.onNext(state)
+            }).disposed(by: disposeBag)
+    }
 }
 
 // MARK: - 뷰 컨트롤러 관리
@@ -74,7 +149,7 @@ final class TabBarController: BaseViewController {
 extension TabBarController {
     /// 탭 바에서 관리할 뷰 컨트롤러를 설정
     func setViewControllers(_ viewControllers: UIViewController...) {
-        self.viewControllers.append(contentsOf: viewControllers)
+        self.viewControllers = viewControllers
     }
 
     /// 앱 시작 시 첫 번째 뷰 컨트롤러를 표시
@@ -91,7 +166,8 @@ extension TabBarController {
         view.addSubview(viewController.view)
         viewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         viewController.didMove(toParent: self)
-        view.bringSubviewToFront(tabBar)    // 탭 바를 항상 최상위에 유지
+        [tabBar, floatingDimView, floatingButton, floatingMenu]
+            .forEach { view.bringSubviewToFront($0) }
     }
 
     /// 특정 인덱스의 뷰 컨트롤러를 숨김
@@ -102,7 +178,6 @@ extension TabBarController {
 
         let viewController = viewControllers[index]
         viewController.willMove(toParent: nil)
-        viewController.view.snp.removeConstraints()
         viewController.view.removeFromSuperview()
         viewController.removeFromParent()
     }

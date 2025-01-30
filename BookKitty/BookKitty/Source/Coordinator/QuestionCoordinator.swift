@@ -27,12 +27,13 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
     }
 
     // MARK: Internal
+
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
 
     var navigationController: UINavigationController
     var questionHistoryViewController: QuestionHistoryViewController
-    
+
     var questionHistoryViewModel: QuestionHistoryViewModel
 
     func start() { showQuestionHistoryScreen() }

@@ -20,6 +20,7 @@ final class DefaultHomeCoordinator: Coordinator {
     }
 
     // MARK: Internal
+
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
 

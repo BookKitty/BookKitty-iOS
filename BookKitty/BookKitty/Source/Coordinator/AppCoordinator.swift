@@ -18,7 +18,7 @@ final class AppCoordinator: Coordinator {
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
-    
+
     let navigationController: UINavigationController
 
     func start() { showCustomTabBarFlow() }
