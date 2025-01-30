@@ -124,7 +124,7 @@ final class TabBarCoordinator: Coordinator {
             questionCoordinator.parentCoordinator = self
             questionCoordinator.start()
         case .book:
-            let bookCoordinator = BookCoordinator(tabNavigationController)
+            let bookCoordinator = MyLibraryCoordinator(tabNavigationController)
             addChildCoordinator(bookCoordinator)
             bookCoordinator.parentCoordinator = self
             bookCoordinator.start()
