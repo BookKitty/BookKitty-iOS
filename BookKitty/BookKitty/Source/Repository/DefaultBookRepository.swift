@@ -15,6 +15,10 @@ final class DefaultBookRepository: BookRepository {
 
     // MARK: Internal
 
+    func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
+        []
+    }
+
     func fetchBookList() {}
 
     func fetchBookDetail() {}
