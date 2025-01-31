@@ -5,6 +5,7 @@
 //  Created by 권승용 on 1/23/25.
 //
 
+import RxRelay
 import RxSwift
 import UIKit
 
@@ -13,6 +14,7 @@ import UIKit
 class BaseViewController: UIViewController {
     /// RxSwift의 메모리 관리를 위한 DisposeBag입니다.
     let disposeBag = DisposeBag()
+    let viewDidLoadRelay = PublishRelay<Void>()
 
     override func viewDidLoad() {
         bind()
@@ -20,6 +22,7 @@ class BaseViewController: UIViewController {
         configureNavItem()
         configureHierarchy()
         configureLayout()
+        viewDidLoadRelay.accept(())
     }
 
     /// 뷰 컨트롤러의 배경색을 설정하는 메서드입니다.

@@ -28,7 +28,9 @@ final class QuestionHistoryViewController: BaseViewController {
 
     override func bind() {
         let input = QuestionHistoryViewModel.Input(
-            testButtonTapTrigger: testButton.rx.tap.asObservable()
+            viewDidLoad: viewDidLoadRelay.asObservable(),
+            questionSelected: Observable.empty(), // TODO: 연결 필요
+            reachedScrollEnd: Observable.empty() // TODO: 연결 필요
         )
 
         _ = viewModel.transform(input)
@@ -67,10 +69,4 @@ final class QuestionHistoryViewController: BaseViewController {
 
         return button
     }()
-}
-
-@available(iOS 17.0, *)
-#Preview {
-    let viewModel = QuestionHistoryViewModel()
-    return QuestionHistoryViewController(viewModel: viewModel)
 }
