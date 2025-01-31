@@ -66,7 +66,10 @@ final class QuestionHistoryViewModel: ViewModelType {
             .flatMapLatest { owner, _ in
                 owner.isLoading = true // API 호출 전 로딩 상태를 true로 설정
                 owner.offset += owner.limit
-                return owner.questionRepository.fetchQuestions(offset: owner.offset, limit: owner.limit)
+                return owner.questionRepository.fetchQuestions(
+                    offset: owner.offset,
+                    limit: owner.limit
+                )
             }
             .do(onCompleted: { [weak self] in self?.isLoading = false }) // API 호출이 끝나면 로딩 상태 해제
             .bind(to: fetchedQuestions)
@@ -78,9 +81,9 @@ final class QuestionHistoryViewModel: ViewModelType {
     }
 
     // MARK: Private
-    
-    private var offset: Int = 0
-    private let limit: Int = 10
+
+    private var offset = 0
+    private let limit = 10
 
     /// 질문 데이터를 가져오는 Repository (의존성 주입)
     private let questionRepository: QuestionHistoryRepository
