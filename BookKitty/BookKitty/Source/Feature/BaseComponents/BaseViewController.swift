@@ -15,11 +15,11 @@ class BaseViewController: UIViewController {
     let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
-        bind()
         configureBackground()
         configureNavItem()
         configureHierarchy()
         configureLayout()
+        bind()
     }
 
     /// 뷰 컨트롤러의 배경색을 설정하는 메서드입니다.
