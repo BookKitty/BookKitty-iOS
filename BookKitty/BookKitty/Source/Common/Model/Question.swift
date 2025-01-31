@@ -9,7 +9,7 @@ import Foundation
 
 /// 질문답변을 나타내는 모델
 /// 더 좋은 네이밍이 있다면 추천해 주세요... 이게 제 한계입니다
-struct Question {
+struct Question: Hashable {
     let createdAt: Date
     let userQuestion: String
     let gptAnswer: String
