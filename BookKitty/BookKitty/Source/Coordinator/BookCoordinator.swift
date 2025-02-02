@@ -50,8 +50,6 @@ extension BookCoordinator {
             .subscribe(onNext: { owner, _ in
                 owner.showBookDetailScreen()
             }).disposed(by: disposeBag)
-
-        navigationController.pushViewController(bookListViewController, animated: true)
     }
 
     /// 책 상세 화면 표시
