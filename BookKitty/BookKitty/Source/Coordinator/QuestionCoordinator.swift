@@ -48,6 +48,11 @@ extension DefaultQuestionCoordinator {
     ///
     /// 질문 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionHistoryScreen() {
+        let questionHistoryViewModel =
+            QuestionHistoryViewModel(questionRepository: MockQuestionHistoryRepository())
+        let questionHistoryViewController =
+            QuestionHistoryViewController(viewModel: questionHistoryViewModel)
+
         // 질문 상세 화면으로의 이동 이벤트 처리
         questionHistoryViewModel.navigateToQuestionDetail
             .withUnretained(self)
