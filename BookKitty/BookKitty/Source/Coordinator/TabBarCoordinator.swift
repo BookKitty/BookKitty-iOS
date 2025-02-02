@@ -59,6 +59,12 @@ final class TabBarCoordinator: Coordinator {
                 owner.showAddBookFlow()
             }).disposed(by: disposeBag)
 
+        tabBarViewModel.navigateToAddQuestion
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.showAddQuestionFlow()
+            }).disposed(by: disposeBag)
+
         navigationController.pushViewController(tabBarController, animated: true)
     }
 
@@ -74,5 +80,13 @@ extension TabBarCoordinator {
         addChildCoordinator(addBookCoordinator)
         addBookCoordinator.parentCoordinator = self
         addBookCoordinator.start()
+    }
+
+    private func showAddQuestionFlow() {
+        let addQuestionCoordinator = AddQuestionCoordinator(navigationController)
+
+        addChildCoordinator(addQuestionCoordinator)
+        addQuestionCoordinator.parentCoordinator = self
+        addQuestionCoordinator.start()
     }
 }

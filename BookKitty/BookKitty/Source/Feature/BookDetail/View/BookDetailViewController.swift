@@ -30,6 +30,12 @@ final class BookDetailViewController: BaseViewController {
         navigationController?.navigationBar.isHidden = false
     }
 
+    override func bind() {
+        let input = BookDetailViewModel.Input(viewDidLoad: viewDidLoadRelay.asObservable())
+
+        _ = viewModel.transform(input)
+    }
+
     override func configureHierarchy() {
         [testLabel].forEach { view.addSubview($0) }
     }

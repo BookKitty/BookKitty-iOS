@@ -8,6 +8,6 @@
 import Foundation
 
 enum FloatingMenuItemType: String, CaseIterable {
-    case askQuestion = "책냥이에게 질문하기"
+    case addQuestion = "책냥이에게 질문하기"
     case addBook = "책 추가하기"
 }
