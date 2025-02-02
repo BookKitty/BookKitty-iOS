@@ -9,21 +9,32 @@ import RxRelay
 import RxSwift
 import UIKit
 
+protocol QuestionCoordinator: Coordinator {
+    var questionHistoryViewController: QuestionHistoryViewController { get }
+}
+
 /// 질문 관련 화면 흐름을 관리하는 Coordinator
 ///
 /// `QuestionCoordinator`는 질문 기록, 질문 상세, 책 상세와 같은 화면 전환을 관리.
-final class QuestionCoordinator: Coordinator {
+final class DefaultQuestionCoordinator: QuestionCoordinator {
     // MARK: Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
+        questionHistoryViewModel = QuestionHistoryViewModel()
+        questionHistoryViewController =
+            QuestionHistoryViewController(viewModel: questionHistoryViewModel)
     }
 
     // MARK: Internal
 
-    var navigationController: UINavigationController
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
+
+    var navigationController: UINavigationController
+    var questionHistoryViewController: QuestionHistoryViewController
+
+    var questionHistoryViewModel: QuestionHistoryViewModel
 
     func start() { showQuestionHistoryScreen() }
 
@@ -32,10 +43,9 @@ final class QuestionCoordinator: Coordinator {
     private let disposeBag = DisposeBag()
 }
 
-extension QuestionCoordinator {
+extension DefaultQuestionCoordinator {
     /// 질문 기록 화면 표시
     ///
-    /// 질문 기록 화면을 생성하고, ViewModel과 ViewController를 연결
     /// 질문 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionHistoryScreen() {
         let questionHistoryViewModel =
