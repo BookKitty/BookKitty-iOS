@@ -1,13 +1,13 @@
 {
-  "originHash" : "6204b21d0710842bb1f990ad4a6439db836be8d7be462763f785b951bd6cb444",
+  "originHash" : "6c4362d2f31e12a92f7947b3d4c1c316b7f50ecc9d35d261fbff4b02deef4f62",
   "pins" : [
     {
       "identity" : "bookmatchkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/NeoSelf1/bookMatchKit",
       "state" : {
-        "revision" : "b4d19c10853310d34f7122f0e3c6639804b1d48f",
-        "version" : "0.1.0"
+        "revision" : "507df0ea1b357eb7cdc7870dc8a538e6b07a1389",
+        "version" : "0.1.2"
       }
     },
     {
