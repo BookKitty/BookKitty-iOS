@@ -67,8 +67,7 @@ extension DefaultAddBookCoordinator {
 extension DefaultAddBookCoordinator {
     private func finish() {
         if let tabBarController = navigationController
-            .viewControllers.first(where: { $0 is TabBarController })
-        {
+            .viewControllers.first(where: { $0 is TabBarController }) {
             navigationController.popToViewController(tabBarController, animated: true)
             parentCoordinator?.childCoordinators.removeLast()
         }
