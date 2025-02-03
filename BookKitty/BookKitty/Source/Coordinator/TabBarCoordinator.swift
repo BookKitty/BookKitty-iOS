@@ -2,54 +2,11 @@
 //  TabBarCoordinator.swift
 //  BookKitty
 //
-//  Created by 전성규 on 1/26/25.
+//  Created by 전성규 on 1/30/25.
 //
 
 import RxSwift
 import UIKit
-
-enum TabBarItemType: CaseIterable {
-    case home
-    case question
-    case book
-
-    // MARK: Lifecycle
-
-    init?(index: Int) {
-        switch index {
-        case 0: self = .home
-        case 1: self = .question
-        case 2: self = .book
-        default: return nil
-        }
-    }
-
-    // MARK: Internal
-
-    func toInt() -> Int {
-        switch self {
-        case .home: return 0
-        case .question: return 1
-        case .book: return 2
-        }
-    }
-
-    func toKrName() -> String {
-        switch self {
-        case .home: return "홈"
-        case .question: return "질문"
-        case .book: return "책"
-        }
-    }
-
-    func toIconName() -> String {
-        switch self {
-        case .home: return "house"
-        case .question: return "star"
-        case .book: return "book"
-        }
-    }
-}
 
 final class TabBarCoordinator: Coordinator {
     // MARK: Lifecycle
@@ -63,84 +20,59 @@ final class TabBarCoordinator: Coordinator {
     // MARK: Internal
 
     var parentCoordinator: Coordinator?
-    var navigationController: UINavigationController
-    var tabBarController: TabBarController
-    var tabBarViewModel: TabBarViewModel
     var childCoordinators: [Coordinator] = []
 
+    var navigationController: UINavigationController
+    var tabBarController: TabBarController
+
+    var tabBarViewModel: TabBarViewModel
+
     func start() {
-        let pages = TabBarItemType.allCases
-        let tabBarItems = pages.map { createTabBarItem(of: $0) }
-        let controllers = tabBarItems.map { createTabNavigationController(tabBarItem: $0) }
-        _ = controllers.map { startTabCoordinator(tabNavigationController: $0) }
-        configureTabBarController(tabNavigationControllers: controllers)
-        addTabBarController()
+        // Tab에 해당하는 Coordinator 생성
+        let homeCoordinator = DefaultHomeCoordinator(navigationController)
+        let qnaCoordinator = DefaultQuestionCoordinator(navigationController)
+        let bookCoordinator = MyLibraryCoordinator(navigationController)
+
+        // childCoordinators에 각 Tab에 해당하는 Coordinator 등록
+        addChildCoordinator(homeCoordinator, qnaCoordinator, bookCoordinator)
+
+        // 각 Coordinator의 부모 코디네이터를 TabBarCoordinator로 지정
+        homeCoordinator.parentCoordinator = self
+        qnaCoordinator.parentCoordinator = self
+        bookCoordinator.parentCoordinator = self
+
+        // 각 Coordinator start()메서드 호출
+        homeCoordinator.start()
+        qnaCoordinator.start()
+        bookCoordinator.start()
+
+        // TabBarController의 controllers 프로퍼티에 각 coordinator의 rootViewController 등록
+        tabBarController.setViewControllers(
+            homeCoordinator.homeViewController,
+            qnaCoordinator.questionHistoryViewController,
+            bookCoordinator.bookListViewController
+        )
+
+        tabBarViewModel.navigateToAddBook
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.showAddBookFlow()
+            }).disposed(by: disposeBag)
+
+        navigationController.pushViewController(tabBarController, animated: true)
     }
 
     // MARK: Private
 
     private let disposeBag = DisposeBag()
+}
 
-    /// TabBarItem 생성
-    ///
-    /// - Parameter page: 생성할 탭바 항목에 대한 타입
-    /// - Returns: UITabBarItem
-    private func createTabBarItem(of page: TabBarItemType) -> UITabBarItem {
-        UITabBarItem(
-            title: page.toKrName(),
-            image: UIImage(systemName: page.toIconName()),
-            tag: page.toInt()
-        )
-    }
+extension TabBarCoordinator {
+    private func showAddBookFlow() {
+        let addBookCoordinator = DefaultAddBookCoordinator(navigationController)
 
-    /// UINavigationController 생성
-    ///
-    /// - Parameter tabBarItem: 생성한 UITabBarItem
-    /// - Returns: UITabBarItem을 설정한 UINavigationController
-    private func createTabNavigationController(tabBarItem: UITabBarItem) -> UINavigationController {
-        let tabNavigationController = UINavigationController()
-        tabNavigationController.tabBarItem = tabBarItem
-
-        return tabNavigationController
-    }
-
-    /// 각 탭의 Coordinator 시작
-    ///
-    /// - Parameter tabNavigationController: 탭바에 연결된 UINavigationController
-    private func startTabCoordinator(tabNavigationController: UINavigationController) {
-        let tabBarItemTag = tabNavigationController.tabBarItem.tag
-        guard let tabBarItemType = TabBarItemType(index: tabBarItemTag) else {
-            return
-        }
-
-        switch tabBarItemType {
-        case .home:
-            let homeCoordinator = DefaultHomeCoordinator(tabNavigationController)
-            addChildCoordinator(homeCoordinator)
-            homeCoordinator.start()
-        case .question:
-            let questionCoordinator = QuestionCoordinator(tabNavigationController)
-            addChildCoordinator(questionCoordinator)
-            questionCoordinator.parentCoordinator = self
-            questionCoordinator.start()
-        case .book:
-            let bookCoordinator = BookCoordinator(tabNavigationController)
-            addChildCoordinator(bookCoordinator)
-            bookCoordinator.parentCoordinator = self
-            bookCoordinator.start()
-        }
-    }
-
-    /// TabBarController 설정
-    ///
-    /// - Parameter tabNavigationControllers: 탭에 연결된 네비게이션 컨트롤러 배열
-    private func configureTabBarController(tabNavigationControllers: [UIViewController]) {
-        tabBarController.setViewControllers(tabNavigationControllers, animated: false)
-        tabBarController.selectedIndex = TabBarItemType.home.toInt()
-    }
-
-    /// TabBarController를 NavigationController에 추가
-    private func addTabBarController() {
-        navigationController.pushViewController(tabBarController, animated: true)
+        addChildCoordinator(addBookCoordinator)
+        addBookCoordinator.parentCoordinator = self
+        addBookCoordinator.start()
     }
 }

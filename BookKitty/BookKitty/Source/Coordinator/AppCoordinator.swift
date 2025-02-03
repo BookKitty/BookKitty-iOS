@@ -17,17 +17,15 @@ final class AppCoordinator: Coordinator {
     // MARK: Internal
 
     var parentCoordinator: Coordinator?
-    let navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
 
-    func start() { showTabBarFlow() }
+    let navigationController: UINavigationController
+
+    func start() { showCustomTabBarFlow() }
 }
 
 extension AppCoordinator {
-    /// TabBar 흐름 시작
-    ///
-    /// TabBarCoordinator를 초기화하고 화면을 표시
-    private func showTabBarFlow() {
+    private func showCustomTabBarFlow() {
         let tabBarCoordinator = TabBarCoordinator(navigationController)
         navigationController.navigationBar.isHidden = true
         addChildCoordinator(tabBarCoordinator)
