@@ -1,5 +1,5 @@
 //
-//  NetworkLogger.swift
+//  NetworkEventLogger.swift
 //  Network
 //
 //  Created by 권승용 on 1/28/25.

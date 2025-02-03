@@ -15,16 +15,16 @@ public protocol Endpoint: Requestable, Responseable {
 
     /// 엔드포인트의 경로 (예시: "/v1/users")
     var path: String { get }
-    
+
     /// HTTP 요청 메서드
     var method: HTTPMethod { get }
-    
+
     /// HTTP 요청 헤더
     var heaerFields: [String: String] { get }
 
     /// URL 쿼리 파라미터 배열
     var queryItems: [URLQueryItem] { get }
-    
+
     /// 요청 타임아웃 인터벌
     var timeoutInterval: TimeInterval { get }
 
@@ -39,15 +39,17 @@ extension Endpoint {
         var components = URLComponents(string: baseURL)
         components?.path = path
         components?.queryItems = queryItems
-        
-        guard let url = components?.url else { return nil }
-        
+
+        guard let url = components?.url else {
+            return nil
+        }
+
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.allHTTPHeaderFields = heaerFields
         request.timeoutInterval = timeoutInterval
         request.httpBody = data
-        
+
         return request
     }
 }

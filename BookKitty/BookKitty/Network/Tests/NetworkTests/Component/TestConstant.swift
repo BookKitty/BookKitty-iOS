@@ -19,13 +19,13 @@ struct TestCodableType: Codable, Equatable {
 }
 
 struct TestEndpoint: Endpoint {
-    var method: Network.HTTPMethod = .get
-    
-    var heaerFields: [String : String] = [:]
-    
-    var timeoutInterval: TimeInterval = 30
-    
     typealias Response = TestCodableType
+
+    var method = Network.HTTPMethod.get
+
+    var heaerFields: [String: String] = [:]
+
+    var timeoutInterval: TimeInterval = 30
 
     var baseURL = "https://example.com"
 
