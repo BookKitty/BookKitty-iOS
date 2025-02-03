@@ -48,6 +48,10 @@ final class MockBookRepository: BookRepository {
         thumbnailUrl: URL(string: "https://picsum.photos/200/300")
     )
 
+    func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
+        []
+    }
+
     func fetchBookList(offset _: Int, limit _: Int) -> [Book] {
         mockBookList
     }

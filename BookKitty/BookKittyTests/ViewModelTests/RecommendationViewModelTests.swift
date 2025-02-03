@@ -145,12 +145,20 @@ struct RecommendationViewModelTests {
 
     // Mock 서비스 및 리포지토리 인스턴스
     private let recommendationService = MockRecommendationService()
-    private let bookRepository = MockBookRepository()
+    private let bookRepository = TestBookRepository()
     private let questionRepository = MockQuestionRepository()
 }
 
 /// Mock 책 리포지토리 클래스
-class MockBookRepository: BookRepository {
+class TestBookRepository: BookRepository {
+    func fetchBookList(offset _: Int, limit _: Int) -> [BookKitty.Book] {
+        []
+    }
+
+    func fetchBookDetail() -> BookKitty.Book {
+        Constant.testBook
+    }
+
     /// 책 목록 가져오기
     func fetchBookList() {}
 
@@ -183,8 +191,7 @@ class MockQuestionRepository: QuestionRepository {
 class MockRecommendationService: BookMatchable {
     /// 책 추천 처리
     func processBookRecommendation(_: BookKitty.BookMatchModuleInput) async throws -> BookKitty
-        .BookMatchModuleOutput
-    {
+        .BookMatchModuleOutput {
         BookMatchModuleOutput(
             ownedISBNs: [
                 "9784063164130",

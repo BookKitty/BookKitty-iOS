@@ -88,8 +88,7 @@ final class RecommendationViewModel: ViewModelType {
     private let errorRelay = PublishRelay<Error>()
 
     private func fetchBookInfoFromService(_ viewDidLoad: Observable<String>)
-        -> Observable<(String, BookMatchModuleOutput)>
-    {
+        -> Observable<(String, BookMatchModuleOutput)> {
         viewDidLoad
             .withUnretained(self)
             .flatMapLatest { _, question in
@@ -127,8 +126,7 @@ final class RecommendationViewModel: ViewModelType {
         String,
         BookMatchModuleOutput
     ))
-        -> [Book]
-    {
+        -> [Book] {
         let question = questionAndOutput.0
         let output = questionAndOutput.1
 
@@ -164,8 +162,7 @@ final class RecommendationViewModel: ViewModelType {
 
     /// 추천된 이유를 매핑하는 함수
     private func mapRecommendationReason(_ questionAndOutput: (String, BookMatchModuleOutput))
-        -> String
-    {
+        -> String {
         questionAndOutput.1.description
     }
 }
