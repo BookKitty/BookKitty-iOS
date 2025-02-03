@@ -13,5 +13,5 @@ struct Question {
     let createdAt: Date
     let userQuestion: String
     let gptAnswer: String
-    let recommandedBooks: [Book]
+    let recommendedBooks: [Book]
 }

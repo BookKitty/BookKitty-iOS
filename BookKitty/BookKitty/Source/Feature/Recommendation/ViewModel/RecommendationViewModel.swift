@@ -155,7 +155,7 @@ final class RecommendationViewModel: ViewModelType {
             createdAt: Date(),
             userQuestion: question,
             gptAnswer: output.description,
-            recommandedBooks: recommendedBooks
+            recommendedBooks: recommendedBooks
         )
         questionRepository.saveQuestion(questionToSave)
 

@@ -42,7 +42,7 @@ struct RecommendationViewModelTests {
 
     // 테스트: viewDidLoad에서 추천 책이 올바르게 처리되는지 확인하는 테스트
     @Test
-    func test_viewDidLoad_recommandBook() async {
+    func test_viewDidLoad_recommendBook() async {
         // RecommendationViewModel 인스턴스 생성
         let vm = RecommendationViewModel(
             recommendationService: recommendationService,
