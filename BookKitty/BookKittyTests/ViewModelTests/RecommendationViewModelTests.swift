@@ -174,7 +174,7 @@ class MockBookRepository: BookRepository {
 /// Mock 질문 리포지토리 클래스
 class MockQuestionRepository: QuestionRepository {
     /// 질문 저장
-    func saveQuestion(_: BookKitty.Question) {
+    func saveQuestion(_: BookKitty.QuestionAnswer) {
         print("saved")
     }
 }

@@ -151,7 +151,7 @@ final class RecommendationViewModel: ViewModelType {
         let recommendedBooks = ownedBooks + newBooks
 
         // 질문 및 추천 정보를 저장
-        let questionToSave = Question(
+        let questionToSave = QuestionAnswer(
             createdAt: Date(),
             userQuestion: question,
             gptAnswer: output.description,

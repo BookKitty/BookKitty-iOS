@@ -6,5 +6,5 @@
 //
 
 protocol QuestionRepository {
-    func saveQuestion(_ question: Question)
+    func saveQuestion(_ question: QuestionAnswer)
 }
