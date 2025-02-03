@@ -16,8 +16,9 @@ final class MyLibraryCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        bookListViewModel = BookListViewModel()
-        bookListViewController = BookListViewController(viewModel: bookListViewModel)
+        let repository = MockBookRepository()
+        bookListViewModel = MyLibraryViewModel(bookRepository: repository)
+        bookListViewController = MyLibraryViewController(viewModel: bookListViewModel)
     }
 
     // MARK: Internal
@@ -26,9 +27,9 @@ final class MyLibraryCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
 
     var navigationController: UINavigationController
-    var bookListViewController: BookListViewController
+    var bookListViewController: MyLibraryViewController
 
-    var bookListViewModel: BookListViewModel
+    var bookListViewModel: MyLibraryViewModel
 
     func start() { showMyLibraryScreen() }
 
