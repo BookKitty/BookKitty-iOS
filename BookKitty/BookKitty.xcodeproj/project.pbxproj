@@ -19,7 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		6004A3F92D48D36D00C54DC5 /* PBXContainerItemProxy */ = {
+		60CC57C02D4B157000DE3ACB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 60551C5D2D40E6E800CFC16A /* Project object */;
 			proxyType = 1;
@@ -31,6 +31,7 @@
 /* Begin PBXFileReference section */
 		6004A3F52D48D36D00C54DC5 /* BookKittyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookKittyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookKittyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60CCD9462D432621001FEAE3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60CCD95F2D4337DA001FEAE3 /* config.swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = config.swiftformat; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,6 +63,11 @@
 			path = BookKitty;
 			sourceTree = "<group>";
 		};
+		60CC57BD2D4B157000DE3ACB /* BookKittyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BookKittyTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +94,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60CC57B92D4B157000DE3ACB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -97,7 +110,7 @@
 				60CCD9462D432621001FEAE3 /* .swiftlint.yml */,
 				60CCD95F2D4337DA001FEAE3 /* config.swiftformat */,
 				606DA25A2D420CB100C7FAA3 /* BookKitty */,
-				6004A3F62D48D36D00C54DC5 /* BookKittyTests */,
+				60CC57BD2D4B157000DE3ACB /* BookKittyTests */,
 				606DA50D2D42542700C7FAA3 /* Frameworks */,
 				60551C662D40E6E800CFC16A /* Products */,
 			);
@@ -107,7 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				60551C652D40E6E800CFC16A /* BookKitty.app */,
-				6004A3F52D48D36D00C54DC5 /* BookKittyTests.xctest */,
+				60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,6 +191,29 @@
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
 			productType = "com.apple.product-type.application";
 		};
+		60CC57BB2D4B157000DE3ACB /* BookKittyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60CC57C42D4B157000DE3ACB /* Build configuration list for PBXNativeTarget "BookKittyTests" */;
+			buildPhases = (
+				60CC57B82D4B157000DE3ACB /* Sources */,
+				60CC57B92D4B157000DE3ACB /* Frameworks */,
+				60CC57BA2D4B157000DE3ACB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60CC57C12D4B157000DE3ACB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				60CC57BD2D4B157000DE3ACB /* BookKittyTests */,
+			);
+			name = BookKittyTests;
+			packageProductDependencies = (
+			);
+			productName = BookKittyTests;
+			productReference = 60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -194,6 +230,10 @@
 					};
 					60551C642D40E6E800CFC16A = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					60CC57BB2D4B157000DE3ACB = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 60551C642D40E6E800CFC16A;
 					};
 				};
 			};
@@ -219,7 +259,7 @@
 			projectRoot = "";
 			targets = (
 				60551C642D40E6E800CFC16A /* BookKitty */,
-				6004A3F42D48D36D00C54DC5 /* BookKittyTests */,
+				60CC57BB2D4B157000DE3ACB /* BookKittyTests */,
 			);
 		};
 /* End PBXProject section */
@@ -233,6 +273,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		60551C632D40E6E800CFC16A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60CC57BA2D4B157000DE3ACB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -277,6 +324,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60CC57B82D4B157000DE3ACB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -288,6 +342,11 @@
 		603741522D40EAC800E6A9B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */;
+		};
+		60CC57C12D4B157000DE3ACB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60551C642D40E6E800CFC16A /* BookKitty */;
+			targetProxy = 60CC57C02D4B157000DE3ACB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -515,6 +574,40 @@
 			};
 			name = Release;
 		};
+		60CC57C22D4B157000DE3ACB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookKitty.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookKitty";
+			};
+			name = Debug;
+		};
+		60CC57C32D4B157000DE3ACB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookKitty.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookKitty";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -541,6 +634,15 @@
 			buildConfigurations = (
 				60551C792D40E6EA00CFC16A /* Debug */,
 				60551C7A2D40E6EA00CFC16A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60CC57C42D4B157000DE3ACB /* Build configuration list for PBXNativeTarget "BookKittyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60CC57C22D4B157000DE3ACB /* Debug */,
+				60CC57C32D4B157000DE3ACB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

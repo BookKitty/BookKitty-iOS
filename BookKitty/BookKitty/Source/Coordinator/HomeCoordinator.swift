@@ -21,10 +21,11 @@ final class DefaultHomeCoordinator: Coordinator {
 
     // MARK: Internal
 
-    var navigationController: UINavigationController
-    var homeViewController: HomeViewController
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
+
+    var navigationController: UINavigationController
+    var homeViewController: HomeViewController
 
     func start() {
         navigationController.pushViewController(homeViewController, animated: true)
