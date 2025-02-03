@@ -16,13 +16,19 @@ final class MyLibraryCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
+        bookListViewModel = BookListViewModel()
+        bookListViewController = BookListViewController(viewModel: bookListViewModel)
     }
 
     // MARK: Internal
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
+
     var navigationController: UINavigationController
+    var bookListViewController: BookListViewController
+
+    var bookListViewModel: BookListViewModel
 
     func start() { showMyLibraryScreen() }
 
@@ -61,7 +67,6 @@ extension MyLibraryCoordinator {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
-        bookDetailViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
 }

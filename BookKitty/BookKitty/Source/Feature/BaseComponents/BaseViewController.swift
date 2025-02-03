@@ -17,11 +17,11 @@ class BaseViewController: UIViewController {
     let viewDidLoadRelay = PublishRelay<Void>()
 
     override func viewDidLoad() {
-        bind()
         configureBackground()
         configureNavItem()
         configureHierarchy()
         configureLayout()
+        bind()
         viewDidLoadRelay.accept(())
     }
 

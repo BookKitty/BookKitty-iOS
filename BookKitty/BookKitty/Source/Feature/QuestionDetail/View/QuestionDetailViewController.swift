@@ -26,6 +26,12 @@ final class QuestionDetailViewController: BaseViewController {
 
     let viewModel: QuestionDetailViewModel
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.isHidden = false
+    }
+
     override func bind() {
         let input = QuestionDetailViewModel
             .Input(testButtonTapTrigger: testButton.rx.tap.asObservable())

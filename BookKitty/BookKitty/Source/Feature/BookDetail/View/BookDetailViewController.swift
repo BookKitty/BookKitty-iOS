@@ -24,6 +24,12 @@ final class BookDetailViewController: BaseViewController {
 
     // MARK: Internal
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.isHidden = false
+    }
+
     override func configureHierarchy() {
         [testLabel].forEach { view.addSubview($0) }
     }
