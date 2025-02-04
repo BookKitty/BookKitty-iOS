@@ -14,7 +14,6 @@ public enum ManageBookMode {
     case delete
 }
 
-@available(iOS 15.0, *)
 public class ManageBookPopupView: UIView {
     // MARK: Lifecycle
 
@@ -67,7 +66,6 @@ public class ManageBookPopupView: UIView {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension ManageBookPopupView {
     private func setupViews() {
         [

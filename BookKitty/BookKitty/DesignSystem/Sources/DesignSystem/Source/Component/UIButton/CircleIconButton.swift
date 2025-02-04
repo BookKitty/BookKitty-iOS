@@ -8,7 +8,6 @@
 import SnapKit
 import UIKit
 
-@available(iOS 15.0, *)
 public class CircleIconButton: UIButton {
     // MARK: Lifecycle
 
@@ -42,7 +41,6 @@ public class CircleIconButton: UIButton {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension CircleIconButton {
     private func setupProperties() {
         var config = UIButton.Configuration.filled()
@@ -70,7 +68,6 @@ extension CircleIconButton {
 
 // MARK: - Methods
 
-@available(iOS 15.0, *)
 extension CircleIconButton {
     public func changeToDisabled() {
         var disabledConfig = configuration

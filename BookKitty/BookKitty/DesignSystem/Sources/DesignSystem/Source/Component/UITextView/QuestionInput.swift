@@ -9,7 +9,6 @@ import SnapKit
 import Then
 import UIKit
 
-@available(iOS 15.0, *)
 public class QuestionInput: UIView, UITextViewDelegate {
     // MARK: Lifecycle
 
@@ -61,7 +60,6 @@ public class QuestionInput: UIView, UITextViewDelegate {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension QuestionInput {
     private func setupViews() {
         [

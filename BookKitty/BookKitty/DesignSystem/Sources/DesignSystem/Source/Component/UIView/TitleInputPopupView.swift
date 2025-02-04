@@ -9,7 +9,6 @@ import SnapKit
 import Then
 import UIKit
 
-@available(iOS 15.0, *)
 public class TitleInputPopupView: UIView {
     // MARK: Lifecycle
 
@@ -57,7 +56,6 @@ public class TitleInputPopupView: UIView {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension TitleInputPopupView {
     private func setupViews() {
         [

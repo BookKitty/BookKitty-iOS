@@ -8,7 +8,6 @@
 import SnapKit
 import UIKit
 
-@available(iOS 15.0, *)
 public class RoundButton: UIButton {
     // MARK: Lifecycle
 
@@ -46,7 +45,6 @@ public class RoundButton: UIButton {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension RoundButton {
     func setupProperties() {
         var config = UIButton.Configuration.filled()
@@ -80,7 +78,6 @@ extension RoundButton {
 
 // MARK: - Methods
 
-@available(iOS 15.0, *)
 extension RoundButton {
     public func changeToDisabled() {
         var disabledConfig = configuration

@@ -8,7 +8,6 @@
 import SnapKit
 import UIKit
 
-@available(iOS 15.0, *)
 public class TextButton: UIButton {
     // MARK: Lifecycle
 
@@ -41,7 +40,6 @@ public class TextButton: UIButton {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension TextButton {
     func setupProperties() {
         var config = UIButton.Configuration.plain()
@@ -62,7 +60,6 @@ extension TextButton {
 
 // MARK: - Methods
 
-@available(iOS 15.0, *)
 extension TextButton {
     public func setButtonTitle(_ newTitle: String) {
         var updatedConfig = configuration

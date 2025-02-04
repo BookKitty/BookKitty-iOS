@@ -9,7 +9,6 @@ import SnapKit
 import Then
 import UIKit
 
-@available(iOS 15.0, *)
 public class CustomInput: UITextField {
     // MARK: Lifecycle
 
@@ -34,7 +33,6 @@ public class CustomInput: UITextField {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension CustomInput {
     private func setupProperties() {
         placeholder = placeholderText

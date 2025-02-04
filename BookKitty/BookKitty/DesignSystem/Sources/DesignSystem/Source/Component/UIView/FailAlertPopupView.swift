@@ -9,7 +9,6 @@ import SnapKit
 import Then
 import UIKit
 
-@available(iOS 15.0, *)
 public class FailAlertPopupView: UIView {
     // MARK: Lifecycle
 
@@ -62,7 +61,6 @@ public class FailAlertPopupView: UIView {
 
 // MARK: - Setup UI
 
-@available(iOS 15.0, *)
 extension FailAlertPopupView {
     private func setupViews() {
         [
