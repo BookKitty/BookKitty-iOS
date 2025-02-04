@@ -34,4 +34,12 @@ extension UIView {
         layer.masksToBounds = false
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: radius).cgPath
     }
+
+    public func setBookShadow() {
+        layer.shadowColor = Colors.shadow25.cgColor
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowOpacity = 1
+        layer.shadowRadius = 8
+        layer.masksToBounds = false
+    }
 }

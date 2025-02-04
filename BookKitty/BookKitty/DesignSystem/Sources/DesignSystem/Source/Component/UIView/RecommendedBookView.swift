@@ -20,22 +20,28 @@ public class RecommendedBookView: UIView {
     ) {
         tagLabel = OwnedTagLabel(isOwned: isOwened)
         bookImageView = HeightFixedImageView(imageUrl: imageUrl, height: .regular)
-        bookTitleLabel = BodyLabel().then {
+        bookTitleLabel = BodyLabel(weight: .semiBold).then {
             $0.text = bookTitle
             $0.numberOfLines = 2
             $0.textAlignment = .center
+            $0.textColor = Colors.fontSub1
         }
         bookAuthorLabel = CaptionLabel().then {
             $0.text = bookAuthor
+            $0.numberOfLines = 1
             $0.textAlignment = .center
-            $0.textColor = Colors.fontSub1
+            $0.textColor = Colors.fontSub2
         }
 
         super.init(frame: .zero)
 
         setupViews()
-        setupProperties()
-        setupLayouts()
+
+        // 이미지 로딩이 끝난 후 콜백 시동을 통해 레이아웃 셋업.
+        bookImageView.onImageLoaded = { [weak self] in
+            self?.setupProperties()
+            self?.setupLayouts()
+        }
     }
 
     @available(*, unavailable)
@@ -67,11 +73,12 @@ extension RecommendedBookView {
         backgroundColor = Colors.background0
         layer.cornerRadius = Vars.radiusTiny
         setBasicShadow(radius: Vars.radiusTiny)
+
+        bookImageView.setBookShadow()
     }
 
     private func setupLayouts() {
         snp.makeConstraints { make in
-            make.height.equalTo(Vars.viewSize320)
             make.width.equalTo(Vars.viewSize240)
         }
 
@@ -83,17 +90,20 @@ extension RecommendedBookView {
         bookImageView.snp.makeConstraints { make in
             make.top.equalTo(tagLabel.snp.bottom).offset(Vars.spacing20)
             make.centerX.equalToSuperview()
-        }
-
-        bookAuthorLabel.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(Vars.paddingReg)
-            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+            make.height.equalTo(Vars.imageFixedHeight)
         }
 
         bookTitleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
-            make.top.equalTo(tagLabel.snp.bottom).offset(Vars.spacing20 * 2 + Vars.imageFixedHeight)
-            make.bottom.equalTo(bookAuthorLabel.snp.top).offset(Vars.spacing8)
+            make.top.equalTo(bookImageView.snp.bottom).offset(Vars.spacing32)
+            make.height.equalTo(Vars.viewSizeMedium)
+        }
+
+        bookAuthorLabel.snp.makeConstraints { make in
+            make.top.equalTo(bookTitleLabel.snp.bottom).offset(Vars.spacing12)
+            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+            make.height.equalTo(Vars.viewSizeMini)
+            make.bottom.equalToSuperview().inset(Vars.paddingReg)
         }
     }
 }
