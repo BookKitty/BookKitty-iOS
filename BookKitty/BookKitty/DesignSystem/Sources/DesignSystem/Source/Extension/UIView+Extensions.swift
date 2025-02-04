@@ -23,7 +23,7 @@ extension UIView {
         layer.shadowRadius = 8
         layer.masksToBounds = false
     }
-    
+
     public func setShelfShadow() {
         layer.shadowColor = Colors.shadow15.cgColor
         layer.shadowOffset = CGSize(width: 0, height: 8)

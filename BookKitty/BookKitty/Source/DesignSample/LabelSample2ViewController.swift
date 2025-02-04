@@ -17,8 +17,10 @@ final class LabelSample2ViewController: BaseViewController {
 
     let longBodyLabel = BodyLabel().then {
         $0
-            .text =
-            "기본 본문용 body label. 긴 텍스트를 표현하는 경우의 샘플을 표시합니다. 샘플로 긴 텍스트를 작성하여 이를 확인하고 있습니다. 기본적으로 모든 Label은 numberOfLines 속성이 0 이므로 멀티라인을 지원하고 있습니다. 모든 Label은 높이값을 지정하고 있지 않으므로, 텍스트에 따라 자동으로 확장."
+            .text = """
+                        기본 본문용 body label. 긴 텍스트를 표현하는 경우의 샘플을 표시합니다. 
+            샘플로 긴 텍스트를 작성하여 이를 확인하고 있습니다. 기본적으로 모든 Label은 numberOfLines 속성이 0 이므로 멀티라인을 지원하고 있습니다. 모든 Label은 높이값을 지정하고 있지 않으므로, 텍스트에 따라 자동으로 확장.
+            """
     }
 
     let semiBoldbodyLabel = BodyLabel(weight: .semiBold).then {
@@ -108,4 +110,9 @@ extension LabelSample2ViewController {
             make.top.equalTo(tagLabel1.snp.bottom).offset(Vars.spacing20)
         }
     }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    LabelSample2ViewController()
 }
