@@ -27,7 +27,5 @@ final class DefaultHomeCoordinator: Coordinator {
     var navigationController: UINavigationController
     var homeViewController: HomeViewController
 
-    func start() {
-        navigationController.pushViewController(homeViewController, animated: true)
-    }
+    func start() {}
 }

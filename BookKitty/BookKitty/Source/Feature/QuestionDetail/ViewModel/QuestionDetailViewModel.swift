@@ -11,7 +11,7 @@ import RxSwift
 
 final class QuestionDetailViewModel: ViewModelType {
     struct Input {
-        var testButtonTapTrigger: Observable<Void>
+        let testButtonTapTrigger: Observable<Void>
     }
 
     struct Output {}
