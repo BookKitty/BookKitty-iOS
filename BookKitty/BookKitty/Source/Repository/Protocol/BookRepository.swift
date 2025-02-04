@@ -10,6 +10,7 @@ protocol BookRepository {
     // 요구사항은 추후 변경됩니다
     func fetchBookList(offset: Int, limit: Int) -> [Book]
     func fetchBookDetail() -> Book
+    func fetchBookDetailFromISBNs(_ isbnList: [String]) -> [Book]
     func saveBookList()
     func deleteBook()
 }
