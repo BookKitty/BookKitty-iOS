@@ -7,6 +7,8 @@ import Testing
 final class ContainerTests {
     // MARK: Lifecycle
 
+    // MARK: 생명주기
+
     /// 인스턴스가 해제될 때 정리 작업을 수행합니다
     deinit {
         Container.removeAll()
@@ -14,9 +16,13 @@ final class ContainerTests {
 
     // MARK: Internal
 
+    // MARK: 내부 구현
+
     /// 컨테이너 기능을 테스트하기 위한 목업 서비스 클래스
     class TestService {
         // MARK: Lifecycle
+
+        // MARK: 생명주기
 
         /// value를 통해 TestService를 초기화합니다
         /// - Parameter value: 저장될 문자열 값
@@ -25,6 +31,8 @@ final class ContainerTests {
         }
 
         // MARK: Internal
+
+        // MARK: 내부 프로퍼티
 
         /// 저장된 문자열 값
         let value: String
