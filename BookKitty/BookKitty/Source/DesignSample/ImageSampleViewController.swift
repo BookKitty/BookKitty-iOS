@@ -15,21 +15,31 @@ class ImageSampleViewController: BaseViewController {
     let contentView = UIView()
 
     let noImageBook = WidthFixedImageView(width: .regular)
-    let widthFixedBook =
-        WidthFixedImageView(
-            imageUrl: "https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528",
-            width: .regular
-        )
+    let widthFixedBook = WidthFixedImageView(
+        imageUrl:
+        """
+        https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.\
+        daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528
+        """,
+        width: .regular
+    )
 
-    let largeWidthFixedBook =
-        WidthFixedImageView(
-            imageUrl: "https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528",
-            width: .large
-        )
+    let largeWidthFixedBook = WidthFixedImageView(
+        imageUrl:
+        """
+        https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.\
+        daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528"
+        """,
+        width: .large
+    )
 
     let noImageBook2 = HeightFixedImageView(height: .regular)
     let heightFixedBook = HeightFixedImageView(
-        imageUrl: "https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528",
+        imageUrl:
+        """
+        https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.\
+        daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528
+        """,
         height: .small
     )
 
