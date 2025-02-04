@@ -13,7 +13,6 @@ public enum BookImageFixedHeight {
     case small
 }
 
-@MainActor
 public class HeightFixedImageView: UIImageView, ImageLoadableView {
     // MARK: Lifecycle
 
@@ -47,7 +46,6 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
 // MARK: - Setup UI
 
 extension HeightFixedImageView {
-    @MainActor
     private func setupProperties() {
         contentMode = .scaleAspectFit
         clipsToBounds = true
@@ -65,27 +63,26 @@ extension HeightFixedImageView {
             guard let self else {
                 return
             }
-            
+
             let bookImage = image ?? UIImage(
                 named: "DefaultBookImage",
                 in: Bundle.module,
                 compatibleWith: nil
             )
-            
-            DispatchQueue.main.async {
-                self.image = bookImage
-            
-                // 이미지의 원본 비율에 맞춰 높이 조정
-                if let imageSize = bookImage?.size {
-                    let aspectRatio = imageSize.width / imageSize.height
-                    self.snp.remakeConstraints { make in
-                        make.height.equalTo(imageHeight) // 높이 고정
-                        make.width.equalTo(imageHeight * aspectRatio) // 너비 자동 조정
-                    }
+
+            self.image = bookImage
+
+            // 이미지의 원본 비율에 맞춰 높이 조정
+            if let imageSize = bookImage?.size {
+                let aspectRatio = imageSize.width / imageSize.height
+                self.snp.remakeConstraints { make in
+                    make.height.equalTo(imageHeight) // 높이 고정
+                    make.width.equalTo(imageHeight * aspectRatio) // 너비 자동 조정
                 }
-                // 이미지 로딩 완료 후 콜백 실행
-                self.onImageLoaded?()
             }
+            // 이미지 로딩 완료 후 콜백 실행
+            self.onImageLoaded?()
+            
         }
     }
 }
