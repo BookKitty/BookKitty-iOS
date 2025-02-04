@@ -61,26 +61,28 @@ extension WidthFixedImageView {
         }
 
         imageUrl.loadAsyncImage { [weak self] image in
+            guard let self else {
+                return
+            }
             let bookImage = image ?? UIImage(
                 named: "DefaultBookImage",
                 in: Bundle.module,
                 compatibleWith: nil
             )
-            self?.image = bookImage
+
+            self.image = bookImage
 
             // 이미지의 원본 비율에 맞춰 높이 조정
             if let imageSize = bookImage?.size {
                 let aspectRatio = imageSize.height / imageSize.width
-                self?.snp.remakeConstraints { make in
+                snp.remakeConstraints { make in
                     make.width.equalTo(imageWidth) // 너비 고정
                     make.height.equalTo(imageWidth * aspectRatio) // 높이 자동 조정
                 }
             }
 
             // 이미지 로딩 완료 후 콜백 실행
-            DispatchQueue.main.async {
-                self?.onImageLoaded?()
-            }
+            onImageLoaded?()
         }
     }
 }
