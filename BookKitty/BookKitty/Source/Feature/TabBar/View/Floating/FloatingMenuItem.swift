@@ -37,6 +37,7 @@ final class FloatingMenuItem: UIButton {
         $0.alignment = .center
         $0.distribution = .equalSpacing
         $0.spacing = Vars.spacing8
+        $0.isUserInteractionEnabled = false
     }
 
     private lazy var contentImageView = UIImageView().then {
