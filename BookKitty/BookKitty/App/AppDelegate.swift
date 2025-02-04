@@ -5,6 +5,7 @@
 //  Created by 권승용 on 1/22/25.
 //
 
+import DesignSystem
 import UIKit
 
 @main
@@ -14,7 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         // Override point for customization after application launch.
-        true
+        UIFont.registerFonts() // 라이브러리에 사용된 폰트를 프로젝트 내부에서 사용 가능하도록 등록.
+        return true
     }
 
     // MARK: UISceneSession Lifecycle
