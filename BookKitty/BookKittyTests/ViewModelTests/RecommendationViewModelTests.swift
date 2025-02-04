@@ -20,7 +20,7 @@ struct RecommendationViewModelTests {
         let vm = RecommendationViewModel(
             recommendationService: recommendationService,
             bookRepository: bookRepository,
-            questionRepository: questionRepository
+            questionHistoryRepository: questionHistoryRepository
         )
 
         // 입력 값 정의: 유저 질문 및 기타 이벤트
@@ -47,7 +47,7 @@ struct RecommendationViewModelTests {
         let vm = RecommendationViewModel(
             recommendationService: recommendationService,
             bookRepository: bookRepository,
-            questionRepository: questionRepository
+            questionHistoryRepository: questionHistoryRepository
         )
 
         // 입력 값 정의: 유저 질문 및 기타 이벤트
@@ -76,7 +76,7 @@ struct RecommendationViewModelTests {
         let vm = RecommendationViewModel(
             recommendationService: recommendationService,
             bookRepository: bookRepository,
-            questionRepository: questionRepository
+            questionHistoryRepository: questionHistoryRepository
         )
         let bookSelectedSubject = PublishSubject<Book>()
 
@@ -112,7 +112,7 @@ struct RecommendationViewModelTests {
         let vm = RecommendationViewModel(
             recommendationService: recommendationService,
             bookRepository: bookRepository,
-            questionRepository: questionRepository
+            questionHistoryRepository: questionHistoryRepository
         )
         let lalalaButtonTappedSubject = PublishSubject<Void>()
 
@@ -146,7 +146,7 @@ struct RecommendationViewModelTests {
     // Mock 서비스 및 리포지토리 인스턴스
     private let recommendationService = MockRecommendationService()
     private let bookRepository = TestBookRepository()
-    private let questionRepository = MockQuestionRepository()
+    private let questionHistoryRepository = MockQuestionHistoryRepository()
 }
 
 /// Mock 책 리포지토리 클래스
@@ -177,14 +177,6 @@ class TestBookRepository: BookRepository {
 
     /// 책 삭제
     func deleteBook() {}
-}
-
-/// Mock 질문 리포지토리 클래스
-class MockQuestionRepository: QuestionRepository {
-    /// 질문 저장
-    func saveQuestion(_: BookKitty.QuestionAnswer) {
-        print("saved")
-    }
 }
 
 /// Mock 추천 서비스 클래스

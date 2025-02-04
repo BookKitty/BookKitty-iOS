@@ -15,11 +15,11 @@ final class RecommendationViewModel: ViewModelType {
     init(
         recommendationService: BookMatchable,
         bookRepository: BookRepository,
-        questionRepository: QuestionRepository
+        questionHistoryRepository: QuestionHistoryRepository
     ) {
         self.recommendationService = recommendationService
         self.bookRepository = bookRepository
-        self.questionRepository = questionRepository
+        self.questionHistoryRepository = questionHistoryRepository
     }
 
     // MARK: Internal
@@ -78,7 +78,7 @@ final class RecommendationViewModel: ViewModelType {
 
     // MARK: Private
 
-    private let questionRepository: QuestionRepository
+    private let questionHistoryRepository: QuestionHistoryRepository
     private let bookRepository: BookRepository
     private let recommendationService: BookMatchable
 
@@ -155,7 +155,7 @@ final class RecommendationViewModel: ViewModelType {
             gptAnswer: output.description,
             recommendedBooks: recommendedBooks
         )
-        questionRepository.saveQuestion(questionToSave)
+        questionHistoryRepository.saveQuestion(questionToSave)
 
         return recommendedBooks
     }
