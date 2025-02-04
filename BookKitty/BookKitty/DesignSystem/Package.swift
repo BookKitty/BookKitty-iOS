@@ -28,6 +28,7 @@ let package = Package(
             resources: [
                 .process("Resource/Fonts"),
                 .process("Resource/Colors.xcassets"),
+                .process("Resource/Images.xcassets"),
             ]
         ),
     ]
