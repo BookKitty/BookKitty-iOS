@@ -14,7 +14,6 @@
 		606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2412D4206F200C7FAA3 /* RxSwift */; };
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
-		606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2492D42079900C7FAA3 /* RxDataSources */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
 /* End PBXBuildFile section */
 
@@ -146,7 +145,6 @@
 				606DA2412D4206F200C7FAA3 /* RxSwift */,
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
-				606DA2492D42079900C7FAA3 /* RxDataSources */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -586,10 +584,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		6004A4042D48E2D100C54DC5 /* Network */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Network;
-		};
 		603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
@@ -629,10 +623,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = Differentiator;
-		};
-		606DA50E2D42542700C7FAA3 /* DesignSystem */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DesignSystem;
 		};
 		E97DC36F2D50C161009ADFEA /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
