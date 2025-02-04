@@ -41,6 +41,11 @@ final class FloatingMenu: UIView {
         FloatingMenuItem(with: $0)
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
+    }
+
     // MARK: Private
 
     private let disposeBag = DisposeBag()

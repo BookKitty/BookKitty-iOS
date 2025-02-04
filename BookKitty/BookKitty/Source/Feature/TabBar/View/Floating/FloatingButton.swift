@@ -34,6 +34,11 @@ final class FloatingButton: UIButton {
     /// - `true`이면 버튼이 45도 회전하고, `false`이면 원래 상태로 복귀
     let isRotated = BehaviorRelay(value: false)
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
+    }
+
     // MARK: Private
 
     private let disposeBag = DisposeBag()
