@@ -18,8 +18,12 @@ public enum Vars {
     /// 레이아웃에서 패딩(inset) 영역 지정용 / small / 16
     public static let paddingSmall: CGFloat = 16
 
-    // MARK: - button Values
+    // MARK: - view Values
 
+    /// 카드뷰 컴포넌트의 높이값  / 320
+    public static let viewSize320: CGFloat = 320
+    /// 보통 크기의 카드뷰 관련값  / 240
+    public static let viewSize240: CGFloat = 240
     /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 160
     public static let viewSizeHuge: CGFloat = 160
     /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 120
