@@ -22,6 +22,8 @@ public enum Vars {
 
     /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 160
     public static let viewSizeHuge: CGFloat = 160
+    /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 120
+    public static let viewSizeXLarge: CGFloat = 120
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / large / 72
     public static let viewSizeLarge: CGFloat = 72
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / regular / 48
@@ -66,9 +68,11 @@ public enum Vars {
     // MARK: - Image values
 
     /// 책 커버 이미지용 사이즈. 가로값 고정용 / 200
-    public static let imageFixedHeight: CGFloat = 200
+    public static let imageFixedHeight: CGFloat = 144
+    /// 책 커버 이미지용 사이즈. 매우 작은 이미지 용. 가로값 고정용 / 64
+    public static let imageFixedHeightSmall: CGFloat = 64
     /// 책 커버 이미지용 사이즈. 세로값 고정용 / 128
-    public static let imageFixedWidth: CGFloat = 128
+    public static let imageFixedWidth: CGFloat = 116
     /// 책 커버 이미지용 사이즈. 세로값 고정용 / 144
     public static let imageFixedWidthLarge: CGFloat = 144
 
