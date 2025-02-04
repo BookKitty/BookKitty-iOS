@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 6041EB672D507E2800061ED0 /* RxDataSources */; };
 		606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23A2D4206C900C7FAA3 /* SnapKit */; };
 		606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23D2D4206F200C7FAA3 /* RxCocoa */; };
 		606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23F2D4206F200C7FAA3 /* RxRelay */; };
@@ -17,8 +18,19 @@
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		60CC57C02D4B157000DE3ACB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 60551C5D2D40E6E800CFC16A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 60551C642D40E6E800CFC16A;
+			remoteInfo = BookKitty;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		60551C652D40E6E800CFC16A /* BookKitty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BookKitty.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookKittyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60CCD9462D432621001FEAE3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60CCD95F2D4337DA001FEAE3 /* config.swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = config.swiftformat; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -30,6 +42,7 @@
 				App/Info.plist,
 				DesignSystem,
 				DIContainer,
+				Network,
 			);
 			target = 60551C642D40E6E800CFC16A /* BookKitty */;
 		};
@@ -44,6 +57,11 @@
 			path = BookKitty;
 			sourceTree = "<group>";
 		};
+		60CC57BD2D4B157000DE3ACB /* BookKittyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BookKittyTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,9 +74,16 @@
 				606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */,
 				E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */,
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
-				606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */,
+				6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */,
 				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
 				606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60CC57B92D4B157000DE3ACB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +96,7 @@
 				60CCD9462D432621001FEAE3 /* .swiftlint.yml */,
 				60CCD95F2D4337DA001FEAE3 /* config.swiftformat */,
 				606DA25A2D420CB100C7FAA3 /* BookKitty */,
+				60CC57BD2D4B157000DE3ACB /* BookKittyTests */,
 				606DA50D2D42542700C7FAA3 /* Frameworks */,
 				60551C662D40E6E800CFC16A /* Products */,
 			);
@@ -80,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				60551C652D40E6E800CFC16A /* BookKitty.app */,
+				60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,11 +147,33 @@
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
 				606DA2492D42079900C7FAA3 /* RxDataSources */,
-				E97DC36F2D50C161009ADFEA /* DesignSystem */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
 			productType = "com.apple.product-type.application";
+		};
+		60CC57BB2D4B157000DE3ACB /* BookKittyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 60CC57C42D4B157000DE3ACB /* Build configuration list for PBXNativeTarget "BookKittyTests" */;
+			buildPhases = (
+				60CC57B82D4B157000DE3ACB /* Sources */,
+				60CC57B92D4B157000DE3ACB /* Frameworks */,
+				60CC57BA2D4B157000DE3ACB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60CC57C12D4B157000DE3ACB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				60CC57BD2D4B157000DE3ACB /* BookKittyTests */,
+			);
+			name = BookKittyTests;
+			packageProductDependencies = (
+			);
+			productName = BookKittyTests;
+			productReference = 60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -138,6 +187,10 @@
 				TargetAttributes = {
 					60551C642D40E6E800CFC16A = {
 						CreatedOnToolsVersion = 16.2;
+					};
+					60CC57BB2D4B157000DE3ACB = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 60551C642D40E6E800CFC16A;
 					};
 				};
 			};
@@ -163,12 +216,20 @@
 			projectRoot = "";
 			targets = (
 				60551C642D40E6E800CFC16A /* BookKitty */,
+				60CC57BB2D4B157000DE3ACB /* BookKittyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		60551C632D40E6E800CFC16A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		60CC57BA2D4B157000DE3ACB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -206,12 +267,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		60CC57B82D4B157000DE3ACB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
 		603741522D40EAC800E6A9B1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = 603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */;
+		};
+		60CC57C12D4B157000DE3ACB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 60551C642D40E6E800CFC16A /* BookKitty */;
+			targetProxy = 60CC57C02D4B157000DE3ACB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -223,7 +296,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SUHZ238M29;
+				DEVELOPMENT_TEAM = MV89SHQKF4;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -257,7 +330,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SUHZ238M29;
+				DEVELOPMENT_TEAM = MV89SHQKF4;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -403,6 +476,40 @@
 			};
 			name = Release;
 		};
+		60CC57C22D4B157000DE3ACB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookKitty.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookKitty";
+			};
+			name = Debug;
+		};
+		60CC57C32D4B157000DE3ACB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BookKitty.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BookKitty";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -420,6 +527,15 @@
 			buildConfigurations = (
 				60551C792D40E6EA00CFC16A /* Debug */,
 				60551C7A2D40E6EA00CFC16A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		60CC57C42D4B157000DE3ACB /* Build configuration list for PBXNativeTarget "BookKittyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60CC57C22D4B157000DE3ACB /* Debug */,
+				60CC57C32D4B157000DE3ACB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -470,10 +586,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6004A4042D48E2D100C54DC5 /* Network */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Network;
+		};
 		603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		6041EB672D507E2800061ED0 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 		606DA23A2D4206C900C7FAA3 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -505,10 +630,9 @@
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = Differentiator;
 		};
-		606DA2492D42079900C7FAA3 /* RxDataSources */ = {
+		606DA50E2D42542700C7FAA3 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
-			productName = RxDataSources;
+			productName = DesignSystem;
 		};
 		E97DC36F2D50C161009ADFEA /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;

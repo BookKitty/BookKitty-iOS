@@ -9,7 +9,7 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     /// 현재 Coordinator를 소유한 상위 Coordinator
-    var parentCoordinator: Coordinator? { get set }
+    var parentCoordinator: Coordinator? { get }
 
     /// 현재 Coordinator가 관리하는 하위 Coordinators의 배열입니다.
     var childCoordinators: [Coordinator] { get set }
@@ -22,5 +22,7 @@ protocol Coordinator: AnyObject {
 }
 
 extension Coordinator {
-    func addChildCoordinator(_ coordinator: Coordinator) { childCoordinators.append(coordinator) }
+    func addChildCoordinator(_ coordinator: Coordinator...) {
+        childCoordinators.append(contentsOf: coordinator)
+    }
 }

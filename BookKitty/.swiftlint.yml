@@ -3,6 +3,7 @@ disabled_rules:
     - file_length                 # 파일 길이 제한 비활성화
     - trailing_whitespace         # 줄 끝 공백 무시
     - implicit_return             # return 사용 무시
+    - trailing_comma
 
 # 활성화할 옵트인 규칙
 opt_in_rules:
