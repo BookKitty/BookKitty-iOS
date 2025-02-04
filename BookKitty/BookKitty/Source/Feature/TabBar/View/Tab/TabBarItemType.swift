@@ -9,7 +9,7 @@ import UIKit
 
 enum TabBarItemType: String, CaseIterable {
     case home = "Home"
-    case qna = "QnA"
+    case qna = "Q&A"
     case library = "Library"
 
     // MARK: Internal
@@ -24,9 +24,9 @@ enum TabBarItemType: String, CaseIterable {
 
     var iconName: String {
         switch self {
-        case .home: "house"
-        case .qna: "star"
-        case .library: "book"
+        case .home: "house.fill"
+        case .qna: "questionmark.bubble.fill"
+        case .library: "books.vertical.fill"
         }
     }
 }

@@ -70,10 +70,10 @@ final class TabBarController: BaseViewController {
 
     override func configureLayout() {
         tabBar.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(24.0)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(4.0)
-            $0.width.equalTo(286.0)
-            $0.height.equalTo(48.0)
+            $0.leading.equalToSuperview().inset(Vars.paddingReg)
+            $0.trailing.equalTo(floatingButton.snp.leading).offset(-Vars.spacing20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing4)
+            $0.height.equalTo(Vars.viewSizeReg)
         }
 
         dimmingView.snp.makeConstraints { $0.edges.equalToSuperview() }

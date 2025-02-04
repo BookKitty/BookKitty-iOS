@@ -5,6 +5,7 @@
 //  Created by 전성규 on 1/30/25.
 //
 
+import DesignSystem
 import RxSwift
 import UIKit
 
@@ -27,22 +28,25 @@ final class TabBarItem: UIButton {
 
     // MARK: Internal
 
-    private(set) var type: TabBarItemType
+    let type: TabBarItemType
 
     // MARK: Private
 
     private func setupButtonConfiguration() {
         var configuration = UIButton.Configuration.plain()
         var attributedTitle = AttributedString(type.rawValue)
-        attributedTitle.font = .systemFont(ofSize: 12.0, weight: .semibold)
+        attributedTitle.font = Fonts.captionRegular
 
         configuration.attributedTitle = attributedTitle
         configuration.baseForegroundColor = .black
         configuration.image = UIImage(systemName: type.iconName)
         configuration.imagePlacement = .top
+        configuration.imagePadding = Vars.spacing4
+        configuration.preferredSymbolConfigurationForImage = UIImage
+            .SymbolConfiguration(pointSize: 12.0)
 
         self.configuration = configuration
-        layer.cornerRadius = 24.0
+        layer.cornerRadius = Vars.radiusReg
     }
 }
 
