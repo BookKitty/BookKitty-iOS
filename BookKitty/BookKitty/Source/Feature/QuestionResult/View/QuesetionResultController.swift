@@ -36,7 +36,8 @@ final class QuestionResultViewController: BaseViewController {
     override func bind() {
         let input = QuestionResultViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            bookThumbnailButtonTapTigger: bookThumbnailButton.rx.tap.map { _ in "isbn" }    // TODO: Cell에 저장된 model에서 isbn 가져오기
+            bookThumbnailButtonTapTigger: bookThumbnailButton.rx.tap
+                .map { _ in "isbn" } // TODO: Cell에 저장된 model에서 isbn 가져오기
                 .asObservable(),
             confirmButtonTrigger: confirmButton.rx.tap.asObservable()
         )

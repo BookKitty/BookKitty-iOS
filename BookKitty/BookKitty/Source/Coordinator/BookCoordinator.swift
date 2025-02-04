@@ -16,8 +16,8 @@ final class BookCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        bookListViewModel = BookListViewModel()
-        bookListViewController = BookListViewController(viewModel: bookListViewModel)
+        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
+        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
     }
 
     // MARK: Internal
@@ -26,11 +26,11 @@ final class BookCoordinator: Coordinator {
     var childCoordinators: [Coordinator] = []
 
     var navigationController: UINavigationController
-    var bookListViewController: BookListViewController
+    var myLibraryViewController: MyLibraryViewController
 
-    var bookListViewModel: BookListViewModel
+    var myLibraryViewModel: MyLibraryViewModel
 
-    func start() { showBookListScreen() }
+    func start() { showMyLibraryScene() }
 
     // MARK: Private
 
@@ -42,9 +42,9 @@ extension BookCoordinator {
     ///
     /// 책 목록 화면을 생성하고 ViewModel과 ViewController를 연결
     /// 사용자가 책을 선택하면 책 상세 화면으로 이동
-    private func showBookListScreen() {
+    private func showMyLibraryScene() {
         // 책 상세 화면으로 이동 이벤트 처리
-        bookListViewModel
+        myLibraryViewModel
             .navigateToBookDetail
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in

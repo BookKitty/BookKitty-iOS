@@ -45,7 +45,7 @@ extension AddQuestionCoordinator {
             .bind(onNext: { owner, question in
                 owner.showQuestionResultScene(with: question)
             }).disposed(by: disposeBag)
-        
+
         // 루트 화면으로 이동하는 이벤트를 구독
         newQuestionViewModel.navigateToRoot
             .withUnretained(self)

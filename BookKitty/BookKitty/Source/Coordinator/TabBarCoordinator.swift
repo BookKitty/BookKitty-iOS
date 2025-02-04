@@ -31,7 +31,7 @@ final class TabBarCoordinator: Coordinator {
         // Tab에 해당하는 Coordinator 생성
         let homeCoordinator = DefaultHomeCoordinator(navigationController)
         let qnaCoordinator = DefaultQuestionCoordinator(navigationController)
-        let bookCoordinator = BookCoordinator(navigationController)
+        let bookCoordinator = MyLibraryCoordinator(navigationController)
 
         // childCoordinators에 각 Tab에 해당하는 Coordinator 등록
         addChildCoordinator(homeCoordinator, qnaCoordinator, bookCoordinator)

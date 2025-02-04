@@ -23,6 +23,8 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
         self.navigationController = navigationController
         questionHistoryViewModel =
             QuestionHistoryViewModel(questionRepository: MockQuestionHistoryRepository())
+        let repository = MockQuestionHistoryRepository()
+        questionHistoryViewModel = QuestionHistoryViewModel(questionRepository: repository)
         questionHistoryViewController =
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
     }

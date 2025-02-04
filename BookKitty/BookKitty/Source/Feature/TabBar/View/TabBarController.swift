@@ -13,6 +13,7 @@ import UIKit
 
 /// 커스텀 탭 바 컨트롤러
 /// - `TabBarView`와 `viewControllers`를 관리하며, 선택된 탭에 따라 뷰 컨트롤러 전환
+/// - 플로팅 메뉴(`FloatingMenu`)와 플로팅 버튼(`FloatingButton`)의 상태를 관리.
 final class TabBarController: BaseViewController {
     // MARK: Lifecycle
 
@@ -31,27 +32,18 @@ final class TabBarController: BaseViewController {
     /// 관리할 뷰 컨트롤러 배열
     var viewControllers: [UIViewController] = []
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        navigationController?.navigationBar.isHidden = true
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-
-        if !isHiddenFloating.value {
-            isHiddenFloating.accept(true)
-        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupInitialViewController()
         bindTabBar()
-        bindFloatingButton()
-        bindFloatingMenu()
+        bindFloatingMenuInteractions()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        navigationController?.navigationBar.isHidden = true
     }
 
     override func bind() {
@@ -72,7 +64,7 @@ final class TabBarController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        [tabBar, floatingDimView, floatingButton, floatingMenu].forEach { view.addSubview($0) }
+        [tabBar, dimmingView, floatingButton, floatingMenu].forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
@@ -82,6 +74,8 @@ final class TabBarController: BaseViewController {
             $0.width.equalTo(286.0)
             $0.height.equalTo(48.0)
         }
+
+        dimmingView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         floatingButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(24.0)
@@ -104,23 +98,13 @@ final class TabBarController: BaseViewController {
     /// 현재 선택된 탭의 인덱스
     private var currentIndex = 0
 
-    /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
-    private let isHiddenFloating = BehaviorRelay(value: true)
+    ///    /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
+    ///    private let isHiddenFloating = BehaviorRelay(value: true)
+    private let isFloatingActive = BehaviorRelay(value: false)
 
     private let tabBar = TabBarView()
-    private let floatingButton = UIButton().then {
-        $0.layer.cornerRadius = 24.0
-        $0.backgroundColor = UIColor(red: 0.224, green: 0.756, blue: 0.714, alpha: 1.0)
-        $0.setImage(UIImage(systemName: "plus"), for: .normal)
-        $0.tintColor = .white
-    }
-
-    private lazy var floatingDimView = UIView().then {
-        $0.frame = view.frame
-        $0.backgroundColor = .black.withAlphaComponent(0.3)
-        $0.isHidden = true
-    }
-
+    private let dimmingView = DimmingView()
+    private let floatingButton = FloatingButton()
     private let floatingMenu = FloatingMenu()
 
     // MARK: - Rx Binding
@@ -137,24 +121,36 @@ final class TabBarController: BaseViewController {
             }).disposed(by: disposeBag)
     }
 
-    /// 플로팅 버튼 탭 이벤트를 감지하여 플로팅 메뉴 표시 여부를 토글
-    private func bindFloatingButton() {
+    /// 플로팅 버튼과 메뉴의 상태를 Rx로 바인딩하는 메서드
+    private func bindFloatingMenuInteractions() {
+        // 플로팅 버튼 탭 이벤트 처리
         floatingButton.rx.tap
-            .withLatestFrom(isHiddenFloating)
-            .map { !$0 }
-            .bind(to: isHiddenFloating)
-            .disposed(by: disposeBag)
-    }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { owner, _ in
+                let newState = !owner.isFloatingActive.value
+                owner.isFloatingActive.accept(newState)
+            }.disposed(by: disposeBag)
 
-    /// 플로팅 메뉴의 표시 여부를 감지하여 UI 업데이트
-    private func bindFloatingMenu() {
-        isHiddenFloating
+        // 플로팅 메뉴, 버튼, dimmingView 상태 연동
+        isFloatingActive
             .distinctUntilChanged()
             .withUnretained(self)
-            .bind(onNext: { owner, state in
-                owner.floatingMenu.rx.isHidden.onNext(state)
-                owner.floatingDimView.rx.isHidden.onNext(state)
-            }).disposed(by: disposeBag)
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { owner, isActive in
+                owner.floatingButton.isRotated.accept(isActive)
+                owner.floatingMenu.isVisible.accept(isActive)
+                owner.dimmingView.isVisible.accept(isActive)
+            }.disposed(by: disposeBag)
+
+        // dimmingView를 탭하면 플로팅 메뉴 닫기
+        dimmingView.isVisible
+            .filter { !$0 }
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .bind { owner, _ in
+                owner.isFloatingActive.accept(false)
+            }.disposed(by: disposeBag)
     }
 }
 
@@ -180,7 +176,7 @@ extension TabBarController {
         view.addSubview(viewController.view)
         viewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         viewController.didMove(toParent: self)
-        [tabBar, floatingDimView, floatingButton, floatingMenu]
+        [tabBar, dimmingView, floatingButton, floatingMenu]
             .forEach { view.bringSubviewToFront($0) }
     }
 

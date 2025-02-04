@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 6041EB672D507E2800061ED0 /* RxDataSources */; };
 		606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23A2D4206C900C7FAA3 /* SnapKit */; };
 		606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23D2D4206F200C7FAA3 /* RxCocoa */; };
 		606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA23F2D4206F200C7FAA3 /* RxRelay */; };
 		606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2412D4206F200C7FAA3 /* RxSwift */; };
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
-		606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2492D42079900C7FAA3 /* RxDataSources */; };
+		606DA50F2D42542700C7FAA3 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA50E2D42542700C7FAA3 /* DesignSystem */; };
+		60E9A72E2D5081BB00B75D45 /* DIContainer in Frameworks */ = {isa = PBXBuildFile; productRef = 60E9A72D2D5081BB00B75D45 /* DIContainer */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,7 @@
 				App/Info.plist,
 				DesignSystem,
 				DIContainer,
+				Network,
 			);
 			target = 60551C642D40E6E800CFC16A /* BookKitty */;
 		};
@@ -69,8 +72,10 @@
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				606DA23E2D4206F200C7FAA3 /* RxCocoa in Frameworks */,
+				606DA50F2D42542700C7FAA3 /* DesignSystem in Frameworks */,
+				60E9A72E2D5081BB00B75D45 /* DIContainer in Frameworks */,
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
-				606DA24A2D42079900C7FAA3 /* RxDataSources in Frameworks */,
+				6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */,
 				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
 				606DA23B2D4206C900C7FAA3 /* SnapKit in Frameworks */,
 			);
@@ -142,7 +147,10 @@
 				606DA2412D4206F200C7FAA3 /* RxSwift */,
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
-				606DA2492D42079900C7FAA3 /* RxDataSources */,
+				606DA50E2D42542700C7FAA3 /* DesignSystem */,
+				6004A4042D48E2D100C54DC5 /* Network */,
+				6041EB672D507E2800061ED0 /* RxDataSources */,
+				60E9A72D2D5081BB00B75D45 /* DIContainer */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -582,10 +590,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6004A4042D48E2D100C54DC5 /* Network */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Network;
+		};
 		603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
 			productName = "plugin:SwiftLintBuildToolPlugin";
+		};
+		6041EB672D507E2800061ED0 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 		606DA23A2D4206C900C7FAA3 /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -617,10 +634,13 @@
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = Differentiator;
 		};
-		606DA2492D42079900C7FAA3 /* RxDataSources */ = {
+		606DA50E2D42542700C7FAA3 /* DesignSystem */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
-			productName = RxDataSources;
+			productName = DesignSystem;
+		};
+		60E9A72D2D5081BB00B75D45 /* DIContainer */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DIContainer;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

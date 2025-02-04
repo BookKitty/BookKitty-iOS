@@ -1,19 +1,20 @@
 //
-//  BookListViewController.swift
+//  MyLibraryViewController.swift
 //  BookKitty
 //  P-003
 //
 //  Created by 전성규 on 1/27/25.
 //
 
+import RxCocoa
 import RxSwift
 import SnapKit
 import UIKit
 
-final class BookListViewController: BaseViewController {
+final class MyLibraryViewController: BaseViewController {
     // MARK: Lifecycle
 
-    init(viewModel: BookListViewModel) {
+    init(viewModel: MyLibraryViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -26,9 +27,25 @@ final class BookListViewController: BaseViewController {
     // MARK: Internal
 
     override func bind() {
-        let input = BookListViewModel.Input(testButtonTapTrigger: testButton.rx.tap.asObservable())
+        let input = MyLibraryViewModel.Input(
+            viewDidLoad: viewDidLoadRelay.asObservable(),
+            // TODO: 컬렉션뷰 셀 탭 시 탭 된 셀의 Book 정보 방출하는 relay에 연결
+            bookTapped: Observable<Book>.create { _ in
+                Disposables.create()
+            },
+            // TODO: 컬렉션뷰 하단 스크롤 이벤트 연결
+            reachedScrollEnd: Observable<Void>.create { _ in
+                Disposables.create()
+            }
+        )
 
-        _ = viewModel.transform(input)
+        let output = viewModel.transform(input)
+
+        output.bookList
+            .drive { books in
+                print(books)
+            }
+            .disposed(by: disposeBag)
     }
 
     override func configureHierarchy() {
@@ -47,7 +64,7 @@ final class BookListViewController: BaseViewController {
 
     // MARK: Private
 
-    private let viewModel: BookListViewModel
+    private let viewModel: MyLibraryViewModel
 
     private let testLabel: UILabel = {
         let label = UILabel()
@@ -64,4 +81,12 @@ final class BookListViewController: BaseViewController {
 
         return button
     }()
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    let repository = MockBookRepository()
+    let viewModel = MyLibraryViewModel(bookRepository: repository)
+
+    return MyLibraryViewController(viewModel: viewModel)
 }
