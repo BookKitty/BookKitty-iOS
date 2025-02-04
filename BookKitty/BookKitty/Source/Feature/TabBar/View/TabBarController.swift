@@ -65,10 +65,17 @@ final class TabBarController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        [tabBar, dimmingView, floatingButton, floatingMenu].forEach { view.addSubview($0) }
+        [gradientView, tabBar, dimmingView, floatingButton, floatingMenu]
+            .forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
+        gradientView.snp.makeConstraints {
+            $0.top.equalTo(tabBar.snp.top).offset(-Vars.spacing12)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+
         tabBar.snp.makeConstraints {
             $0.leading.equalToSuperview().inset(Vars.paddingReg)
             $0.trailing.equalTo(floatingButton.snp.leading).offset(-Vars.spacing20)
@@ -103,6 +110,7 @@ final class TabBarController: BaseViewController {
     ///    private let isHiddenFloating = BehaviorRelay(value: true)
     private let isFloatingActive = BehaviorRelay(value: false)
 
+    private let gradientView = GradientView()
     private let tabBar = TabBarView()
     private let dimmingView = DimmingView()
     private let floatingButton = FloatingButton()
@@ -177,7 +185,7 @@ extension TabBarController {
         view.addSubview(viewController.view)
         viewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         viewController.didMove(toParent: self)
-        [tabBar, dimmingView, floatingButton, floatingMenu]
+        [gradientView, tabBar, dimmingView, floatingButton, floatingMenu]
             .forEach { view.bringSubviewToFront($0) }
     }
 
