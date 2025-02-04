@@ -25,10 +25,17 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     ///   - imageUrl: 사용하고자 하는 이미지의
     public init(imageUrl: String = "", height: BookImageFixedHeight) {
         self.imageUrl = imageUrl
-        fixedHeight = height
+
+        switch height {
+        case .regular:
+            fixedHeight = Vars.imageFixedHeight
+        case .small:
+            fixedHeight = Vars.imageFixedHeightSmall
+        }
         super.init(frame: .zero)
 
         setupProperties()
+        setupLayouts()
     }
 
     @available(*, unavailable)
@@ -39,7 +46,7 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     // MARK: Public
 
     public var imageUrl: String
-    public var fixedHeight: BookImageFixedHeight
+    public var fixedHeight: CGFloat
     public var onImageLoaded: (() -> Void)?
 }
 
@@ -49,15 +56,6 @@ extension HeightFixedImageView {
     private func setupProperties() {
         contentMode = .scaleAspectFit
         clipsToBounds = true
-
-        let imageHeight: CGFloat
-
-        switch fixedHeight {
-        case .regular:
-            imageHeight = Vars.imageFixedHeight
-        case .small:
-            imageHeight = Vars.imageFixedHeightSmall
-        }
 
         imageUrl.loadAsyncImage { [weak self] image in
             guard let self else {
@@ -76,12 +74,19 @@ extension HeightFixedImageView {
             if let imageSize = bookImage?.size {
                 let aspectRatio = imageSize.width / imageSize.height
                 snp.remakeConstraints { make in
-                    make.height.equalTo(imageHeight) // 높이 고정
-                    make.width.equalTo(imageHeight * aspectRatio) // 너비 자동 조정
+                    make.height.equalTo(fixedHeight) // 높이 고정
+                    make.width.equalTo(fixedHeight * aspectRatio) // 너비 자동 조정
                 }
             }
             // 이미지 로딩 완료 후 콜백 실행
             onImageLoaded?()
+        }
+    }
+
+    private func setupLayouts() {
+        snp.makeConstraints { make in
+            make.height.equalTo(fixedHeight)
+            make.width.greaterThanOrEqualTo(Vars.viewSizeReg)
         }
     }
 }
