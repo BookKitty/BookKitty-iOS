@@ -21,7 +21,7 @@ final class TabBarViewModel: ViewModelType {
     let disposeBag = DisposeBag()
 
     let navigateToAddBook = PublishRelay<Void>()
-    let navigateToAskQuestion = PublishRelay<Void>()
+    let navigateToAddQuestion = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
         input.selectedFloatingItem
@@ -31,9 +31,9 @@ final class TabBarViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.selectedFloatingItem
-            .filter { $0 == .askQuestion }
+            .filter { $0 == .addQuestion }
             .map { _ in }
-            .bind(to: navigateToAskQuestion)
+            .bind(to: navigateToAddQuestion)
             .disposed(by: disposeBag)
 
         return Output()

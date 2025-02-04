@@ -16,6 +16,8 @@ final class NewQuestionViewModel: ViewModelType {
     struct Input {
         /// 질문하기 버튼 탭
         let submitButtonTapped: Observable<String>
+
+        let leftBarButtonTapTrigger: Observable<Void>
     }
 
     /// ViewModel의 Output 구현체
@@ -26,6 +28,7 @@ final class NewQuestionViewModel: ViewModelType {
 
     /// 질문 결과 화면으로 이동하는 트리거 이벤트를 발행하는 시퀀스
     let navigateToQuestionResult = PublishRelay<String>()
+    let navigateToRoot = PublishRelay<Void>()
 
     /// ViewModel의 주요 로직을 처리하는 transform 함수
     /// - Parameter input: ViewController에서 전달하는 Input 구조체
@@ -38,6 +41,10 @@ final class NewQuestionViewModel: ViewModelType {
                 $0 != ""
             }
             .bind(to: navigateToQuestionResult)
+            .disposed(by: disposeBag)
+
+        input.leftBarButtonTapTrigger
+            .bind(to: navigateToRoot)
             .disposed(by: disposeBag)
 
         return Output()

@@ -5,6 +5,7 @@
 //  Created by 권승용 on 1/23/25.
 //
 
+import RxCocoa
 import RxRelay
 import RxSwift
 import UIKit
