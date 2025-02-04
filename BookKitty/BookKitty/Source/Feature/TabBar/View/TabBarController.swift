@@ -5,6 +5,7 @@
 //  Created by 전성규 on 1/29/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -78,14 +79,14 @@ final class TabBarController: BaseViewController {
         dimmingView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         floatingButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(24.0)
+            $0.trailing.equalToSuperview().inset(Vars.paddingReg)
             $0.bottom.equalTo(tabBar.snp.bottom)
-            $0.width.height.equalTo(48.0)
+            $0.width.height.equalTo(Vars.viewSizeReg)
         }
 
         floatingMenu.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(24.0)
-            $0.bottom.equalTo(floatingButton.snp.top).offset(-20.0)
+            $0.trailing.equalToSuperview().inset(Vars.paddingReg)
+            $0.bottom.equalTo(floatingButton.snp.top).offset(-Vars.spacing20)
             $0.width.equalTo(196.0)
             $0.height.equalTo(104.0)
         }

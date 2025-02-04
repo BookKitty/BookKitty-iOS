@@ -5,6 +5,7 @@
 //  Created by 전성규 on 2/3/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -38,14 +39,14 @@ final class FloatingButton: UIButton {
     private let disposeBag = DisposeBag()
 
     private func setupUI() {
-        layer.cornerRadius = 24.0
+        layer.cornerRadius = Vars.radiusReg
         setImage(UIImage(systemName: "plus"), for: .normal)
         tintColor = .white
-        backgroundColor = UIColor(red: 0.224, green: 0.756, blue: 0.714, alpha: 1.0)
+        backgroundColor = Colors.brandSub
     }
 
     private func setupShadow() {
-        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
+        layer.shadowColor = Colors.shadow15.cgColor
         layer.shadowRadius = 4.0
         layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
         layer.shadowOpacity = 0.0
@@ -59,7 +60,6 @@ final class FloatingButton: UIButton {
             .bind { owner, isRotated in
                 owner.animateRotation(isRotated)
                 owner.animateShadow(isRotated)
-                owner.animateBackgroundColor(isRotated)
             }.disposed(by: disposeBag)
     }
 }
@@ -86,18 +86,5 @@ extension FloatingButton {
 
         layer.add(animation, forKey: animation.keyPath)
         layer.shadowOpacity = isRotated ? 1.0 : 0.0
-    }
-
-    /// 버튼의 배경색을 변경하는 애니메이션
-    /// - `UIView.transition()`을 사용하여 부드러운 색상 전환 적용
-    private func animateBackgroundColor(_ isRotated: Bool) {
-        UIView.transition(with: self, duration: 0.3, options: .transitionCrossDissolve) {
-            self.backgroundColor = isRotated ? .lightGray : UIColor(
-                red: 0.224,
-                green: 0.756,
-                blue: 0.714,
-                alpha: 1.0
-            )
-        }
     }
 }
