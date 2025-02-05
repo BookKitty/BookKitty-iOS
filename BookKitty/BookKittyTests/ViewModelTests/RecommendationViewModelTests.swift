@@ -6,6 +6,7 @@
 //
 
 @testable import BookKitty
+import BookMatchCore
 import Foundation
 import RxSwift
 import Testing
@@ -17,15 +18,16 @@ struct RecommendationViewModelTests {
     @Test
     func test_viewDidLoad_userQuestion() async {
         // RecommendationViewModel 인스턴스 생성
-        let vm = RecommendationViewModel(
+        let vm = QuestionResultViewModel(
+            userQuestion: "유저 질문",
             recommendationService: recommendationService,
             bookRepository: bookRepository,
             questionHistoryRepository: questionHistoryRepository
         )
 
         // 입력 값 정의: 유저 질문 및 기타 이벤트
-        let input = RecommendationViewModel.Input(
-            viewDidLoad: .just("유저 질문"), // 유저 질문
+        let input = QuestionResultViewModel.Input(
+            viewDidLoad: .just(()), // 유저 질문
             bookSelected: .empty(), // 선택된 책 없음
             lalalaButtonTapped: .empty() // 버튼 클릭 없음
         )
@@ -44,15 +46,16 @@ struct RecommendationViewModelTests {
     @Test
     func test_viewDidLoad_recommendBook() async {
         // RecommendationViewModel 인스턴스 생성
-        let vm = RecommendationViewModel(
+        let vm = QuestionResultViewModel(
+            userQuestion: "유저 질문",
             recommendationService: recommendationService,
             bookRepository: bookRepository,
             questionHistoryRepository: questionHistoryRepository
         )
 
         // 입력 값 정의: 유저 질문 및 기타 이벤트
-        let input = RecommendationViewModel.Input(
-            viewDidLoad: .just("유저 질문"), // 유저 질문
+        let input = QuestionResultViewModel.Input(
+            viewDidLoad: .just(()), // 유저 질문
             bookSelected: .empty(), // 선택된 책 없음
             lalalaButtonTapped: .empty() // 버튼 클릭 없음
         )
@@ -63,7 +66,7 @@ struct RecommendationViewModelTests {
         // 출력 값이 추천 책과 일치하는지 확인
         for await value in await output.recommendedBooks.values {
             #expect(
-                value == Constant.testBookList
+                value[0].items == recommendationService.mockTestCompareData
             )
             break
         }
@@ -73,7 +76,8 @@ struct RecommendationViewModelTests {
     @Test
     func test_bookSelected_navigateToBookDetail() async {
         // RecommendationViewModel 인스턴스 생성
-        let vm = RecommendationViewModel(
+        let vm = QuestionResultViewModel(
+            userQuestion: "유저 질문",
             recommendationService: recommendationService,
             bookRepository: bookRepository,
             questionHistoryRepository: questionHistoryRepository
@@ -81,7 +85,7 @@ struct RecommendationViewModelTests {
         let bookSelectedSubject = PublishSubject<Book>()
 
         // 입력 값 정의: 책 선택 이벤트
-        let input = RecommendationViewModel.Input(
+        let input = QuestionResultViewModel.Input(
             viewDidLoad: .empty(), // viewDidLoad 이벤트 없음
             bookSelected: bookSelectedSubject.asObservable(), // 책 선택 이벤트
             lalalaButtonTapped: .empty() // 버튼 클릭 없음
@@ -109,7 +113,8 @@ struct RecommendationViewModelTests {
     @Test
     func test_lalalaButtonTapped_navigateToQuestionList() async {
         // RecommendationViewModel 인스턴스 생성
-        let vm = RecommendationViewModel(
+        let vm = QuestionResultViewModel(
+            userQuestion: "유저 질문",
             recommendationService: recommendationService,
             bookRepository: bookRepository,
             questionHistoryRepository: questionHistoryRepository
@@ -117,7 +122,7 @@ struct RecommendationViewModelTests {
         let lalalaButtonTappedSubject = PublishSubject<Void>()
 
         // 입력 값 정의: 버튼 클릭 이벤트
-        let input = RecommendationViewModel.Input(
+        let input = QuestionResultViewModel.Input(
             viewDidLoad: .empty(), // viewDidLoad 이벤트 없음
             bookSelected: .empty(), // 책 선택 이벤트 없음
             lalalaButtonTapped: lalalaButtonTappedSubject.asObservable() // 버튼 클릭 이벤트
@@ -145,66 +150,8 @@ struct RecommendationViewModelTests {
 
     // Mock 서비스 및 리포지토리 인스턴스
     private let recommendationService = MockRecommendationService()
-    private let bookRepository = TestBookRepository()
+    private let bookRepository = MockBookRepository()
     private let questionHistoryRepository = MockQuestionHistoryRepository()
-}
-
-/// Mock 책 리포지토리 클래스
-class TestBookRepository: BookRepository {
-    func fetchBookList(offset _: Int, limit _: Int) -> [BookKitty.Book] {
-        []
-    }
-
-    func fetchBookDetail() -> BookKitty.Book {
-        Constant.testBook
-    }
-
-    /// 책 목록 가져오기
-    func fetchBookList() {}
-
-    /// 책 상세 정보 가져오기
-    func fetchBookDetail() {}
-
-    /// ISBN으로 책 상세 정보 가져오기
-    func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
-        [
-            Constant.testBook,
-        ]
-    }
-
-    /// 책 목록 저장
-    func saveBookList() {}
-
-    /// 책 삭제
-    func deleteBook() {}
-}
-
-/// Mock 추천 서비스 클래스
-class MockRecommendationService: BookMatchable {
-    /// 책 추천 처리
-    func processBookRecommendation(_: BookKitty.BookMatchModuleInput) async throws -> BookKitty
-        .BookMatchModuleOutput {
-        BookMatchModuleOutput(
-            ownedISBNs: [
-                "9784063164130",
-                "9784063164147",
-            ],
-            newBooks: [
-                BookItem(
-                    title: "Swift Programming",
-                    link: "https://bookstore.com/1234567890123",
-                    image: "https://bookstore.com/images/1234567890123.jpg",
-                    author: "John Doe",
-                    discount: "20%",
-                    publisher: "TechBooks",
-                    isbn: "1234567890123",
-                    description: "A comprehensive guide to Swift programming.",
-                    pubdate: "2024-01-15"
-                ),
-            ],
-            description: "이러한 이유로 당신에게 책을 추천합니당"
-        )
-    }
 }
 
 /// 테스트용 상수 정의
