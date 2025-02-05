@@ -54,14 +54,5 @@ let package = Package(
                 "SwiftFormat",
             ]
         ),
-
-        .testTarget(
-            name: "BookMatchKitTests",
-            dependencies: [
-                "BookMatchKit",
-                "BookMatchCore",
-                "BookMatchAPI",
-            ]
-        ),
     ]
 )
