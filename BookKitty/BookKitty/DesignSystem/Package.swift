@@ -25,6 +25,10 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "DesignSystem",
+            dependencies: [
+                "SnapKit",
+                "Then",
+            ],
             resources: [
                 .process("Resource/Fonts"),
                 .process("Resource/Colors.xcassets"),
