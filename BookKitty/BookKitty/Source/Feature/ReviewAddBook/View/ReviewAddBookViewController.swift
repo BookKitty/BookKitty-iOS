@@ -1,18 +1,16 @@
-//
-//  ReviewAddBookViewController.swift
-//  BookKitty
-//
-//  Created by 반성준 on 1/31/25.
-//
+// ReviewAddBookViewController.swift
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
 import UIKit
 
-final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate {
+final class ReviewAddBookViewController: BaseViewController {
     // MARK: Lifecycle
+
+    // MARK: - Init
 
     init(viewModel: ReviewAddBookViewModel) {
         self.viewModel = viewModel
@@ -24,79 +22,59 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        setupTableView()
-        bindViewModel()
-    }
-
-    // MARK: - Swipe to Delete (밀어서 삭제)
-
-    func tableView(
-        _: UITableView,
-        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
-    ) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(
-            style: .destructive,
-            title: nil
-        ) { [weak self] _, _, completionHandler in
-            self?.deleteBookSubject.onNext(indexPath.row)
-            completionHandler(true)
-        }
-        deleteAction.image = UIImage(systemName: "trash.fill") // 휴지통 아이콘 추가
-        deleteAction.backgroundColor = .red // 빨간색 배경
-
-        return UISwipeActionsConfiguration(actions: [deleteAction])
-    }
-
     // MARK: Private
 
     // MARK: - Private Properties
 
     private let viewModel: ReviewAddBookViewModel
-    private let manualTitleSubject = PublishSubject<String>()
     private let deleteBookSubject = PublishSubject<Int>()
+    private let manualTitleSubject = PublishSubject<String>()
 
-    private let backButton = UIButton().then {
-        $0.setTitle("← 돌아가기", for: .normal)
-        $0.setTitleColor(.systemTeal, for: .normal)
-    }
-
+    private let backButton = TextButton(title: "돌아가기")
     private let titleLabel = UILabel().then {
         $0.text = "촬영 결과"
-        $0.font = UIFont.boldSystemFont(ofSize: 20)
+        $0.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         $0.textAlignment = .center
     }
 
-    private let bookListView = UITableView().then {
-        $0.register(BookCell.self, forCellReuseIdentifier: BookCell.identifier)
-        $0.separatorStyle = .none
-        $0.backgroundColor = .clear
-    }
+    private lazy var collectionView: UICollectionView = {
+        let layout = UICollectionViewCompositionalLayout { [weak self] _, layoutEnvironment in
+            var config = UICollectionLayoutListConfiguration(appearance: .plain)
+            config.backgroundColor = .clear
 
-    private let missingBookLabel = UILabel().then {
+            config.trailingSwipeActionsConfigurationProvider = { indexPath in
+                let deleteAction = UIContextualAction(
+                    style: .destructive,
+                    title: nil
+                ) { _, _, completion in
+                    self?.deleteBookSubject.onNext(indexPath.item)
+                    completion(true)
+                }
+                deleteAction.image = UIImage(systemName: "trash.fill")
+                deleteAction.backgroundColor = .red
+                return UISwipeActionsConfiguration(actions: [deleteAction])
+            }
+
+            return NSCollectionLayoutSection.list(
+                using: config,
+                layoutEnvironment: layoutEnvironment
+            )
+        }
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
+        collectionView.backgroundColor = .clear
+        return collectionView
+    }()
+
+    private let missingBookLabel = BodyLabel().then {
         $0.text = "누락된 책이 있나요?\n책의 제목을 입력하여 직접 책을 추가하세요."
-        $0.font = UIFont.systemFont(ofSize: 14)
-        $0.textColor = .black
+        $0.textAlignment = .left
         $0.numberOfLines = 2
     }
 
-    private let addBookButton = UIButton().then {
-        $0.setTitle("+ 책 추가하기", for: .normal)
-        $0.setTitleColor(.systemGreen, for: .normal)
-        $0.contentHorizontalAlignment = .leading
-    }
-
-    private let confirmButton = UIButton().then {
-        $0.setTitle("추가 완료", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = UIColor.systemGreen.withAlphaComponent(0.7)
-        $0.layer.cornerRadius = 8
-    }
+    private let addBookButton = TextButton(title: "+ 책 추가하기")
+    private let confirmButton = RoundButton(title: "추가 완료")
 
     // MARK: - UI Setup
 
@@ -104,29 +82,13 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
         view.backgroundColor = .white
         view.addSubview(backButton)
         view.addSubview(titleLabel)
-        view.addSubview(bookListView)
+        view.addSubview(collectionView)
+        view.addSubview(missingBookLabel)
+        view.addSubview(addBookButton)
         view.addSubview(confirmButton)
-
-        setupTableFooter()
     }
 
-    private func setupTableFooter() {
-        let footerView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: 150))
-        footerView.addSubview(missingBookLabel)
-        footerView.addSubview(addBookButton)
-
-        missingBookLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(20)
-            $0.leading.equalToSuperview().inset(20)
-        }
-
-        addBookButton.snp.makeConstraints {
-            $0.top.equalTo(missingBookLabel.snp.bottom).offset(12)
-            $0.leading.equalToSuperview().inset(20)
-        }
-
-        bookListView.tableFooterView = footerView
-    }
+    // MARK: - Constraints
 
     private func setupConstraints() {
         backButton.snp.makeConstraints {
@@ -138,10 +100,20 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
             $0.centerX.equalToSuperview()
         }
 
-        bookListView.snp.makeConstraints {
+        collectionView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(20)
-            $0.bottom.equalTo(confirmButton.snp.top).offset(-20)
+            $0.bottom.equalTo(confirmButton.snp.top).offset(-80)
+        }
+
+        missingBookLabel.snp.makeConstraints {
+            $0.top.equalTo(collectionView.snp.bottom).offset(20)
+            $0.leading.equalToSuperview().inset(20)
+        }
+
+        addBookButton.snp.makeConstraints {
+            $0.top.equalTo(missingBookLabel.snp.bottom).offset(4)
+            $0.leading.equalTo(missingBookLabel.snp.leading)
         }
 
         confirmButton.snp.makeConstraints {
@@ -149,10 +121,6 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
             $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
             $0.height.equalTo(48)
         }
-    }
-
-    private func setupTableView() {
-        bookListView.delegate = self
     }
 
     // MARK: - ViewModel Binding
@@ -167,17 +135,16 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
         let output = viewModel.transform(input)
 
         output.bookList
-            .bind(to: bookListView.rx.items(
+            .observe(on: MainScheduler.instance)
+            .bind(to: collectionView.rx.items(
                 cellIdentifier: BookCell.identifier,
                 cellType: BookCell.self
-            )) { _, book, cell in
+            )) { [weak self] index, book, cell in
                 cell.configure(with: book)
-            }
-            .disposed(by: disposeBag)
 
-        output.navigateToBookList
-            .bind { [weak self] in
-                self?.dismiss(animated: true)
+                if index == output.bookList.value.count - 1 {
+                    self?.updateMissingBookUI(below: cell)
+                }
             }
             .disposed(by: disposeBag)
 
@@ -187,24 +154,38 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
             }
             .disposed(by: disposeBag)
 
-        backButton.rx.tap
+        confirmButton.rx.tap
             .bind { [weak self] in
                 self?.dismiss(animated: true)
             }
             .disposed(by: disposeBag)
     }
 
+    // MARK: - Update UI for Missing Book Section
+
+    private func updateMissingBookUI(below cell: UICollectionViewCell) {
+        missingBookLabel.snp.remakeConstraints {
+            $0.top.equalTo(cell.snp.bottom).offset(20)
+            $0.leading.equalToSuperview().inset(20)
+        }
+
+        addBookButton.snp.remakeConstraints {
+            $0.top.equalTo(missingBookLabel.snp.bottom).offset(4)
+            $0.leading.equalTo(missingBookLabel.snp.leading)
+        }
+    }
+
     // MARK: - Show Manual Title Input
 
     private func showManualTitleInput() {
         let alert = UIAlertController(
-            title: "책 제목 입력",
-            message: "책 제목을 입력해주세요.",
+            title: "책 제목으로 직접 추가하기",
+            message: "책의 제목을 입력해주세요.",
             preferredStyle: .alert
         )
         alert.addTextField()
 
-        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
+        let addAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
             if let title = alert.textFields?.first?.text, !title.isEmpty {
                 self?.manualTitleSubject.onNext(title)
             }
@@ -217,13 +198,13 @@ final class ReviewAddBookViewController: BaseViewController, UITableViewDelegate
     }
 }
 
-// MARK: - BookCell (Custom TableView Cell)
+// MARK: - BookCell
 
-final class BookCell: UITableViewCell {
+final class BookCell: UICollectionViewCell {
     // MARK: Lifecycle
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
         setupConstraints()
     }
@@ -246,37 +227,39 @@ final class BookCell: UITableViewCell {
 
     private let titleLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        $0.textColor = .black
+        $0.numberOfLines = 1
     }
 
     private let authorLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         $0.textColor = .darkGray
+        $0.numberOfLines = 1
     }
 
     private func setupUI() {
-        selectionStyle = .none
-        contentView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.1) // ✅ 아주 연한 회색 배경 적용
-        contentView.layer.cornerRadius = 8 // ✅ 모서리 둥글게
-        contentView.layer.masksToBounds = true // ✅ 둥근 모서리를 유지하도록 설정
-
+        contentView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.1)
+        contentView.layer.cornerRadius = 8
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorLabel)
     }
 
     private func setupConstraints() {
         contentView.snp.makeConstraints {
-            $0.width.equalTo(354) // ✅ 지정된 크기 유지
+            $0.width.equalTo(354)
             $0.height.equalTo(72)
         }
 
         titleLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(10)
-            $0.leading.equalToSuperview().inset(10)
+            $0.top.equalToSuperview().offset(12)
+            $0.leading.trailing.equalToSuperview().inset(16)
+            $0.width.equalTo(257.74)
+            $0.height.equalTo(46)
         }
 
         authorLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(5)
-            $0.leading.equalTo(titleLabel.snp.leading)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(4)
+            $0.leading.trailing.equalToSuperview().inset(16)
         }
     }
 }

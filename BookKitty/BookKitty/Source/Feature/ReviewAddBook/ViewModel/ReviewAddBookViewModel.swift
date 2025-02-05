@@ -12,7 +12,7 @@ import RxSwift
 final class ReviewAddBookViewModel: ViewModelType {
     // MARK: Lifecycle
 
-    init(initialBookList: [Book]) {
+    init(initialBookList: [Book] = []) {
         bookListRelay.accept(initialBookList)
     }
 
@@ -20,17 +20,18 @@ final class ReviewAddBookViewModel: ViewModelType {
 
     struct Input {
         let confirmButtonTapped: Observable<Void>
-        let addBookWithTitleTapped: Observable<String> // ✅ 직접 입력한 제목을 받도록 수정
-        let deleteBookTapped: Observable<Int> // ✅ IndexPath.row 대신 Int(인덱스) 사용
+        let addBookWithTitleTapped: Observable<String>
+        let deleteBookTapped: Observable<Int>
     }
 
     struct Output {
         let navigateToBookList: Observable<Void>
-        let bookList: Observable<[Book]>
+        let bookList: BehaviorRelay<[Book]>
     }
 
     let disposeBag = DisposeBag()
 
+    /// ✅ 접근 제어를 internal로 변경 (private -> internal)
     let navigateToBookListRelay = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
@@ -42,13 +43,13 @@ final class ReviewAddBookViewModel: ViewModelType {
             .withLatestFrom(bookListRelay) { newTitle, bookList -> [Book] in
                 var newList = bookList
                 let newBook = Book(
-                    isbn: UUID().uuidString, // ✅ 임시 ISBN 값 생성
+                    isbn: UUID().uuidString,
                     title: newTitle,
                     author: "미상",
                     publisher: "미상",
                     thumbnailUrl: nil
                 )
-                if !newList.contains(newBook) { // ✅ 중복 방지
+                if !newList.contains(where: { $0.title == newTitle }) {
                     newList.append(newBook)
                 }
                 return newList
@@ -59,7 +60,7 @@ final class ReviewAddBookViewModel: ViewModelType {
         input.deleteBookTapped
             .withLatestFrom(bookListRelay) { index, bookList -> [Book] in
                 var newList = bookList
-                if index < newList.count { // ✅ 안전한 삭제를 위해 체크 추가
+                if index < newList.count {
                     newList.remove(at: index)
                 }
                 return newList
@@ -69,13 +70,11 @@ final class ReviewAddBookViewModel: ViewModelType {
 
         return Output(
             navigateToBookList: navigateToBookListRelay.asObservable(),
-            bookList: bookListRelay.asObservable()
+            bookList: bookListRelay
         )
     }
 
     // MARK: Private
 
-    // MARK: Internal (변경됨)
-
-    private let bookListRelay = BehaviorRelay<[Book]>(value: []) // ✅ Book 타입으로 변경
+    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
 }

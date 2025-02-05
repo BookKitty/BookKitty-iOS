@@ -5,7 +5,7 @@
 //  Created by 반성준 on 2/5/25.
 //
 
-import AVFoundation
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -14,6 +14,8 @@ import UIKit
 
 final class BookCaptureViewController: BaseCameraViewController {
     // MARK: Lifecycle
+
+    // MARK: - Init
 
     init(viewModel: BookCaptureViewModel) {
         self.viewModel = viewModel
@@ -25,19 +27,11 @@ final class BookCaptureViewController: BaseCameraViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        bindViewModel()
-    }
-
     // MARK: Private
 
+    // MARK: - Private Properties
+
     private let viewModel: BookCaptureViewModel
-    private let disposeBag = DisposeBag()
     private let enteredTitle = PublishSubject<String>()
 
     // MARK: - UI Components
@@ -52,31 +46,21 @@ final class BookCaptureViewController: BaseCameraViewController {
         $0.setTitleColor(.systemTeal, for: .normal)
     }
 
-    private let titleLabel = UILabel().then {
+    private let titleLabel = Headline3Label(weight: .extraBold).then {
         $0.text = "새로운 책 추가하기"
-        $0.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         $0.textAlignment = .center
     }
 
-    private let descriptionLabel = UILabel().then {
-        $0.text = "책의 정보를 파악할 수 있는 책 한권의 겉면 혹은 여러 권의 책이 꽂혀 있는 책장의 사진을 찍어주세요."
-        $0.font = UIFont.systemFont(ofSize: 14)
+    private let descriptionLabel = BodyLabel().then {
+        $0.text = "책의 정보를 파악할 수 있는 책 한 권의 겉면 혹은 여러 권의 책이 꽂혀 있는 책장의 사진을 찍어주세요."
         $0.textAlignment = .center
         $0.numberOfLines = 2
     }
 
-    private let captureButton = UIButton().then {
-        $0.setImage(UIImage(systemName: "camera.fill"), for: .normal)
-        $0.tintColor = .white
-        $0.backgroundColor = .systemBlue
-        $0.layer.cornerRadius = 30
-    }
+    private let confirmButton = RoundButton(title: "확인")
 
-    private let confirmButton = UIButton().then {
-        $0.setTitle("확인", for: .normal)
-        $0.backgroundColor = .systemGreen
-        $0.setTitleColor(.white, for: .normal)
-        $0.layer.cornerRadius = 8
+    private var customCaptureButton: UIButton {
+        CircleIconButton(iconId: "camera.fill")
     }
 
     // MARK: - UI Setup
@@ -87,9 +71,8 @@ final class BookCaptureViewController: BaseCameraViewController {
             backButton,
             manualAddButton,
             titleLabel,
-            cameraView, // ✅ BaseCameraViewController에서 상속받은 cameraView 사용
             descriptionLabel,
-            captureButton,
+            customCaptureButton,
             confirmButton,
         ].forEach { view.addSubview($0) }
     }
@@ -108,27 +91,21 @@ final class BookCaptureViewController: BaseCameraViewController {
             $0.centerX.equalToSuperview()
         }
 
-        cameraView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(20)
-            $0.leading.trailing.equalToSuperview().inset(20)
-            $0.height.equalTo(300)
-        }
-
         descriptionLabel.snp.makeConstraints {
             $0.top.equalTo(cameraView.snp.bottom).offset(10)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
 
-        captureButton.snp.makeConstraints {
-            $0.top.equalTo(descriptionLabel.snp.bottom).offset(20)
+        customCaptureButton.snp.makeConstraints {
             $0.centerX.equalToSuperview()
+            $0.bottom.equalTo(confirmButton.snp.top).offset(-20)
             $0.width.height.equalTo(60)
         }
 
         confirmButton.snp.makeConstraints {
-            $0.top.equalTo(captureButton.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(20)
-            $0.height.equalTo(44)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            $0.height.equalTo(48)
         }
     }
 
@@ -136,7 +113,7 @@ final class BookCaptureViewController: BaseCameraViewController {
 
     private func bindViewModel() {
         let input = BookCaptureViewModel.Input(
-            captureButtonTapped: captureButton.rx.tap.asObservable(),
+            captureButtonTapped: customCaptureButton.rx.tap.asObservable(),
             manualAddButtonTapped: manualAddButton.rx.tap.asObservable(),
             confirmButtonTapped: confirmButton.rx.tap.asObservable(),
             enteredTitle: enteredTitle.asObservable()
@@ -148,19 +125,19 @@ final class BookCaptureViewController: BaseCameraViewController {
             .bind { [weak self] bookList in
                 self?.navigateToReview(bookList: bookList)
             }
-            .disposed(by: disposeBag)
+            .disposed(by: super.disposeBag)
 
         output.showTitleInputPopup
             .bind { [weak self] in
                 self?.showTitleInputPopup()
             }
-            .disposed(by: disposeBag)
+            .disposed(by: super.disposeBag)
 
-        captureButton.rx.tap
+        customCaptureButton.rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.capturePhoto()
-            }) // ✅ BaseCameraViewController에서 상속받음
-            .disposed(by: disposeBag)
+            })
+            .disposed(by: super.disposeBag)
     }
 
     private func navigateToReview(bookList: [String]) {

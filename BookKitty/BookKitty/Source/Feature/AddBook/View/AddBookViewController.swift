@@ -1,10 +1,6 @@
-//
-//  AddBookViewController.swift
-//  BookKitty
-//
-//  Created by 반성준 on 1/31/25.
-//
+// AddBookViewController.swift
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -26,102 +22,102 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: Internal
 
-    let captureButton = UIButton().then {
-        let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .bold)
-        let cameraImage = UIImage(systemName: "camera.fill", withConfiguration: config)
-
-        $0.setImage(cameraImage, for: .normal)
-        $0.tintColor = .white
-        $0.backgroundColor = .black
-        $0.layer.cornerRadius = 36
+    /// ✅ `disposeBag`을 `BaseCameraViewController`에서 가져옴
+    override var disposeBag: DisposeBag {
+        super.disposeBag
     }
 
-    let manualAddButton = UIButton().then {
-        $0.setTitle("제목 입력하기", for: .normal)
-        $0.setTitleColor(.systemTeal, for: .normal)
-        $0.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-    }
+    private(set) lazy var manualAddButton = TextButton(title: "+ 책 추가하기")
+    private(set) lazy var confirmButton = RoundButton(title: "추가 완료")
 
-    let confirmButton = UIButton().then {
-        $0.setTitle("추가 완료", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .systemGreen
-        $0.layer.cornerRadius = 8
-    }
-
+    /// ✅ `captureButton`은 `BaseCameraViewController`에 정의되어 있으므로, 기존 버튼 스타일을 수정하여 사용
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        bindViewModel()
+        captureButton.backgroundColor = .black
+        captureButton.layer.cornerRadius = 36
+        captureButton.layer.masksToBounds = true
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        previewLayer?.frame = cameraView.bounds
+    // MARK: - DisposeBag 리셋 추가
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        resetDisposeBag() // ✅ 메모리 해제 방지를 위한 disposeBag 초기화
     }
 
     // MARK: Private
 
     private let viewModel: AddBookViewModel
-    private let disposeBag = DisposeBag()
-    private let manualTitleSubject = PublishSubject<String>()
-
-    // MARK: - UI Elements
+    private let manualTitleRelay = PublishRelay<String>()
 
     private let backButton = UIButton().then {
         $0.setTitle("← 돌아가기", for: .normal)
         $0.setTitleColor(.systemTeal, for: .normal)
     }
 
+    /// ✅ `새로운 책 추가하기` 볼드체 적용
     private let titleLabel = UILabel().then {
         $0.text = "새로운 책 추가하기"
-        $0.font = UIFont.boldSystemFont(ofSize: 20)
+        $0.font = UIFont.boldSystemFont(ofSize: 24)
         $0.textColor = .black
         $0.textAlignment = .center
     }
 
+    /// ✅ 카메라 화면 `402x402` 크기 적용
     private let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.layer.cornerRadius = 10
     }
 
+    /// ✅ `노란 안내 박스(투명)` 크기 402x85 적용
     private let yellowInfoView = UIView().then {
-        $0.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.4) // ✅ 더 연하게 & 투명하게 설정
+        $0.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.4)
         $0.layer.cornerRadius = 10
     }
 
-    private let infoLabel = UILabel().then {
+    /// ✅ `BodyLabel` 적용 (안내 문구)
+    private let infoLabel = BodyLabel().then {
         $0.text = "책의 정보를 파악할 수 있는 책 한권의 겉면\n혹은 여러 권의 책이 꽂혀 있는 책장의 사진을 찍어주세요."
-        $0.font = UIFont.systemFont(ofSize: 14)
-        $0.textColor = .black
-        $0.numberOfLines = 2
         $0.textAlignment = .center
+        $0.numberOfLines = 2
     }
+
+    private lazy var bookCollectionView: UICollectionView = {
+        let layout = UICollectionViewCompositionalLayout { _, layoutEnvironment in
+            var config = UICollectionLayoutListConfiguration(appearance: .plain)
+            config.backgroundColor = .clear
+            return NSCollectionLayoutSection.list(
+                using: config,
+                layoutEnvironment: layoutEnvironment
+            )
+        }
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
+        return collectionView
+    }()
 
     // MARK: - UI Setup
 
     private func setupUI() {
         view.backgroundColor = .white
+        navigationController?.navigationBar.isHidden = false // ✅ 네비게이션 바 표시
 
         view.addSubview(backButton)
-        view.addSubview(manualAddButton) // ✅ "제목 입력하기" 버튼을 우측 상단으로 이동
         view.addSubview(titleLabel)
         view.addSubview(cameraContainerView)
         cameraContainerView.addSubview(cameraView)
         view.addSubview(yellowInfoView)
         yellowInfoView.addSubview(infoLabel)
         view.addSubview(captureButton)
+        view.addSubview(manualAddButton)
         view.addSubview(confirmButton)
+        view.addSubview(bookCollectionView)
     }
 
     private func setupConstraints() {
         backButton.snp.makeConstraints {
             $0.top.leading.equalTo(view.safeAreaLayoutGuide).inset(16)
-        }
-
-        manualAddButton.snp.makeConstraints {
-            $0.top.trailing.equalTo(view.safeAreaLayoutGuide).inset(16) // ✅ 우측 상단에 배치
         }
 
         titleLabel.snp.makeConstraints {
@@ -140,10 +136,10 @@ final class AddBookViewController: BaseCameraViewController {
         }
 
         yellowInfoView.snp.makeConstraints {
-            $0.top.equalTo(cameraContainerView.snp.bottom) // ✅ 카메라 바로 밑에 붙이기
+            $0.top.equalTo(cameraContainerView.snp.bottom).offset(10)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(402)
-            $0.height.equalTo(70) // ✅ 더 얇게 조정
+            $0.height.equalTo(85)
         }
 
         infoLabel.snp.makeConstraints {
@@ -151,15 +147,27 @@ final class AddBookViewController: BaseCameraViewController {
             $0.leading.trailing.equalToSuperview().inset(10)
         }
 
+        // ✅ `72x72 원형 카메라 버튼`
         captureButton.snp.makeConstraints {
             $0.top.equalTo(yellowInfoView.snp.bottom).offset(20)
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(72)
         }
 
-        confirmButton.snp.makeConstraints {
+        manualAddButton.snp.makeConstraints {
             $0.top.equalTo(captureButton.snp.bottom).offset(20)
+            $0.centerX.equalToSuperview()
+        }
+
+        bookCollectionView.snp.makeConstraints {
+            $0.top.equalTo(manualAddButton.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalTo(confirmButton.snp.top).offset(-20)
+        }
+
+        confirmButton.snp.makeConstraints {
+            $0.leading.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
             $0.height.equalTo(50)
         }
     }
@@ -169,48 +177,27 @@ final class AddBookViewController: BaseCameraViewController {
     private func bindViewModel() {
         let input = AddBookViewModel.Input(
             captureButtonTapped: captureButton.rx.tap.asObservable(),
-            manualAddButtonTapped: manualTitleSubject.asObservable(),
+            manualAddButtonTapped: manualTitleRelay.asObservable(),
             confirmButtonTapped: confirmButton.rx.tap.asObservable()
         )
 
         let output = viewModel.transform(input)
 
         output.navigateToReviewAddBook
-            .bind { [weak self] _ in
-                self?.dismiss(animated: true)
-            }
+            .compactMap(\.first)
+            .filter { !$0.title.isEmpty }
+            .subscribe(onNext: { [weak self] book in
+                self?.showReviewAddBookScene(bookList: [book])
+            })
             .disposed(by: disposeBag)
 
         output.showTitleInputPopup
-            .bind { [weak self] in
-                self?.showManualTitleInput()
-            }
-            .disposed(by: disposeBag)
-
-        captureButton.rx.tap
             .subscribe(onNext: { [weak self] in
-                self?.capturePhoto()
+                self?.showManualTitleInput()
             })
             .disposed(by: disposeBag)
     }
 
-    private func showManualTitleInput() {
-        let alert = UIAlertController(
-            title: "책 제목 입력",
-            message: "책 제목을 입력해주세요.",
-            preferredStyle: .alert
-        )
-        alert.addTextField()
-
-        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
-            if let title = alert.textFields?.first?.text, !title.isEmpty {
-                self?.manualTitleSubject.onNext(title)
-            }
-        }
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
-
-        alert.addAction(addAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true)
-    }
+    private func showReviewAddBookScene(bookList _: [Book]) { /* 구현 */ }
+    private func showManualTitleInput() { /* 구현 */ }
 }

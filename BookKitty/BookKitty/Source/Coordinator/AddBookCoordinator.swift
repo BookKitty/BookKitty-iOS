@@ -6,7 +6,7 @@
 //
 
 import RxCocoa
-import RxRelay // ✅ PublishRelay 사용을 위해 추가
+import RxRelay
 import RxSwift
 import UIKit
 
@@ -16,6 +16,8 @@ protocol AddBookCoordinator: Coordinator {
 
 final class DefaultAddBookCoordinator: AddBookCoordinator {
     // MARK: Lifecycle
+
+    // MARK: - Init
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -31,52 +33,40 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
     var addBookViewController: AddBookViewController
     var addBookViewModel: AddBookViewModel
 
-    func start() { showAddBookScene() }
+    // MARK: - Start
+
+    func start() {
+        setupBindings()
+        navigationController.pushViewController(addBookViewController, animated: true)
+    }
 
     // MARK: Private
 
     private let disposeBag = DisposeBag()
-}
 
-// MARK: - Navigation Logic
-
-extension DefaultAddBookCoordinator {
-    private func showAddBookScene() {
-        let manualTitleRelay = PublishRelay<String>() // ✅ 책 제목을 직접 입력받는 Relay 추가
+    private func setupBindings() {
+        let manualTitleRelay = PublishRelay<String>()
 
         let input = AddBookViewModel.Input(
             captureButtonTapped: addBookViewController.captureButton.rx.tap.asObservable(),
-            manualAddButtonTapped: manualTitleRelay.asObservable(), // ✅ 입력된 제목 전달
+            manualAddButtonTapped: manualTitleRelay.asObservable(),
             confirmButtonTapped: addBookViewController.confirmButton.rx.tap.asObservable()
         )
 
         let output = addBookViewModel.transform(input)
 
-        // ✅ 사용자가 제목을 직접 입력하면 relay에 전달
+        // ✅ 수동 입력 버튼 클릭 시 팝업 표시
         addBookViewController.manualAddButton.rx.tap
-            .subscribe(onNext: { [weak self] in
-                self?.showManualTitleInput(relay: manualTitleRelay)
-            })
+            .bind { [weak self] in self?.showManualTitleInput(relay: manualTitleRelay) }
             .disposed(by: disposeBag)
 
-        // ✅ 책 추가 완료 후 이동
+        // ✅ `navigateToReviewAddBook`이 `[Book]`을 반환하도록 수정
         output.navigateToReviewAddBook
-            .map { bookTitles in
-                bookTitles.map { Book(
-                    isbn: "",
-                    title: $0,
-                    author: "알 수 없음",
-                    publisher: "알 수 없음",
-                    thumbnailUrl: nil
-                ) }
-            } // ✅ String -> Book 변환 추가
-            .subscribe(onNext: { [weak self] bookList in
-                self?.showReviewAddBookScene(bookList: bookList)
-            })
+            .bind { [weak self] bookList in self?.showReviewAddBookScene(bookList: bookList) }
             .disposed(by: disposeBag)
-
-        navigationController.pushViewController(addBookViewController, animated: true)
     }
+
+    // MARK: - Navigation
 
     private func showManualTitleInput(relay: PublishRelay<String>) {
         let alert = UIAlertController(
@@ -84,11 +74,12 @@ extension DefaultAddBookCoordinator {
             message: "책 제목을 입력해주세요.",
             preferredStyle: .alert
         )
+
         alert.addTextField()
 
         let addAction = UIAlertAction(title: "추가", style: .default) { _ in
             if let title = alert.textFields?.first?.text, !title.isEmpty {
-                relay.accept(title)
+                relay.accept(title) // ✅ `relay`를 통해 ViewModel로 전달
             }
         }
         let cancelAction = UIAlertAction(title: "취소", style: .cancel)
@@ -99,32 +90,22 @@ extension DefaultAddBookCoordinator {
     }
 
     private func showReviewAddBookScene(bookList: [Book]) {
-        let reviewAddBookViewModel = ReviewAddBookViewModel(initialBookList: bookList)
-        let reviewAddBookViewController =
-            ReviewAddBookViewController(viewModel: reviewAddBookViewModel)
+        let reviewViewModel = ReviewAddBookViewModel(initialBookList: bookList)
+        let reviewViewController = ReviewAddBookViewController(viewModel: reviewViewModel)
 
-        // ✅ `navigateToBookListRelay`를 `internal`로 변경하여 접근 가능
-        reviewAddBookViewModel.navigateToBookListRelay
-            .subscribe(onNext: { [weak self] in
-                self?.finish()
-            })
+        // ✅ `navigateToBookListRelay`을 이용하여 화면 이동 후 종료 처리
+        reviewViewModel.navigateToBookListRelay
+            .bind { [weak self] in self?.finish() }
             .disposed(by: disposeBag)
 
-        navigationController.pushViewController(reviewAddBookViewController, animated: true)
+        navigationController.pushViewController(reviewViewController, animated: true)
     }
-}
 
-// MARK: - Finish Navigation
-
-extension DefaultAddBookCoordinator {
     private func finish() {
-        if let tabBarController = navigationController
-            .viewControllers.first(where: { $0 is TabBarController }) {
+        if let tabBarController = navigationController.viewControllers
+            .first(where: { $0 is TabBarController }) {
             navigationController.popToViewController(tabBarController, animated: true)
-
-            if let parent = parentCoordinator {
-                parent.childCoordinators.removeAll { $0 === self }
-            }
+            parentCoordinator?.childCoordinators.removeAll { $0 === self }
         }
     }
 }
