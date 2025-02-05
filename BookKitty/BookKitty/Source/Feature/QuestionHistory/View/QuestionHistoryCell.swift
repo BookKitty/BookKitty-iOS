@@ -96,7 +96,7 @@ final class QuestionHistoryCell: UITableViewCell {
 
     private func setupLayouts() {
         containerView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(Vars.paddingSmall)
+            $0.edges.equalToSuperview().inset(8.0)
         }
 
         dateLabel.snp.makeConstraints {

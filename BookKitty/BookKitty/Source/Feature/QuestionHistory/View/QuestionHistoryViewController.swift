@@ -47,23 +47,42 @@ final class QuestionHistoryViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    override func configureNavItem() {
-        navigationItem.title = "QnA 히스토리"
-    }
-
     override func configureHierarchy() {
         view.addSubview(questionTableView)
+
+        // titleLabel을 포함할 containerView 생성
+        let headerView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: 42 + Vars.paddingReg
+        ))
+        headerView.addSubview(titleLabel)
+
+        // titleLabel 제약조건 설정
+        titleLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview().inset(Vars.paddingSmall)
+        }
+
+        questionTableView.tableHeaderView = headerView
     }
 
     override func configureLayout() {
-        questionTableView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+        questionTableView.snp.makeConstraints { make in
+            make.verticalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingSmall)
         }
     }
 
     // MARK: Private
 
     private let viewModel: QuestionHistoryViewModel
+
+    private let titleLabel = Headline1Label(weight: .extraBold).then {
+        $0.text = "QnA 히스토리"
+        $0.textColor = Colors.fontMain
+    }
 
     private lazy var questionTableView: UITableView = {
         let tableView = UITableView()
@@ -74,6 +93,7 @@ final class QuestionHistoryViewController: BaseViewController {
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 240
+        tableView.showsVerticalScrollIndicator = false
 
         return tableView
     }()
