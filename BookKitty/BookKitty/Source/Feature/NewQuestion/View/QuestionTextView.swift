@@ -108,22 +108,19 @@ final class QuestionTextView: UIView {
             }).disposed(by: disposeBag)
     }
 
-    /// 입력한 글자 수를 감지하고 최대 글자 수를 초과하지 않도록 제한하는 메서드
-    ///
-    /// - textView.rx.text.orEmpty를 감지하여 maximunCount 초과 시 입력 제한
-    /// - 초과 입력이 발생하면 자동으로 textView.text를 잘라서 저장
+    /// 입력된 텍스트의 글자 수를 감지하여 currentCount에 반영하는 메서드
     private func bindTextCount() {
         textView.rx.text.orEmpty
             .observe(on: MainScheduler.instance)
-            .distinctUntilChanged()
             .withUnretained(self)
-            .subscribe(onNext: { owner, text in
-                let trimmedText = String(text.prefix(owner.maximunCount))
-                if owner.textView.text != trimmedText {
-                    owner.textView.text = trimmedText
+            .map { owner, text -> Int in
+                if owner.isPlaceholderActive {
+                    return 0
+                } else {
+                    return text.count
                 }
-                owner.currentCount.accept(trimmedText.count) // 현재 글자 수 업데이트
-            }).disposed(by: disposeBag)
+            }.bind(to: currentCount)
+            .disposed(by: disposeBag)
     }
 
     /// 현재 입력된 글자 수를 countLabel에 업데이트하는 메서드
