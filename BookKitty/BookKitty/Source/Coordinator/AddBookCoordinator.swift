@@ -61,6 +61,15 @@ extension DefaultAddBookCoordinator {
 
         // ✅ 책 추가 완료 후 이동
         output.navigateToReviewAddBook
+            .map { bookTitles in
+                bookTitles.map { Book(
+                    isbn: "",
+                    title: $0,
+                    author: "알 수 없음",
+                    publisher: "알 수 없음",
+                    thumbnailUrl: nil
+                ) }
+            } // ✅ String -> Book 변환 추가
             .subscribe(onNext: { [weak self] bookList in
                 self?.showReviewAddBookScene(bookList: bookList)
             })
@@ -89,7 +98,7 @@ extension DefaultAddBookCoordinator {
         addBookViewController.present(alert, animated: true)
     }
 
-    private func showReviewAddBookScene(bookList: [String]) {
+    private func showReviewAddBookScene(bookList: [Book]) {
         let reviewAddBookViewModel = ReviewAddBookViewModel(initialBookList: bookList)
         let reviewAddBookViewController =
             ReviewAddBookViewController(viewModel: reviewAddBookViewModel)

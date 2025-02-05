@@ -36,8 +36,6 @@ final class BookCaptureViewController: BaseCameraViewController {
 
     // MARK: Private
 
-    // MARK: - Private Properties
-
     private let viewModel: BookCaptureViewModel
     private let disposeBag = DisposeBag()
     private let enteredTitle = PublishSubject<String>()
@@ -166,7 +164,17 @@ final class BookCaptureViewController: BaseCameraViewController {
     }
 
     private func navigateToReview(bookList: [String]) {
-        let reviewViewModel = ReviewAddBookViewModel(initialBookList: bookList)
+        let books = bookList.map { title in
+            Book(
+                isbn: "",
+                title: title,
+                author: "알 수 없음",
+                publisher: "알 수 없음",
+                thumbnailUrl: nil
+            )
+        }
+
+        let reviewViewModel = ReviewAddBookViewModel(initialBookList: books)
         let reviewViewController = ReviewAddBookViewController(viewModel: reviewViewModel)
         navigationController?.pushViewController(reviewViewController, animated: true)
     }

@@ -12,7 +12,7 @@ import RxSwift
 final class ReviewAddBookViewModel: ViewModelType {
     // MARK: Lifecycle
 
-    init(initialBookList: [String]) {
+    init(initialBookList: [Book]) {
         bookListRelay.accept(initialBookList)
     }
 
@@ -20,35 +20,44 @@ final class ReviewAddBookViewModel: ViewModelType {
 
     struct Input {
         let confirmButtonTapped: Observable<Void>
-        let addBookButtonTapped: Observable<Void>
+        let addBookWithTitleTapped: Observable<String> // ✅ 직접 입력한 제목을 받도록 수정
         let deleteBookTapped: Observable<Int> // ✅ IndexPath.row 대신 Int(인덱스) 사용
     }
 
     struct Output {
         let navigateToBookList: Observable<Void>
-        let showTitleInputPopup: Observable<Void>
-        let bookList: Observable<[String]>
+        let bookList: Observable<[Book]>
     }
 
     let disposeBag = DisposeBag()
 
-    // MARK: Internal (변경됨)
-
-    let bookListRelay = BehaviorRelay<[String]>(value: []) // ✅ 접근 수준 변경 (internal)
     let navigateToBookListRelay = PublishRelay<Void>()
-    let showTitleInputPopupRelay = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
         input.confirmButtonTapped
             .bind(to: navigateToBookListRelay)
             .disposed(by: disposeBag)
 
-        input.addBookButtonTapped
-            .bind(to: showTitleInputPopupRelay)
+        input.addBookWithTitleTapped
+            .withLatestFrom(bookListRelay) { newTitle, bookList -> [Book] in
+                var newList = bookList
+                let newBook = Book(
+                    isbn: UUID().uuidString, // ✅ 임시 ISBN 값 생성
+                    title: newTitle,
+                    author: "미상",
+                    publisher: "미상",
+                    thumbnailUrl: nil
+                )
+                if !newList.contains(newBook) { // ✅ 중복 방지
+                    newList.append(newBook)
+                }
+                return newList
+            }
+            .bind(to: bookListRelay)
             .disposed(by: disposeBag)
 
         input.deleteBookTapped
-            .withLatestFrom(bookListRelay) { index, bookList -> [String] in
+            .withLatestFrom(bookListRelay) { index, bookList -> [Book] in
                 var newList = bookList
                 if index < newList.count { // ✅ 안전한 삭제를 위해 체크 추가
                     newList.remove(at: index)
@@ -60,16 +69,13 @@ final class ReviewAddBookViewModel: ViewModelType {
 
         return Output(
             navigateToBookList: navigateToBookListRelay.asObservable(),
-            showTitleInputPopup: showTitleInputPopupRelay.asObservable(),
             bookList: bookListRelay.asObservable()
         )
     }
 
-    func addBook(_ bookTitle: String) {
-        var currentList = bookListRelay.value
-        if !currentList.contains(bookTitle) { // ✅ 중복 방지 로직 추가
-            currentList.append(bookTitle)
-            bookListRelay.accept(currentList)
-        }
-    }
+    // MARK: Private
+
+    // MARK: Internal (변경됨)
+
+    private let bookListRelay = BehaviorRelay<[Book]>(value: []) // ✅ Book 타입으로 변경
 }
