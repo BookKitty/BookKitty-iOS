@@ -24,7 +24,7 @@ public class RecommendedBookView: UIView {
             $0.text = bookTitle
             $0.numberOfLines = 2
             $0.textAlignment = .center
-            $0.textColor = Colors.fontSub1
+            $0.textColor = Colors.fontMain
         }
         bookAuthorLabel = CaptionLabel().then {
             $0.text = bookAuthor
@@ -36,17 +36,20 @@ public class RecommendedBookView: UIView {
         super.init(frame: .zero)
 
         setupViews()
-
-        // 이미지 로딩이 끝난 후 콜백 시동을 통해 레이아웃 셋업.
-        bookImageView.onImageLoaded = { [weak self] in
-            self?.setupProperties()
-            self?.setupLayouts()
-        }
     }
 
     @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: Public
+
+    override public func layoutSubviews() {
+        super.layoutSubviews()
+
+        setupLayouts()
+        setupProperties()
     }
 
     // MARK: Internal
@@ -90,7 +93,6 @@ extension RecommendedBookView {
         bookImageView.snp.makeConstraints { make in
             make.top.equalTo(tagLabel.snp.bottom).offset(Vars.spacing20)
             make.centerX.equalToSuperview()
-            make.height.equalTo(Vars.imageFixedHeight)
         }
 
         bookTitleLabel.snp.makeConstraints { make in

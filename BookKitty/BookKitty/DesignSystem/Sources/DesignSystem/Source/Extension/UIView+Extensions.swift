@@ -41,5 +41,6 @@ extension UIView {
         layer.shadowOpacity = 1
         layer.shadowRadius = 8
         layer.masksToBounds = false
+        layer.shadowPath = UIBezierPath(rect: bounds).cgPath
     }
 }
