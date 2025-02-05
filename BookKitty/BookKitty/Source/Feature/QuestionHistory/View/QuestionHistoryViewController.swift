@@ -97,4 +97,11 @@ extension Reactive where Base: UIScrollView {
     }
 }
 
+@available(iOS 17.0, *)
+#Preview {
+    QuestionHistoryViewController(
+        viewModel: QuestionHistoryViewModel(
+            questionRepository: MockQuestionHistoryRepository()
+        )
+    )
 }
