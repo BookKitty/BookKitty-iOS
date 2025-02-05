@@ -7,20 +7,6 @@ final class BookMatchKitTests: XCTestCase {
     var sut: BookMatchModule!
     var config: APIConfiguration!
 
-    override func setUp() {
-        super.setUp()
-        config = APIConfiguration(
-            naverClientId: "exampleNaverClientID",
-            naverClientSecret: "exampleNaverClientSecret",
-            openAIApiKey: "exampleOpenAIApiKey"
-        )
-    }
-
-    override func tearDown() {
-        sut = nil
-        super.tearDown()
-    }
-    
     let questions = [
         "요즘 스트레스가 많은데, 마음의 안정을 찾을 수 있는 책 추천해주세요.",
         "SF와 판타지를 좋아하는데, 현실과 가상세계를 넘나드는 소설 없을까요?",
@@ -35,6 +21,20 @@ final class BookMatchKitTests: XCTestCase {
         "우울할 때 읽으면 좋은 따뜻한 책 추천해주세요.",
         "의욕이 없을 때 동기부여가 될 만한 책 없을까요?",
     ]
+
+    override func setUp() {
+        super.setUp()
+        config = APIConfiguration(
+            naverClientId: "exampleNaverClientID",
+            naverClientSecret: "exampleNaverClientSecret",
+            openAIApiKey: "exampleOpenAIApiKey"
+        )
+    }
+
+    override func tearDown() {
+        sut = nil
+        super.tearDown()
+    }
 
     func accurancyTester(question: String, title: String) async -> Int {
         let prompt = """
