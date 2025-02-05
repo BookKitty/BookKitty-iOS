@@ -104,12 +104,12 @@ final class QuestionHistoryCell: UITableViewCell {
         }
 
         questionLabel.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom).offset(Vars.spacing8)
+            $0.top.equalTo(dateLabel.snp.bottom).offset(Vars.spacing4)
             $0.leading.trailing.equalToSuperview().inset(Vars.paddingSmall)
         }
 
         answerLabel.snp.makeConstraints {
-            $0.top.equalTo(questionLabel.snp.bottom).offset(Vars.spacing8)
+            $0.top.equalTo(questionLabel.snp.bottom).offset(Vars.spacing4)
             $0.leading.trailing.equalToSuperview().inset(Vars.paddingSmall)
         }
 
@@ -118,7 +118,7 @@ final class QuestionHistoryCell: UITableViewCell {
             make.bottom.equalToSuperview().inset(Vars.paddingSmall)
 
             make.leading.equalToSuperview().inset(Vars.paddingSmall)
-            make.height.equalTo(Vars.imageFixedHeight + 20)
+            make.height.equalTo(Vars.imageFixedHeight + Vars.paddingSmall)
         }
     }
 }
