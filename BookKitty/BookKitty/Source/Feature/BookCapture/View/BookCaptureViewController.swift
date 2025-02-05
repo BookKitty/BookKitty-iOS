@@ -12,7 +12,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class BookCaptureViewController: BaseViewController, AVCapturePhotoCaptureDelegate {
+final class BookCaptureViewController: BaseCameraViewController {
     // MARK: Lifecycle
 
     init(viewModel: BookCaptureViewModel) {
@@ -30,29 +30,20 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupLayout()
-        setupCamera()
+        setupConstraints()
         bindViewModel()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
-        }
     }
 
     // MARK: Private
 
-    // MARK: Private Properties
+    // MARK: - Private Properties
 
     private let viewModel: BookCaptureViewModel
-    private let captureSession = AVCaptureSession()
-    private var previewLayer: AVCaptureVideoPreviewLayer?
-    private let captureOutput = AVCapturePhotoOutput()
+    private let disposeBag = DisposeBag()
     private let enteredTitle = PublishSubject<String>()
 
-    /// UI Components
+    // MARK: - UI Components
+
     private let backButton = UIButton().then {
         $0.setTitle("← 돌아가기", for: .normal)
         $0.setTitleColor(.systemTeal, for: .normal)
@@ -67,10 +58,6 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
         $0.text = "새로운 책 추가하기"
         $0.font = UIFont.systemFont(ofSize: 20, weight: .bold)
         $0.textAlignment = .center
-    }
-
-    private let cameraView = UIView().then {
-        $0.backgroundColor = .black
     }
 
     private let descriptionLabel = UILabel().then {
@@ -102,14 +89,14 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
             backButton,
             manualAddButton,
             titleLabel,
-            cameraView,
+            cameraView, // ✅ BaseCameraViewController에서 상속받은 cameraView 사용
             descriptionLabel,
             captureButton,
             confirmButton,
         ].forEach { view.addSubview($0) }
     }
 
-    private func setupLayout() {
+    private func setupConstraints() {
         backButton.snp.makeConstraints {
             $0.top.leading.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
@@ -147,53 +134,7 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
         }
     }
 
-    // MARK: - Camera Setup
-
-    private func setupCamera() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-                self.showCaptureFailurePopup()
-                return
-            }
-
-            do {
-                let input = try AVCaptureDeviceInput(device: captureDevice)
-                if self.captureSession.canAddInput(input) {
-                    self.captureSession.addInput(input)
-                }
-                if self.captureSession.canAddOutput(self.captureOutput) {
-                    self.captureSession.addOutput(self.captureOutput)
-                }
-
-                self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-                self.previewLayer?.videoGravity = .resizeAspectFill
-                self.previewLayer?.connection?.videoOrientation = .portrait
-
-                DispatchQueue.main.async {
-                    if let previewLayer = self.previewLayer {
-                        self.cameraView.layer.insertSublayer(previewLayer, at: 0)
-                        previewLayer.frame = self.cameraView.bounds
-                    }
-                    self.captureSession.startRunning()
-                }
-            } catch {
-                self.showCaptureFailurePopup()
-            }
-        }
-    }
-
-    private func showCaptureFailurePopup() {
-        let alert = UIAlertController(
-            title: "❌ 촬영에 실패하였습니다.",
-            message: "책 제목이 명확하게 보이도록 다시 촬영해주세요.",
-            preferredStyle: .alert
-        )
-        let retryAction = UIAlertAction(title: "다시 촬영하기", style: .default) { _ in
-            self.setupCamera()
-        }
-        alert.addAction(retryAction)
-        present(alert, animated: true)
-    }
+    // MARK: - ViewModel Binding
 
     private func bindViewModel() {
         let input = BookCaptureViewModel.Input(
@@ -218,7 +159,9 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
             .disposed(by: disposeBag)
 
         captureButton.rx.tap
-            .subscribe(onNext: { [weak self] in self?.capturePhoto() })
+            .subscribe(onNext: { [weak self] in
+                self?.capturePhoto()
+            }) // ✅ BaseCameraViewController에서 상속받음
             .disposed(by: disposeBag)
     }
 
@@ -228,7 +171,6 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
         navigationController?.pushViewController(reviewViewController, animated: true)
     }
 
-    /// ✅ `showTitleInputPopup()` 추가
     private func showTitleInputPopup() {
         let alert = UIAlertController(
             title: "책 제목 입력",
@@ -247,11 +189,5 @@ final class BookCaptureViewController: BaseViewController, AVCapturePhotoCapture
         alert.addAction(addAction)
         alert.addAction(cancelAction)
         present(alert, animated: true)
-    }
-
-    /// ✅ `capturePhoto()` 추가
-    private func capturePhoto() {
-        let settings = AVCapturePhotoSettings()
-        captureOutput.capturePhoto(with: settings, delegate: self)
     }
 }
