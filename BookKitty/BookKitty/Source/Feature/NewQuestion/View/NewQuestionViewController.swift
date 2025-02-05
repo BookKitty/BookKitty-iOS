@@ -6,6 +6,7 @@
 //  Created by 전성규 on 2/3/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -34,36 +35,47 @@ final class NewQuestionViewController: BaseViewController {
         navigationController?.navigationBar.isHidden = false
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+
     override func bind() {
-        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
-        else {
-            return
-        }
+//        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
+//        else {
+//            return
+//        }
+//
+//        let input = NewQuestionViewModel.Input(
+//            submitButtonTapped: submitButton.rx.tap.withLatestFrom(testTextView.rx.value.orEmpty)
+//                .asObservable(),
+//            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
+//        )
+//
+//        _ = viewModel.transform(input)
+    }
 
-        let input = NewQuestionViewModel.Input(
-            submitButtonTapped: submitButton.rx.tap.withLatestFrom(testTextView.rx.value.orEmpty)
-                .asObservable(),
-            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
-        )
-
-        _ = viewModel.transform(input)
+    override func configureBackground() {
+        view.backgroundColor = Colors.background0
     }
 
     override func configureHierarchy() {
-        [testTextView, submitButton].forEach { view.addSubview($0) }
+        [titleLabel, questionInputView].forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
-        testTextView.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(24.0)
-            $0.centerY.equalToSuperview()
-            $0.height.equalTo(300.0)
+        titleLabel.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingReg)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
         }
 
-        submitButton.snp.makeConstraints {
-            $0.horizontalEdges.equalToSuperview().inset(24.0)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(48.0)
+        questionInputView.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing32)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+            $0.height.equalTo(Vars.viewSizeHuge)
         }
     }
 
@@ -83,19 +95,15 @@ final class NewQuestionViewController: BaseViewController {
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
 
+    @objc
+    func dismissKeyboard() { view.endEditing(true) }
+
     // MARK: Private
 
     private let viewModel: NewQuestionViewModel
 
-    private let testTextView = UITextView().then {
-        $0.backgroundColor = .lightGray
-    }
-
-    private let submitButton = UIButton().then {
-        $0.setTitle("질문하기", for: .normal)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .tintColor
-    }
+    private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
+    private let questionInputView = QuestionTextView()
 }
 
 @available(iOS 17.0, *)
