@@ -40,17 +40,7 @@ final class QuestionTextView: UIView {
     /// 현재 입력된 글자 수를 전달하는 PublishRelay
     let currentCount = PublishRelay<Int>()
 
-    // MARK: Private
-
-    /// 현재 Placeholder가 활성화 상태 여부
-    private var isPlaceholderActive = true
-    private let placeholder = "질문을 입력해주세요."
-    private let maximunCount = 100
-    private let disposeBag = DisposeBag()
-
-    private lazy var countLabel = CaptionLabel().then { $0.text = "0 / 100" }
-
-    private lazy var textView = UITextView().then {
+    lazy var textView = UITextView().then {
         $0.font = Fonts.bodyRegular
         $0.text = placeholder
         $0.textColor = Colors.fontMain
@@ -64,6 +54,16 @@ final class QuestionTextView: UIView {
         $0.backgroundColor = Colors.background1
         $0.layer.cornerRadius = Vars.radiusReg
     }
+
+    // MARK: Private
+
+    /// 현재 Placeholder가 활성화 상태 여부
+    private var isPlaceholderActive = true
+    private let placeholder = "질문을 입력해주세요."
+    private let maximunCount = 100
+    private let disposeBag = DisposeBag()
+
+    private lazy var countLabel = CaptionLabel().then { $0.text = "0 / 100" }
 
     private func configureHierarchy() {
         [textView, countLabel].forEach { addSubview($0) }

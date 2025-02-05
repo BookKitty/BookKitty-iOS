@@ -44,18 +44,18 @@ final class NewQuestionViewController: BaseViewController {
     }
 
     override func bind() {
-//        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
-//        else {
-//            return
-//        }
+        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
+        else {
+            return
+        }
 
-//        let input = NewQuestionViewModel.Input(
-//            submitButtonTapped: submitButton.rx.tap.withLatestFrom(testTextView.rx.value.orEmpty)
-//                .asObservable(),
-//            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
-//        )
-//
-//        _ = viewModel.transform(input)
+        let input = NewQuestionViewModel.Input(
+            submitButtonTapped: submitButton.rx.tap
+                .withLatestFrom(questionInputView.textView.rx.text.orEmpty).asObservable(),
+            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
+        )
+
+        _ = viewModel.transform(input)
     }
 
     override func configureBackground() { view.backgroundColor = Colors.background0 }
