@@ -13,4 +13,5 @@ struct Book: Hashable {
     let author: String
     let publisher: String
     let thumbnailUrl: URL?
+    var isOwned = false
 }

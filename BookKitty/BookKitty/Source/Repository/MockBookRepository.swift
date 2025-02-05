@@ -48,6 +48,32 @@ final class MockBookRepository: BookRepository {
         thumbnailUrl: URL(string: "https://picsum.photos/200/300")
     )
 
+    func fetchAllBooks() -> [Book] {
+        [
+            Book(
+                isbn: "978-3-16-148410-0",
+                title: "Swift Programming Basics",
+                author: "John Doe",
+                publisher: "Tech Press",
+                thumbnailUrl: URL(string: "https://picsum.photos/200/300")
+            ),
+            Book(
+                isbn: "978-3-16-148410-0",
+                title: "Swift Programming Basics",
+                author: "John Doe",
+                publisher: "Tech Press",
+                thumbnailUrl: URL(string: "https://picsum.photos/200/300")
+            ),
+            Book(
+                isbn: "978-3-16-148410-0",
+                title: "Swift Programming Basics",
+                author: "John Doe",
+                publisher: "Tech Press",
+                thumbnailUrl: URL(string: "https://picsum.photos/200/300")
+            ),
+        ]
+    }
+
     func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
         []
     }

@@ -48,6 +48,8 @@ extension BodyLabel {
         textColor = Colors.fontMain
         textAlignment = .left
         numberOfLines = 0
+        lineBreakMode = .byTruncatingTail
+        lineBreakStrategy = .hangulWordPriority
 
         updateAttributes()
     }

@@ -17,7 +17,8 @@ struct NewQuestionViewModelTests {
         let submitButtonTappedSubject = PublishSubject<String>()
 
         let input = NewQuestionViewModel.Input(
-            submitButtonTapped: submitButtonTappedSubject.asObservable()
+            submitButtonTapped: submitButtonTappedSubject.asObservable(),
+            leftBarButtonTapTrigger: .empty()
         )
 
         _ = vm.transform(input)

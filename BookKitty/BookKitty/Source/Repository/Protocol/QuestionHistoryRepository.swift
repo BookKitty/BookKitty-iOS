@@ -8,5 +8,6 @@
 import RxSwift
 
 protocol QuestionHistoryRepository {
-    func fetchQuestions(offset: Int, limit: Int) -> Single<[Question]>
+    func fetchQuestions(offset: Int, limit: Int) -> Single<[QuestionAnswer]>
+    func saveQuestion(_ question: QuestionAnswer)
 }
