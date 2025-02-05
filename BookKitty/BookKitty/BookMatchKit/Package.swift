@@ -27,17 +27,18 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
     ],
     targets: [
         .target(
             name: "BookMatchCore",
-            dependencies: ["SwiftFormat"]
+            dependencies: ["RxSwift","SwiftFormat"]
         ),
 
         .target(
             name: "BookMatchAPI",
-            dependencies: ["BookMatchCore", "SwiftFormat"]
+            dependencies: ["RxSwift","BookMatchCore", "SwiftFormat"]
         ),
 
         .target(
@@ -48,6 +49,7 @@ let package = Package(
         .target(
             name: "BookMatchKit",
             dependencies: [
+                "RxSwift",
                 "BookMatchCore",
                 "BookMatchAPI",
                 "BookMatchStrategy",
@@ -58,6 +60,7 @@ let package = Package(
         .testTarget(
             name: "BookMatchKitTests",
             dependencies: [
+                "RxSwift",
                 "BookMatchKit",
                 "BookMatchCore",
                 "BookMatchAPI",
