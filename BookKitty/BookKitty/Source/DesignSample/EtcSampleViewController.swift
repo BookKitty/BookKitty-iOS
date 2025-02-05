@@ -20,6 +20,18 @@ class EtcSampleViewController: BaseViewController {
     여러줄을 한다
     """)
 
+    let questionView = UserQuestionView(questionText: """
+    adskfj asdf adfawef sadadfdkfj asdkjk 랄랄라 랄랄라 랄라 라라라라라라
+    여러줄을 적용해보기
+    스크롤 테스트1
+    스크롤 테스트2
+    스크롤 테스트3
+    스크롤 테스트4
+
+    빈줄도 넣고 테스트
+        빈줄도 넣고 테스트3
+    """)
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -37,6 +49,7 @@ extension EtcSampleViewController {
 
         [
             questionInput,
+            questionView,
         ].forEach { contentView.addSubview($0) }
     }
 
@@ -57,6 +70,12 @@ extension EtcSampleViewController {
         questionInput.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(Vars.spacing72)
             make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+        }
+
+        questionView.snp.makeConstraints { make in
+            make.top.equalTo(questionInput.snp.bottom).offset(Vars.spacing48)
+            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+            make.bottom.equalToSuperview().inset(Vars.spacing48)
         }
     }
 }

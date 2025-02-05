@@ -26,7 +26,14 @@ public class WidthFixedImageView: UIImageView, ImageLoadableView {
     ///   - imageUrl: 사용하고자 하는 이미지의
     public init(imageUrl: String = "", width: BookImageFixedWidth) {
         self.imageUrl = imageUrl
-        fixedWidth = width
+
+        switch width {
+        case .regular:
+            fixedWidth = Vars.imageFixedWidth
+        case .large:
+            fixedWidth = Vars.imageFixedWidthLarge
+        }
+
         super.init(frame: .zero)
 
         setupProperties()
@@ -40,7 +47,7 @@ public class WidthFixedImageView: UIImageView, ImageLoadableView {
     // MARK: Public
 
     public var imageUrl: String
-    public var fixedWidth: BookImageFixedWidth
+    public var fixedWidth: CGFloat
     public var onImageLoaded: (() -> Void)?
 }
 
@@ -50,15 +57,6 @@ extension WidthFixedImageView {
     private func setupProperties() {
         contentMode = .scaleAspectFit
         clipsToBounds = true
-
-        let imageWidth: CGFloat
-
-        switch fixedWidth {
-        case .regular:
-            imageWidth = Vars.imageFixedWidth
-        case .large:
-            imageWidth = Vars.imageFixedWidthLarge
-        }
 
         imageUrl.loadAsyncImage { [weak self] image in
             guard let self else {
@@ -76,8 +74,8 @@ extension WidthFixedImageView {
             if let imageSize = bookImage?.size {
                 let aspectRatio = imageSize.height / imageSize.width
                 snp.remakeConstraints { make in
-                    make.width.equalTo(imageWidth) // 너비 고정
-                    make.height.equalTo(imageWidth * aspectRatio) // 높이 자동 조정
+                    make.width.equalTo(fixedWidth) // 너비 고정
+                    make.height.equalTo(fixedWidth * aspectRatio) // 높이 자동 조정
                 }
             }
 

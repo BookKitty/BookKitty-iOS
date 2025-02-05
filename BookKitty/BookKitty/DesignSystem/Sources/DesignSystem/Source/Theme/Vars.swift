@@ -18,20 +18,28 @@ public enum Vars {
     /// 레이아웃에서 패딩(inset) 영역 지정용 / small / 16
     public static let paddingSmall: CGFloat = 16
 
-    // MARK: - button Values
+    // MARK: - view Values
 
+    /// 카드뷰 컴포넌트의 높이값  / 320
+    public static let viewSize320: CGFloat = 320
+    /// 보통 크기의 카드뷰 관련값  / 240
+    public static let viewSize240: CGFloat = 240
     /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 160
     public static let viewSizeHuge: CGFloat = 160
     /// 텍스트뷰와 같이 큰 컴포넌트의 높이값  / 120
     public static let viewSizeXLarge: CGFloat = 120
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / large / 72
     public static let viewSizeLarge: CGFloat = 72
+    /// 두 줄 body label 등의 적절한 높이값 / medium / 56
+    public static let viewSizeMedium: CGFloat = 56
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / regular / 48
     public static let viewSizeReg: CGFloat = 48
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / small / 40
     public static let viewSizeSmall: CGFloat = 40
     /// 버튼 등의 컴포넌트 사이즈 지정용. 대체로 높이값 / tiny / 24
     public static let viewSizeTiny: CGFloat = 24
+    /// 한줄 caption label 등의 높이 값 / mini / 16
+    public static let viewSizeMini: CGFloat = 16
 
     // MARK: - Radius Values
 
@@ -54,6 +62,8 @@ public enum Vars {
     public static let spacing8: CGFloat = 8
     /// UI 컴포넌트 간의 상하 거리 간격 조정용 사이즈 / 12
     public static let spacing12: CGFloat = 12
+    /// UI 컴포넌트 간의 상하 거리 간격 조정용 사이즈 / 16
+    public static let spacing16: CGFloat = 16
     /// UI 컴포넌트 간의 상하 거리 간격 조정용 사이즈 / 20
     public static let spacing20: CGFloat = 20
     /// UI 컴포넌트 간의 상하 거리 간격 조정용 사이즈 / 24

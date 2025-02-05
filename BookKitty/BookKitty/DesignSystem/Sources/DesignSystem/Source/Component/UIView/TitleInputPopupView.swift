@@ -74,7 +74,7 @@ extension TitleInputPopupView {
     private func setupProperties() {
         backgroundColor = Colors.background0
         layer.cornerRadius = Vars.radiusTiny
-        setBiggerShadow()
+        setBiggerShadow(radius: Vars.radiusTiny)
     }
 
     private func setupLayouts() {

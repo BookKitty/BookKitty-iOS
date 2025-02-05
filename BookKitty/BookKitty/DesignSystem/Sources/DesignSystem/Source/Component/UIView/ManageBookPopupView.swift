@@ -84,7 +84,7 @@ extension ManageBookPopupView {
     private func setupProperties() {
         backgroundColor = Colors.background0
         layer.cornerRadius = Vars.radiusTiny
-        setBiggerShadow()
+        setBiggerShadow(radius: Vars.radiusTiny)
 
         bookTitleLabel.text = bookTitle
 
