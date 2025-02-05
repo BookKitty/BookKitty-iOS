@@ -1,9 +1,8 @@
 //
 //  ReviewAddBookViewController.swift
 //  BookKitty
-//  P-011
 //
-//  Created by 전성규 on 1/31/25.
+//  Created by 반성준 on 1/31/25.
 //
 
 import RxCocoa
@@ -14,6 +13,8 @@ import UIKit
 
 final class ReviewAddBookViewController: BaseViewController {
     // MARK: Lifecycle
+
+    // MARK: - Initialization
 
     init(viewModel: ReviewAddBookViewModel) {
         self.viewModel = viewModel
@@ -27,55 +28,80 @@ final class ReviewAddBookViewController: BaseViewController {
 
     // MARK: Internal
 
-    override func bind() {
-        let input = ReviewAddBookViewModel.Input(
-            testButton02Trigger: testButton02.rx.tap.asObservable()
-        )
-
-        _ = viewModel.transform(input)
-    }
-
-    override func configureHierarchy() {
-        [testLabel, testButton01, testButton02].forEach { view.addSubview($0) }
-    }
-
-    override func configureLayout() {
-        testLabel.snp.makeConstraints { $0.center.equalToSuperview() }
-
-        testButton01.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(testLabel.snp.bottom).offset(20.0)
-            $0.width.equalTo(100.0)
-        }
-
-        testButton02.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(testButton01.snp.bottom).offset(20.0)
-            $0.width.equalTo(100.0)
-        }
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
     }
 
     // MARK: Private
 
-    private let testLabel = UILabel().then {
-        $0.text = "P-011"
-        $0.font = .systemFont(ofSize: 30.0, weight: .bold)
-    }
-
-    private let testButton01 = UIButton().then {
-        $0.setTitle("책 추가하기", for: .normal)
-        $0.backgroundColor = .tintColor
-    }
-
-    private let testButton02 = UIButton().then {
-        $0.setTitle("추가 완료", for: .normal)
-        $0.backgroundColor = .tintColor
-    }
-
     private let viewModel: ReviewAddBookViewModel
-}
 
-@available(iOS 17.0, *)
-#Preview {
-    ReviewAddBookViewController(viewModel: ReviewAddBookViewModel())
+    // ✅ `BaseViewController`의 `disposeBag`을 직접 사용하도록 변경
+    // ⚠️ 더 이상 `disposeBag`을 재선언하지 않음
+    // ⚠️ `super.disposeBag`을 사용해 명확하게 해결
+
+    // MARK: - UI Elements
+
+    private let testLabel = UILabel().then {
+        $0.text = "책 추가 화면"
+        $0.font = .systemFont(ofSize: 24, weight: .bold)
+        $0.textAlignment = .center
+    }
+
+    private let addBookButton = UIButton().then {
+        $0.setTitle("책 추가하기", for: .normal)
+        $0.backgroundColor = .systemBlue
+        $0.layer.cornerRadius = 8
+    }
+
+    private let confirmButton = UIButton().then {
+        $0.setTitle("추가 완료", for: .normal)
+        $0.backgroundColor = .systemGreen
+        $0.layer.cornerRadius = 8
+    }
+
+    // MARK: - UI Setup
+
+    private func setupUI() {
+        view.addSubview(testLabel)
+        view.addSubview(addBookButton)
+        view.addSubview(confirmButton)
+    }
+
+    private func setupConstraints() {
+        testLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+
+        addBookButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(testLabel.snp.bottom).offset(20)
+            $0.width.equalTo(150)
+        }
+
+        confirmButton.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(addBookButton.snp.bottom).offset(20)
+            $0.width.equalTo(150)
+        }
+    }
+
+    // MARK: - Bind ViewModel
+
+    private func bindViewModel() {
+        let input = ReviewAddBookViewModel.Input(
+            confirmButtonTapped: confirmButton.rx.tap.asObservable()
+        )
+
+        let output = viewModel.transform(input)
+
+        output.navigateToBookList
+            .bind { [weak self] in
+                self?.dismiss(animated: true)
+            }
+            .disposed(by: super.disposeBag) // ✅ `super.disposeBag`을 명확하게 사용
+    }
 }
