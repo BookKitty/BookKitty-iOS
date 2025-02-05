@@ -11,53 +11,80 @@ import RxSwift
 final class AddBookViewModel: ViewModelType {
     // MARK: Internal
 
+    // MARK: - Input & Output
+
     struct Input {
         let captureButtonTapped: Observable<Void>
-        let manualAddButtonTapped: Observable<Void>
+        let manualAddButtonTapped: Observable<String> // ✅ 직접 입력한 제목 전달
         let confirmButtonTapped: Observable<Void>
     }
 
     struct Output {
         let bookList: Observable<[String]>
         let navigateToReviewAddBook: Observable<[String]>
+        let showTitleInputPopup: Observable<Void> // ✅ 제목 입력 팝업 트리거
     }
 
-    let disposeBag = DisposeBag()
+    let disposeBag = DisposeBag() // ✅ internal으로 변경
+
+    // MARK: - Transform Function
 
     func transform(_ input: Input) -> Output {
-        // ✅ 책 추가 버튼 클릭 시 책 제목을 입력받아 리스트에 추가
-        input.manualAddButtonTapped
+        // 📸 OCR 기반으로 책 제목 추가
+        input.captureButtonTapped
             .subscribe(onNext: { [weak self] in
-                self?.addBook("새로운 책")
+                self?.addBook("촬영된 책 제목") // ✅ OCR 연동 가능
             })
             .disposed(by: disposeBag)
 
-        // ✅ confirmButtonTapped가 실행될 때 현재 bookList 값을 방출
+        // 📝 사용자가 직접 입력한 책 제목 추가
+        input.manualAddButtonTapped
+            .subscribe(onNext: { [weak self] title in
+                self?.addBook(title)
+            })
+            .disposed(by: disposeBag)
+
+        // ✅ 제목 입력 팝업 표시 트리거
+        input.manualAddButtonTapped
+            .map { _ in }
+            .bind(to: showTitleInputPopupRelay)
+            .disposed(by: disposeBag)
+
+        // ✅ 책 목록을 가져와서 화면 전환 (비어있지 않은 경우만)
         input.confirmButtonTapped
             .withLatestFrom(bookListRelay)
-            .subscribe(onNext: { [weak self] bookList in
-                self?.navigateToReviewAddBookRelay.accept(bookList) // ✅ Relay 값을 즉시 업데이트
-            })
+            .filter { !$0.isEmpty }
+            .bind(to: navigateToReviewRelay)
             .disposed(by: disposeBag)
 
         return Output(
             bookList: bookListRelay.asObservable(),
-            navigateToReviewAddBook: navigateToReviewAddBookRelay
-                .compactMap { $0 } // ✅ nil 값 필터링
-                .asObservable()
+            navigateToReviewAddBook: navigateToReviewRelay.asObservable(),
+            showTitleInputPopup: showTitleInputPopupRelay.asObservable() // ✅ 추가
         )
     }
 
-    /// ✅ 책 추가 기능
+    // MARK: - Public Methods
+
     func addBook(_ bookTitle: String) {
         var currentList = bookListRelay.value
-        currentList.append(bookTitle)
-        bookListRelay.accept(currentList)
+        if !currentList.contains(bookTitle) { // ✅ 중복 방지
+            currentList.append(bookTitle)
+            bookListRelay.accept(currentList)
+        }
+    }
+
+    func deleteBook(at index: Int) {
+        var currentList = bookListRelay.value
+        if index < currentList.count {
+            currentList.remove(at: index)
+            bookListRelay.accept(currentList)
+        }
     }
 
     // MARK: Private
 
-    // ✅ `BehaviorRelay<[String]?>`로 변경하여 이전 값 유지 가능하도록 수정
     private let bookListRelay = BehaviorRelay<[String]>(value: [])
-    private let navigateToReviewAddBookRelay = BehaviorRelay<[String]?>(value: nil) // ✅ 옵셔널 처리
+    private let navigateToReviewRelay = PublishRelay<[String]>()
+    private let showTitleInputPopupRelay = PublishRelay<Void>() // ✅ 제목 입력 팝업 트리거 추가
 }
