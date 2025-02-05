@@ -26,6 +26,8 @@ final class RecommendedBookCell: UICollectionViewCell {
 
     // MARK: Internal
 
+    static let reuseIdentifier = "RecommendedBookCell"
+
     func configureCell(
         bookTitle: String,
         bookAuthor: String,
