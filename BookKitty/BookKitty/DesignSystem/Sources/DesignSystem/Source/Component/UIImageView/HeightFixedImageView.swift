@@ -22,7 +22,7 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     /// 책 이미지를 표시하는데 사용되며, 높이값은 200 고정입니다.
     ///
     /// - Parameters:
-    ///   - imageUrl: 사용하고자 하는 이미지의
+    ///   - imageUrl: 사용하고자 하는 이미지의 URL
     public init(imageUrl: String = "", height: BookImageFixedHeight) {
         self.imageUrl = imageUrl
 
@@ -48,6 +48,13 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     public var imageUrl: String
     public var fixedHeight: CGFloat
     public var onImageLoaded: (() -> Void)?
+
+    // MARK: Internal
+
+    func configure(imageUrl: String) {
+        self.imageUrl = imageUrl
+        setupProperties()
+    }
 }
 
 // MARK: - Setup UI
