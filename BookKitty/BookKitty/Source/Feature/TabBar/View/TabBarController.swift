@@ -5,6 +5,7 @@
 //  Created by 전성규 on 1/29/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -64,28 +65,35 @@ final class TabBarController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        [tabBar, dimmingView, floatingButton, floatingMenu].forEach { view.addSubview($0) }
+        [gradientView, tabBar, dimmingView, floatingButton, floatingMenu]
+            .forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
+        gradientView.snp.makeConstraints {
+            $0.top.equalTo(tabBar.snp.top).offset(-Vars.spacing12)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+
         tabBar.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(24.0)
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(4.0)
-            $0.width.equalTo(286.0)
-            $0.height.equalTo(48.0)
+            $0.leading.equalToSuperview().inset(Vars.paddingReg)
+            $0.trailing.equalTo(floatingButton.snp.leading).offset(-Vars.spacing20)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing4)
+            $0.height.equalTo(Vars.viewSizeReg)
         }
 
         dimmingView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
         floatingButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(24.0)
+            $0.trailing.equalToSuperview().inset(Vars.paddingReg)
             $0.bottom.equalTo(tabBar.snp.bottom)
-            $0.width.height.equalTo(48.0)
+            $0.width.height.equalTo(Vars.viewSizeReg)
         }
 
         floatingMenu.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(24.0)
-            $0.bottom.equalTo(floatingButton.snp.top).offset(-20.0)
+            $0.trailing.equalToSuperview().inset(Vars.paddingReg)
+            $0.bottom.equalTo(floatingButton.snp.top).offset(-Vars.spacing20)
             $0.width.equalTo(196.0)
             $0.height.equalTo(104.0)
         }
@@ -102,6 +110,7 @@ final class TabBarController: BaseViewController {
     ///    private let isHiddenFloating = BehaviorRelay(value: true)
     private let isFloatingActive = BehaviorRelay(value: false)
 
+    private let gradientView = GradientView()
     private let tabBar = TabBarView()
     private let dimmingView = DimmingView()
     private let floatingButton = FloatingButton()
@@ -176,7 +185,7 @@ extension TabBarController {
         view.addSubview(viewController.view)
         viewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
         viewController.didMove(toParent: self)
-        [tabBar, dimmingView, floatingButton, floatingMenu]
+        [gradientView, tabBar, dimmingView, floatingButton, floatingMenu]
             .forEach { view.bringSubviewToFront($0) }
     }
 
