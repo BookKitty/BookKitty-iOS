@@ -5,6 +5,7 @@
 //  Created by 전성규 on 1/31/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -31,14 +32,19 @@ final class FloatingMenu: UIView {
 
     // MARK: Internal
 
-    private(set) var items: [FloatingMenuItem] = FloatingMenuItemType.allCases.map {
-        FloatingMenuItem(with: $0)
-    }
-
     /// 메뉴의 가시성 상태를 나타내는 `BehaviorRelay`
     /// - `true` → 메뉴가 보임 (`alpha = 1.0`)
     /// - `false` → 메뉴가 사라짐 (`alpha = 0.0`)
     let isVisible = BehaviorRelay(value: false)
+
+    let items: [FloatingMenuItem] = FloatingMenuItemType.allCases.map {
+        FloatingMenuItem(with: $0)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
+    }
 
     // MARK: Private
 
@@ -52,8 +58,9 @@ final class FloatingMenu: UIView {
 
     private func setupUI() {
         backgroundColor = .white
-        layer.cornerRadius = 12.0
-        layer.shadowColor = UIColor.black.withAlphaComponent(0.15).cgColor
+        layer.cornerRadius = Vars.radiusTiny
+
+        layer.shadowColor = Colors.shadow15.cgColor
         layer.shadowOpacity = 1.0
         layer.shadowRadius = 4.0
         layer.shadowOffset = CGSize(width: 0.0, height: 4.0)
@@ -84,7 +91,7 @@ final class FloatingMenu: UIView {
         }
 
         for item in items {
-            item.snp.makeConstraints { $0.height.equalTo(40.0) }
+            item.snp.makeConstraints { $0.height.equalTo(Vars.viewSizeSmall) }
         }
     }
 }

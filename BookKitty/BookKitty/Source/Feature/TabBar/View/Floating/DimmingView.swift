@@ -5,6 +5,7 @@
 //  Created by 전성규 on 2/3/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import UIKit
@@ -37,7 +38,7 @@ final class DimmingView: UIView {
     private let disposeBag = DisposeBag()
 
     private func configureUI() {
-        backgroundColor = .black.withAlphaComponent(0.3)
+        backgroundColor = Colors.backgroundModal
         alpha = 0.0
     }
 
