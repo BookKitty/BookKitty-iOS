@@ -77,10 +77,12 @@ public enum Vars {
 
     // MARK: - Image values
 
-    /// 책 커버 이미지용 사이즈. 가로값 고정용 / 200
+    /// 책 커버 이미지용 사이즈. 가로값 고정용 / 144
     public static let imageFixedHeight: CGFloat = 144
+    /// 책 커버 이미지용 사이즈. 가로값 고정용 / 116
+    public static let imageFixedHeightSmall: CGFloat = 116
     /// 책 커버 이미지용 사이즈. 매우 작은 이미지 용. 가로값 고정용 / 64
-    public static let imageFixedHeightSmall: CGFloat = 64
+    public static let imageFixedHeightMini: CGFloat = 64
     /// 책 커버 이미지용 사이즈. 세로값 고정용 / 128
     public static let imageFixedWidth: CGFloat = 116
     /// 책 커버 이미지용 사이즈. 세로값 고정용 / 144

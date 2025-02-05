@@ -17,7 +17,9 @@ class ImageSampleViewController: BaseViewController {
     let noImageBook = WidthFixedImageView(width: .regular)
     let widthFixedBook =
         WidthFixedImageView(
-            imageUrl: "https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528",
+            imageUrl: """
+            https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528
+            """,
             width: .regular
         )
 
@@ -26,6 +28,16 @@ class ImageSampleViewController: BaseViewController {
             imageUrl: "https://search1.kakaocdn.net/thumb/R120x174.q85/?fname=http%3A%2F%2Ft1.daumcdn.net%2Flbook%2Fimage%2F5213380%3Ftimestamp%3D20240904145528",
             width: .large
         )
+
+    let flexibleBook = FlexibleImageView(
+        imageUrl: "https://shopping-phinf.pstatic.net/main_4718969/47189696637.20240421070849.jpg",
+        width: 150.0
+    )
+
+    let flexibleBook2 = FlexibleImageView(
+        imageUrl: "",
+        width: 180.0
+    )
 
     let noImageBook2 = HeightFixedImageView(height: .regular)
     let heightFixedBook = HeightFixedImageView(
@@ -53,6 +65,8 @@ extension ImageSampleViewController {
             noImageBook,
             widthFixedBook,
             largeWidthFixedBook,
+            flexibleBook,
+            flexibleBook2,
             noImageBook2,
             heightFixedBook,
         ].forEach { contentView.addSubview($0) }
@@ -87,8 +101,18 @@ extension ImageSampleViewController {
             make.leading.equalToSuperview().inset(Vars.paddingReg)
         }
 
+        flexibleBook.snp.makeConstraints { make in
+            make.top.equalTo(largeWidthFixedBook.snp.bottom).offset(Vars.spacing72)
+            make.leading.equalToSuperview().inset(Vars.paddingReg)
+        }
+
+        flexibleBook2.snp.makeConstraints { make in
+            make.top.equalTo(flexibleBook.snp.bottom).offset(Vars.spacing24)
+            make.leading.equalToSuperview().inset(Vars.paddingReg)
+        }
+
         noImageBook2.snp.makeConstraints { make in
-            make.top.equalTo(largeWidthFixedBook.snp.bottom).offset(Vars.spacing24)
+            make.top.equalTo(flexibleBook2.snp.bottom).offset(Vars.spacing24)
             make.leading.equalToSuperview().inset(Vars.paddingReg)
         }
 

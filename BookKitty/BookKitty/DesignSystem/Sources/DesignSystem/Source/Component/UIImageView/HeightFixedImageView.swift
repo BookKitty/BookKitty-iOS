@@ -11,6 +11,7 @@ import UIKit
 public enum BookImageFixedHeight {
     case regular
     case small
+    case mini
 }
 
 public class HeightFixedImageView: UIImageView, ImageLoadableView {
@@ -31,6 +32,8 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
             fixedHeight = Vars.imageFixedHeight
         case .small:
             fixedHeight = Vars.imageFixedHeightSmall
+        case .mini:
+            fixedHeight = Vars.imageFixedHeightMini
         }
         super.init(frame: .zero)
 
@@ -47,6 +50,7 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
 
     public var imageUrl: String
     public var fixedHeight: CGFloat
+    public var isRounded = false
     public var onImageLoaded: (() -> Void)?
 }
 
@@ -88,5 +92,14 @@ extension HeightFixedImageView {
             make.height.equalTo(fixedHeight)
             make.width.greaterThanOrEqualTo(Vars.viewSizeReg)
         }
+    }
+}
+
+// MARK: - Methods
+
+extension HeightFixedImageView {
+    public func toggleRadius() {
+        isRounded = !isRounded
+        layer.cornerRadius = isRounded ? Vars.radiusMini : 0
     }
 }
