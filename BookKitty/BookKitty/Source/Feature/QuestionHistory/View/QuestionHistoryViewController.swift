@@ -52,7 +52,7 @@ final class QuestionHistoryViewController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        [questionTableView].forEach { view.addSubview($0) }
+        view.addSubview(questionTableView)
     }
 
     override func configureLayout() {
