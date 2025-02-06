@@ -21,6 +21,7 @@ final class TabBarView: UIStackView {
 
         configureUI()
         configureHierarchy()
+        bindSelectedIndex()
     }
 
     @available(*, unavailable)
@@ -31,11 +32,62 @@ final class TabBarView: UIStackView {
     // MARK: Internal
 
     /// 선택된 탭의 인덱스를 방출하는 Relay
-    let selectedIndex = PublishRelay<Int>()
+    let selectedIndex = BehaviorRelay(value: 0)
 
     // MARK: Private
 
     private let disposeBag = DisposeBag()
+
+    private let indicator = UIView().then {
+        $0.backgroundColor = Colors.brandMain
+        $0.layer.cornerRadius = Vars.radiusReg
+    }
+
+    private func bindSelectedIndex() {
+        selectedIndex
+            .asDriver(onErrorJustReturn: 0)
+            .drive(onNext: { [weak self] index in
+                self?.updateIndicator(index: index)
+            }).disposed(by: disposeBag)
+    }
+
+    private func updateIndicator(index: Int) {
+        guard index < arrangedSubviews.count else {
+            return
+        }
+
+        let targetView = arrangedSubviews[index]
+        let newCenter = targetView.center
+        let newBounds = targetView.bounds
+
+        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
+            self.indicator.transform = CGAffineTransform(scaleX: 0.83, y: 0.83)
+            self.indicator.alpha = 0.7
+        }, completion: { _ in
+            UIView.animate(
+                withDuration: 0.45,
+                delay: 0.0,
+                usingSpringWithDamping: 0.45,
+                initialSpringVelocity: 0.7,
+                options: .curveEaseOut,
+                animations: {
+                    self.indicator.center = newCenter
+                    self.indicator.bounds = newBounds
+                    self.indicator.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                },
+                completion: { _ in
+                    UIView.animate(
+                        withDuration: 0.2,
+                        delay: 0.0,
+                        options: .curveEaseInOut,
+                        animations: {
+                            self.indicator.transform = .identity
+                        }
+                    )
+                }
+            )
+        })
+    }
 
     /// `TabBarItem`을 생성하고 `selectedIndex`와 바인딩
     private func configureHierarchy() {
@@ -49,6 +101,12 @@ final class TabBarView: UIStackView {
 
             addArrangedSubview(item)
         }
+
+        insertSubview(indicator, at: 0)
+
+        DispatchQueue.main.async {
+            self.updateIndicator(index: 0)
+        }
     }
 
     private func configureUI() {
@@ -56,6 +114,5 @@ final class TabBarView: UIStackView {
         distribution = .fillEqually
         layer.cornerRadius = Vars.radiusReg
         backgroundColor = Colors.background2
-        clipsToBounds = true
     }
 }

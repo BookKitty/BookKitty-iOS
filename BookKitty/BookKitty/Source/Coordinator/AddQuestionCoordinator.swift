@@ -113,6 +113,12 @@ extension AddQuestionCoordinator {
 
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
+        bookDetailViewModel.navigate
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
+
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
 }
