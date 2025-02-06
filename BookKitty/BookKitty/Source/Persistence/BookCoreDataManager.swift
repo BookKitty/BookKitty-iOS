@@ -7,6 +7,16 @@
 
 import CoreData
 
+/// Book 엔티티를 관리하는 코어 데이터 매니저 기능을 추상화하는 프로토콜
+protocol BookCoreDataManageable {
+    // 내부 요구사항은 추후 변경됩니다
+    func create(model: Book) -> Bool
+    func read()
+    func updateOwnedStatus(isbn: String) -> Bool
+    func modelToEntity(model: Book) -> BookEntity?
+    func entityToModel(entity: BookEntity) -> Book?
+}
+
 /// Book 엔티티를 관리하는 객체
 final class BookCoreDataManager: BookCoreDataManageable {
     /// 새로운 Book 모델 데이터를 코어데이터의 BookEntity로 만들기
@@ -31,6 +41,8 @@ final class BookCoreDataManager: BookCoreDataManageable {
     }
 
     func read() {}
+    
+    func delete() {}
 
     /// 책의 소유 여부를 변경
     /// - Parameter isbn: 변경하고자 하는 책의 isbn
