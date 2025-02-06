@@ -5,6 +5,8 @@ import CoreFoundation
 import RxSwift
 import UIKit
 
+@_exported import struct BookMatchCore.BookMatchModuleOutput
+@_exported import protocol BookMatchCore.BookRecommendable
 @_exported import struct BookMatchCore.OwnedBook
 
 /// 도서 매칭 및 추천 기능의 핵심 모듈입니다.
