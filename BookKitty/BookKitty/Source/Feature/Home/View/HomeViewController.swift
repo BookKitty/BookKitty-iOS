@@ -30,7 +30,7 @@ class HomeViewController: BaseViewController {
     // MARK: Internal
 
     override func configureHierarchy() {
-        [titleLabel, recommendedBooksCollectionView].forEach { view.addSubview($0) }
+        [titleLabel, recommendedBooksCollectionView, copyrightLabel].forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
@@ -43,6 +43,11 @@ class HomeViewController: BaseViewController {
             make.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing24)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
             make.height.greaterThanOrEqualTo(448)
+        }
+
+        copyrightLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-Vars.spacing16)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing24)
         }
     }
 
@@ -84,6 +89,12 @@ class HomeViewController: BaseViewController {
     private let titleLabel = Headline3Label(weight: .extraBold).then {
         $0.text = "책냥이가 아래 책들을 추천합니다."
         $0.textColor = Colors.fontMain
+    }
+
+    private let copyrightLabel = CaptionLabel().then {
+        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
+        $0.textColor = Colors.fontSub1
+        $0.textAlignment = .center
     }
 
     private lazy var recommendedBooksCollectionView: UICollectionView = {

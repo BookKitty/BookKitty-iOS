@@ -22,9 +22,9 @@ struct NaverBooksEndpoint: Endpoint {
 
     // MARK: - Endpoint Protocol
 
-    var baseURL: String { configuration.naverBaseURL }
+    var baseURL: String { "https://openapi.naver.com" }
 
-    var path: String { "" } // baseURL에 이미 전체 경로가 포함되어 있으므로 빈 문자열
+    var path: String { "/v1/search/book.json" } // baseURL에 이미 전체 경로가 포함되어 있으므로 빈 문자열
 
     var method: HTTPMethod { .get }
 
