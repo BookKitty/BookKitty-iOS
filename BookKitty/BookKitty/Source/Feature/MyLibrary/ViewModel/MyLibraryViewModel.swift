@@ -35,7 +35,7 @@ final class MyLibraryViewModel: ViewModelType {
     /// ViewModel이 View에게 전달할 출력 데이터들을 정의
     struct Output {
         /// 화면에 표시될 책 목록
-        let bookList: Driver<[Book]>
+        let bookList: Driver<[SectionOfBook]>
     }
 
     let disposeBag = DisposeBag()
@@ -56,10 +56,12 @@ final class MyLibraryViewModel: ViewModelType {
         input.viewDidLoad
             .withUnretained(self)
             .map { _ in
-                self.bookRepository.fetchBookList(
+                let fetchedBooks = self.bookRepository.fetchBookList(
                     offset: self.offset,
                     limit: self.limit
                 )
+                self.books = fetchedBooks
+                return [SectionOfBook(items: self.books)]
             }
             .bind(to: bookList)
             .disposed(by: disposeBag)
@@ -69,7 +71,7 @@ final class MyLibraryViewModel: ViewModelType {
             .withUnretained(self)
             .map { _ in
                 guard !self.isLoading else {
-                    return self.books
+                    return [SectionOfBook(items: self.books)]
                 }
                 self.isLoading = true
                 self.offset += self.limit
@@ -77,8 +79,9 @@ final class MyLibraryViewModel: ViewModelType {
                     offset: self.offset,
                     limit: self.limit
                 )
+                self.books += fetchedBooks
                 self.isLoading = false
-                return fetchedBooks
+                return [SectionOfBook(items: self.books)]
             }
             .bind(to: bookList)
             .disposed(by: disposeBag)
@@ -90,7 +93,7 @@ final class MyLibraryViewModel: ViewModelType {
 
     // MARK: Private
 
-    private let bookList = BehaviorRelay<[Book]>(value: [])
+    private let bookList = BehaviorRelay<[SectionOfBook]>(value: [])
 
     private var offset = 0
     private let limit = 15
