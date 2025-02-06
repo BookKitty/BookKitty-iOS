@@ -9,6 +9,7 @@ import Foundation
 
 /// 테스트를 위한 가짜 레포지토리
 final class MockBookRepository: BookRepository {
+    
     let mockBookList = [
         Book(
             isbn: "978-3-16-148410-0",
@@ -48,6 +49,8 @@ final class MockBookRepository: BookRepository {
         thumbnailUrl: URL(string: "https://picsum.photos/200/300")
     )
 
+    // 아래 함수는 실제로 레포지토리에서 구현되지 않았습니다.
+    // fetchBookList 함수를 사용해 주세요.
     func fetchAllBooks() -> [Book] {
         [
             Book(
@@ -73,22 +76,38 @@ final class MockBookRepository: BookRepository {
             ),
         ]
     }
-
-    func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
-        []
-    }
-
-    func fetchBookList(offset _: Int, limit _: Int) -> [Book] {
+    
+    func fetchBookList(offset: Int, limit: Int) -> [Book] {
         mockBookList
     }
-
-    func fetchBookDetail() -> Book {
+    
+    func fetchBookDetail(by isbn: String) -> Book? {
         mockBookDetail
     }
-
-    func saveBookList() {}
-
-    func deleteBook() {}
+    
+    func fetchBookDetailFromISBNs(isbnList: [String]) -> [Book] {
+        mockBookList
+    }
+    
+    func fetchRecentRecommendedBooks() -> [Book] {
+        mockBookList
+    }
+    
+    func saveBookList(data: [Book]) -> Bool {
+        return true
+    }
+    
+    func saveBook(book: Book) -> Bool {
+        return true
+    }
+    
+    func addBookToShelf(isbn: String) -> Bool {
+        return true
+    }
+    
+    func exceptBookFromShelf(isbn: String) -> Bool {
+        return true
+    }
 
     // MARK: Private
 }
