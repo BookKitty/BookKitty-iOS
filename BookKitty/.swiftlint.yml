@@ -3,7 +3,8 @@ disabled_rules:
     - file_length                 # 파일 길이 제한 비활성화
     - trailing_whitespace         # 줄 끝 공백 무시
     - implicit_return             # return 사용 무시
-    - trailing_comma
+    - trailing_comma              # 마지막 콤마 있어도 됨
+    - explicit_enum_raw_value     # 열거형 원시값 명시적으로 안 넣어줘도 됨
 
 # 활성화할 옵트인 규칙
 opt_in_rules:

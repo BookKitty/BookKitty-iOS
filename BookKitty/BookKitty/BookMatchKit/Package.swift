@@ -64,13 +64,12 @@ let package = Package(
             name: "BookMatchAPI",
             dependencies: ["RxSwift", "SwiftFormat", "BookMatchCore"]
         ),
-
         .testTarget(
             name: "BookMatchKitTests",
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
             ]
-        ),
+        )
     ]
 )

@@ -22,9 +22,9 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
         questionHistoryViewModel =
-            QuestionHistoryViewModel(questionRepository: MockQuestionHistoryRepository())
+            QuestionHistoryViewModel(questionHistoryRepository: MockQuestionHistoryRepository())
         let repository = MockQuestionHistoryRepository()
-        questionHistoryViewModel = QuestionHistoryViewModel(questionRepository: repository)
+        questionHistoryViewModel = QuestionHistoryViewModel(questionHistoryRepository: repository)
         questionHistoryViewController =
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
     }
@@ -52,7 +52,7 @@ extension DefaultQuestionCoordinator {
     /// 질문 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionHistoryScreen() {
         let questionHistoryViewModel =
-            QuestionHistoryViewModel(questionRepository: MockQuestionHistoryRepository())
+            QuestionHistoryViewModel(questionHistoryRepository: MockQuestionHistoryRepository())
 
         // 질문 상세 화면으로의 이동 이벤트 처리
         questionHistoryViewModel.navigateToQuestionDetail

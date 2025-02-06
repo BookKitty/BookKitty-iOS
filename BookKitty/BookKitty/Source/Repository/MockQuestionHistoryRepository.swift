@@ -10,11 +10,11 @@ import RxSwift
 
 final class MockQuestionHistoryRepository: QuestionHistoryRepository {
     let mockQuestionList = [
-        Question(
+        QuestionAnswer(
             createdAt: Date(),
             userQuestion: "책 추천을 받고 싶어요!",
             gptAnswer: "당신의 관심사를 기반으로 몇 가지 책을 추천해드릴게요.",
-            recommandedBooks: [
+            recommendedBooks: [
                 Book(
                     isbn: "9788950963262",
                     title: "침묵의 기술",
@@ -53,11 +53,11 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                 ),
             ]
         ),
-        Question(
+        QuestionAnswer(
             createdAt: Date().addingTimeInterval(-86400), // 하루 전
             userQuestion: "자기계발 관련 책 추천해주세요.",
             gptAnswer: "자기계발에 좋은 책 몇 권을 추천해드릴게요.",
-            recommandedBooks: [
+            recommendedBooks: [
                 Book(
                     isbn: "9788954625760",
                     title: "불안의 책",
@@ -78,11 +78,11 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                 ),
             ]
         ),
-        Question(
+        QuestionAnswer(
             createdAt: Date(),
             userQuestion: "책 추천을 받고 싶어요!",
             gptAnswer: "당신의 관심사를 기반으로 몇 가지 책을 추천해드릴게요.",
-            recommandedBooks: [
+            recommendedBooks: [
                 Book(
                     isbn: "9788925562599",
                     title: "아르테미스",
@@ -139,11 +139,11 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                 ),
             ]
         ),
-        Question(
+        QuestionAnswer(
             createdAt: Date().addingTimeInterval(-86400), // 하루 전
             userQuestion: "자기계발 관련 책 추천해주세요.",
             gptAnswer: "자기계발에 좋은 책 몇 권을 추천해드릴게요.",
-            recommandedBooks: [
+            recommendedBooks: [
                 Book(
                     isbn: "9788947529877",
                     title: "제로 투 원",
@@ -175,7 +175,11 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
         ),
     ]
 
-    func fetchQuestions(offset _: Int, limit _: Int) -> Single<[Question]> {
+    func saveQuestion(_: QuestionAnswer) {
+        print("questionSaved")
+    }
+
+    func fetchQuestions(offset _: Int, limit _: Int) -> Single<[QuestionAnswer]> {
         Single.create { observer in
             observer(.success(self.mockQuestionList))
             return Disposables.create()
