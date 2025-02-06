@@ -50,16 +50,44 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         return .just(questions)
     }
 
-    func fetchQuestion(by _: UUID) -> QuestionAnswer? {
-        nil
+    func fetchQuestion(by uuid: UUID) -> QuestionAnswer? {
+        if let entity = questionAnswerCoreDataManager.selectById(by: uuid, context: context) {
+            return questionEntityToModel(entity: entity)
+        }
+        return nil
     }
 
-    func saveQuestionAnswer(data _: QuestionAnswer) -> UUID? {
-        nil
+    func saveQuestionAnswer(data: QuestionAnswer) -> UUID? {
+        let questionEntity = QuestionAnswerEntity(context: context)
+
+        questionEntity.id = UUID()
+        questionEntity.aiAnswer = data.gptAnswer
+        questionEntity.userQuestion = data.userQuestion
+
+        let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
+            data: data.recommendedBooks,
+            context: context
+        )
+
+        let linkEntities = bookEntities.map {
+            bookQALinkCoreDataManager.createNewLinkWithoutSave(
+                bookEntity: $0,
+                questionAnswerEntity: questionEntity,
+                context: context
+            )
+        }
+
+        do {
+            try context.save()
+            return questionEntity.id
+        } catch {
+            print("저장 실패: \(error.localizedDescription)")
+            return nil
+        }
     }
 
-    func deleteQuestionAnswer(uuid _: UUID) -> Bool {
-        true
+    func deleteQuestionAnswer(uuid: UUID) -> Bool {
+        questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
 
     // MARK: Private

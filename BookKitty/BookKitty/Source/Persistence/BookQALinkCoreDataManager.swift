@@ -11,6 +11,11 @@ import CoreData
 protocol BookQALinkCoreDataManageable {
     func selectRecentRecommendedBooks(context: NSManagedObjectContext)
         -> [BookQuestionAnswerLinkEntity]
+    func createNewLinkWithoutSave(
+        bookEntity: BookEntity,
+        questionAnswerEntity: QuestionAnswerEntity,
+        context: NSManagedObjectContext
+    ) -> BookQuestionAnswerLinkEntity
 }
 
 /// BookQuestionAnswerLink 엔티티를 관리하는 객체
@@ -34,10 +39,22 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         }
     }
 
-    func insertNewLink(
-        bookEntity _: BookEntity,
-        questionAnswerEntity _: QuestionAnswerEntity
-    ) -> Bool {
-        false
+    /// <#Description#>
+    /// - Parameters:
+    ///   - bookEntity: <#bookEntity description#>
+    ///   - questionAnswerEntity: <#questionAnswerEntity description#>
+    ///   - context: <#context description#>
+    /// - Returns: <#description#>
+    func createNewLinkWithoutSave(
+        bookEntity: BookEntity,
+        questionAnswerEntity: QuestionAnswerEntity,
+        context: NSManagedObjectContext
+    ) -> BookQuestionAnswerLinkEntity {
+        let linkEntity = BookQuestionAnswerLinkEntity(context: context)
+        linkEntity.book = bookEntity
+        linkEntity.questionAnswer = questionAnswerEntity
+        linkEntity.createdAt = Date()
+
+        return linkEntity
     }
 }
