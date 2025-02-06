@@ -57,8 +57,8 @@ extension DefaultQuestionCoordinator {
         // 질문 상세 화면으로의 이동 이벤트 처리
         questionHistoryViewModel.navigateToQuestionDetail
             .withUnretained(self)
-            .subscribe(onNext: { coordinator, _ in
-                coordinator.showQuestionDetailScreen()
+            .subscribe(onNext: { coordinator, questionAnswer in
+                coordinator.showQuestionDetailScreen(questionAnswer: questionAnswer)
             }).disposed(by: disposeBag)
     }
 
@@ -66,16 +66,20 @@ extension DefaultQuestionCoordinator {
     ///
     /// 질문 상세 화면을 생성하고, ViewModel과 ViewController를 연결
     /// 책 상세 화면으로의 네비게이션 이벤트를 구독
-    private func showQuestionDetailScreen() {
-        let questionDetailViewModel = QuestionDetailViewModel()
+    private func showQuestionDetailScreen(questionAnswer: QuestionAnswer) {
+        let questionHistoryRepository = MockQuestionHistoryRepository()
+        let questionDetailViewModel = QuestionDetailViewModel(
+            questionAnswer: questionAnswer,
+            questionHistoryRepository: questionHistoryRepository
+        )
         let questionDetailViewController =
             QuestionDetailViewController(viewModel: questionDetailViewModel)
 
         // 책 상세 화면으로의 이동 이벤트 처리
         questionDetailViewModel.navigateToBookDetail
             .withUnretained(self)
-            .subscribe(onNext: { coordinator, _ in
-                coordinator.showBookDetailScreen()
+            .subscribe(onNext: { coordinator, book in
+                coordinator.showBookDetailScreen(book)
             }).disposed(by: disposeBag)
 
         questionDetailViewController.hidesBottomBarWhenPushed = true
@@ -85,10 +89,15 @@ extension DefaultQuestionCoordinator {
     /// 책 상세 화면 표시
     ///
     /// 책 상세 화면을 생성하고, ViewModel과 ViewController를 연결
-    private func showBookDetailScreen() {
+    private func showBookDetailScreen(_: Book) {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
+
+    // TODO: 추후 커스텀 nav 구현 시 필요
+//    private func dismissBookDetailScreen() {
+//        navigationController.dismiss(animated: true)
+//    }
 }
