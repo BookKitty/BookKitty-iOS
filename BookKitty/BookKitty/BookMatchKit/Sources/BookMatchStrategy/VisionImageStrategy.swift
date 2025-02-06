@@ -1,21 +1,18 @@
 import BookMatchCore
+import RxSwift
 import UIKit
 import Vision
 
 /// 도서 표지 이미지 간의 유사도를 계산하는 클래스입니다.
 /// Vision 프레임워크를 사용하여 이미지의 특징점을 추출하고 비교합니다.
-public class BookImageSimilarityCalculator: ImageSimilarityCalculatable {
+public class VisionImageStrategy: SimilarityCalculatable {
     // MARK: Lifecycle
 
-    public init(
-        session: URLSession = .shared,
-        context: CIContext = CIContext()
-    ) {
-        self.session = session
-        self.context = context
-    }
+    public init() {}
 
     // MARK: Public
+
+    public typealias T = UIImage
 
     /// 두 이미지 간의 `유사도를 계산`합니다.
     ///
@@ -23,54 +20,33 @@ public class BookImageSimilarityCalculator: ImageSimilarityCalculatable {
     ///   - image1: 비교할 첫 번째 이미지
     ///   - imageURL2: 비교할 두 번째 이미지의 URL
     /// - Returns: 0부터 100 사이의 유사도 점수 (높을수록 유사)
-    public func calculateImageSimilarity(image1: UIImage, imageURL2: String) async -> Double {
-        do {
-            let image2 = try await downloadImage(from: imageURL2)
+    public func calculateSimilarity(_ image1: UIImage, _ image2: UIImage) -> Single<Double> {
+        Single.create { single in
+            let processedImage1 = self.preprocessImage(image1)
+            let processedImage2 = self.preprocessImage(image2)
 
-            let processedImage1 = preprocessImage(image1)
-            let processedImage2 = preprocessImage(image2)
+            do {
+                let featurePrint1 = try self.extractFeaturePrint(from: processedImage1)
+                let featurePrint2 = try self.extractFeaturePrint(from: processedImage2)
 
-            guard let featurePrint1 = try? await extractFeaturePrint(from: processedImage1),
-                  let featurePrint2 = try? await extractFeaturePrint(from: processedImage2) else {
-                throw BookMatchError.imageCalculationFailed("FeaturePrint 생성 실패 2")
+                var distance: Float = 0.0
+                try featurePrint1.computeDistance(&distance, to: featurePrint2)
+                let similarity = max(0, min(1, 2.5 - distance * 2.5))
+
+                single(.success(Double(similarity)))
+            } catch {
+                print("유사도 연산 실패, \(error)")
+                single(.success(Double(-1.0)))
             }
 
-            var distance: Float = 0.0
-            try featurePrint1.computeDistance(&distance, to: featurePrint2)
-            let similarity = max(0, min(100, (2.5 - distance * 2.5) * 100))
-
-            return Double(similarity)
-        } catch {
-            print("유사도 연산 실패, \(error)")
-            return -1.0
+            return Disposables.create()
         }
     }
 
     // MARK: Private
 
-    private let session: URLSession
-    private let context: CIContext
-
-    /// URL로부터 이미지를 다운로드합니다.
-    ///
-    /// - Parameters:
-    ///   - urlString: 이미지 URL 문자열
-    /// - Returns: 다운로드된 UIImage
-    /// - Throws: BookMatchError.networkError
-    private func downloadImage(from urlString: String) async throws -> UIImage {
-        guard let url = URL(string: urlString) else {
-            throw BookMatchError.networkError("Invalid URL")
-        }
-
-        let (data, _) = try await session.data(from: url)
-
-        guard let image = UIImage(data: data) else {
-            print("UIImage")
-            throw BookMatchError.networkError("Image Fetch Failed")
-        }
-
-        return image
-    }
+    private let disposeBag = DisposeBag()
+    private let context = CIContext()
 
     /// 이미지로부터 특징점을 추출합니다.
     ///
@@ -78,7 +54,7 @@ public class BookImageSimilarityCalculator: ImageSimilarityCalculatable {
     ///   - image: 특징점을 추출할 이미지
     /// - Returns: 추출된 특징점 데이터
     /// - Throws: BookMatchError.imageCalculationFailed
-    private func extractFeaturePrint(from image: UIImage) async throws
+    private func extractFeaturePrint(from image: UIImage) throws
         -> VNFeaturePrintObservation {
         guard let ciImage = CIImage(image: image) else {
             throw BookMatchError.networkError("Image Fetch Failed")
