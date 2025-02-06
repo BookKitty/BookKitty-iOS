@@ -31,6 +31,7 @@ final class DefaultHomeCoordinator: Coordinator {
     var homeViewController: HomeViewController
 
     var homeViewModel: HomeViewModel
+    var finishDelegate: (any CoordinatorFinishDelegate)?
 
     func start() { showHomeScreen() }
 

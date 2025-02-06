@@ -33,6 +33,8 @@ final class TabBarController: BaseViewController {
     /// 관리할 뷰 컨트롤러 배열
     var viewControllers: [UIViewController] = []
 
+    let tabBar = TabBarView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -53,6 +55,9 @@ final class TabBarController: BaseViewController {
         // 플로팅 메뉴 아이템의 선택 이벤트를 Rx로 바인딩
         for item in floatingMenu.items {
             item.rx.selectedItem
+                .do(onNext: { [weak self] _ in
+                    self?.isFloatingActive.accept(false)
+                })
                 .bind(to: selectedFloatingItem)
                 .disposed(by: disposeBag)
         }
@@ -111,7 +116,6 @@ final class TabBarController: BaseViewController {
     private let isFloatingActive = BehaviorRelay(value: false)
 
     private let gradientView = GradientView()
-    private let tabBar = TabBarView()
     private let dimmingView = DimmingView()
     private let floatingButton = FloatingButton()
     private let floatingMenu = FloatingMenu()
@@ -184,7 +188,10 @@ extension TabBarController {
         let viewController = viewControllers[index]
         addChild(viewController)
         view.addSubview(viewController.view)
-        viewController.view.snp.makeConstraints { $0.edges.equalToSuperview() }
+        viewController.view.snp.makeConstraints {
+            $0.top.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(tabBar.snp.top)
+        }
         viewController.didMove(toParent: self)
         [gradientView, tabBar, dimmingView, floatingButton, floatingMenu]
             .forEach { view.bringSubviewToFront($0) }

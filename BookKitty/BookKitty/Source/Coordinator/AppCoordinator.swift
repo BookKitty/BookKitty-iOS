@@ -1,10 +1,9 @@
 //
-//  AppCoordinator.swift
-//  BookKitty
+// AppCoordinator.swift
+// BookKitty
 //
-//  Created by 권승용 on 1/23/25.
+// Created by 권승용 on 1/23/25.
 //
-
 import UIKit
 
 final class AppCoordinator: Coordinator {
@@ -16,9 +15,9 @@ final class AppCoordinator: Coordinator {
 
     // MARK: Internal
 
+    weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
-
     let navigationController: UINavigationController
 
     func start() { showCustomTabBarFlow() }
