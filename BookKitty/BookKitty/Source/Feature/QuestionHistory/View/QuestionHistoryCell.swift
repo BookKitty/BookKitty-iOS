@@ -33,7 +33,7 @@ final class QuestionHistoryCell: UITableViewCell {
 
     static let identifier = "QuestionHistoryCell"
 
-    func configure(with question: Question) {
+    func configure(with question: QuestionAnswer) {
         let isOverlapNeeded = question.recommandedBooks.count > 3
 
         dateLabel.text = DateFormatter.shared.string(from: question.createdAt)
