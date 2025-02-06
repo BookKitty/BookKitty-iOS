@@ -85,15 +85,6 @@ final class AddBookViewController: BaseCameraViewController {
         $0.textColor = .black
     }
 
-    /// ✅ "누락된 책이 있나요?" 추가 안내 문구
-    private let missingBookLabel = UILabel().then {
-        $0.text = "누락된 책이 있나요?\n책의 제목을 입력하여 직접 책을 추가하세요."
-        $0.textAlignment = .center
-        $0.numberOfLines = 2
-        $0.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        $0.textColor = .darkGray
-    }
-
     // MARK: - 네비게이션 바 설정
 
     private func setupNavigationBar() {
@@ -124,7 +115,6 @@ final class AddBookViewController: BaseCameraViewController {
         cameraContainerView.addSubview(cameraView)
         view.addSubview(yellowInfoView)
         yellowInfoView.addSubview(infoLabel)
-        yellowInfoView.addSubview(missingBookLabel)
         view.addSubview(captureButton)
     }
 
@@ -152,12 +142,7 @@ final class AddBookViewController: BaseCameraViewController {
         }
 
         infoLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(10)
-            $0.leading.trailing.equalToSuperview().inset(10)
-        }
-
-        missingBookLabel.snp.makeConstraints {
-            $0.top.equalTo(infoLabel.snp.bottom).offset(8)
+            $0.center.equalToSuperview()
             $0.leading.trailing.equalToSuperview().inset(10)
         }
 

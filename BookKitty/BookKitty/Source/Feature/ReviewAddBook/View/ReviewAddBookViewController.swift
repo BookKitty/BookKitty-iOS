@@ -229,9 +229,10 @@ final class BookCell: UICollectionViewCell {
     // MARK: Private
 
     private let bookImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
+        $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 4
         $0.clipsToBounds = true
+        $0.backgroundColor = UIColor.lightGray.withAlphaComponent(0.05) // ✅ 투명 회색 배경
     }
 
     private let titleLabel = UILabel().then {
@@ -239,16 +240,22 @@ final class BookCell: UICollectionViewCell {
         $0.textColor = .black
         $0.numberOfLines = 2
         $0.textAlignment = .left
+        $0.adjustsFontSizeToFitWidth = true // ✅ 글자 크기 자동 조정
+        $0.minimumScaleFactor = 0.9
     }
 
     private let authorLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         $0.textColor = .darkGray
-        $0.numberOfLines = 1
         $0.textAlignment = .left
+        $0.adjustsFontSizeToFitWidth = true // ✅ 글자 크기 자동 조정
+        $0.minimumScaleFactor = 0.9
     }
 
     private func setupUI() {
+        contentView.backgroundColor = .white
+        contentView.clipsToBounds = true
+
         contentView.addSubview(bookImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorLabel)
@@ -258,7 +265,8 @@ final class BookCell: UICollectionViewCell {
         bookImageView.snp.makeConstraints {
             $0.leading.equalToSuperview().offset(12)
             $0.centerY.equalToSuperview()
-            $0.width.height.equalTo(48)
+            $0.width.equalTo(48)
+            $0.height.equalTo(72)
         }
 
         titleLabel.snp.makeConstraints {
