@@ -13,6 +13,7 @@ protocol QuestionHistoryRepository {
     func fetchQuestion(by id: UUID) -> QuestionAnswer? // uuid 로 특정 퀘스쳔 정보 가져오기
 
     func saveQuestionAnswer(data: [QuestionAnswer]) -> UUID? // 질문답변 데이터 셋 저장.
+    func deleteQuestionAnswer(uuid: UUID) -> Bool // 삭제 성공 여부를 bool값으로 반환.
 }
 
 struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
@@ -41,6 +42,10 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
 
     func fetchQuestions(offset _: Int, limit _: Int) -> RxSwift.Single<[QuestionAnswer]> {
         .just([])
+    }
+    
+    func deleteQuestionAnswer(uuid: UUID) -> Bool {
+        
     }
 
     // MARK: Private

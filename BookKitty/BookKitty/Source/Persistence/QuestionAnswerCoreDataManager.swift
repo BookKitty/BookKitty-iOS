@@ -30,4 +30,6 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
     func create() {}
 
     func read() {}
+    
+    func delete() {}
 }
