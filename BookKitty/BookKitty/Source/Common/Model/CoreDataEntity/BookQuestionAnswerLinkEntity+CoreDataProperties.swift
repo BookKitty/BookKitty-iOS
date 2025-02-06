@@ -6,22 +6,18 @@
 //
 //
 
-import Foundation
 import CoreData
-
+import Foundation
 
 extension BookQuestionAnswerLinkEntity {
-
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<BookQuestionAnswerLinkEntity> {
-        return NSFetchRequest<BookQuestionAnswerLinkEntity>(entityName: "BookQuestionAnswerLinkEntity")
+    @nonobjc
+    public class func fetchRequest() -> NSFetchRequest<BookQuestionAnswerLinkEntity> {
+        NSFetchRequest<BookQuestionAnswerLinkEntity>(entityName: "BookQuestionAnswerLinkEntity")
     }
 
     @NSManaged public var createdAt: Date?
     @NSManaged public var book: BookEntity?
     @NSManaged public var questionAnswer: QuestionAnswerEntity?
-
 }
 
-extension BookQuestionAnswerLinkEntity : Identifiable {
-
-}
+extension BookQuestionAnswerLinkEntity: Identifiable {}
