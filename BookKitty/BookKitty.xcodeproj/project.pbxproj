@@ -12,7 +12,8 @@
 		606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2412D4206F200C7FAA3 /* RxSwift */; };
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
-		60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F1CE8B2D53715B00E3F881 /* BookMatchKit */; };
+		E5F7F23A2D5497E200B52C1F /* BookMatchKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5F7F2392D5497E200B52C1F /* BookMatchKit */; };
+		E5F7F23C2D5497E200B52C1F /* BookRecommendationKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5F7F23B2D5497E200B52C1F /* BookRecommendationKit */; };
 		E5FC698C2D52414B002875FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5FC698B2D52414B002875FD /* SnapKit */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
 		E9A9DF5B2D51EB54002EF385 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E9A9DF5A2D51EB54002EF385 /* RxCocoa */; };
@@ -70,11 +71,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */,
+				E5F7F23A2D5497E200B52C1F /* BookMatchKit in Frameworks */,
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
 				E5FC698C2D52414B002875FD /* SnapKit in Frameworks */,
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */,
+				E5F7F23C2D5497E200B52C1F /* BookRecommendationKit in Frameworks */,
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
 				6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */,
 				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
@@ -148,7 +150,8 @@
 				606DA2472D42079900C7FAA3 /* Differentiator */,
 				E9A9DF5A2D51EB54002EF385 /* RxCocoa */,
 				E5FC698B2D52414B002875FD /* SnapKit */,
-				60F1CE8B2D53715B00E3F881 /* BookMatchKit */,
+				E5F7F2392D5497E200B52C1F /* BookMatchKit */,
+				E5F7F23B2D5497E200B52C1F /* BookRecommendationKit */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -618,9 +621,13 @@
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = Differentiator;
 		};
-		60F1CE8B2D53715B00E3F881 /* BookMatchKit */ = {
+		E5F7F2392D5497E200B52C1F /* BookMatchKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BookMatchKit;
+		};
+		E5F7F23B2D5497E200B52C1F /* BookRecommendationKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BookRecommendationKit;
 		};
 		E5FC698B2D52414B002875FD /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

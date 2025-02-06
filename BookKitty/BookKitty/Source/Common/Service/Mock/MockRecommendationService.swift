@@ -4,13 +4,12 @@
 //
 //  Created by 권승용 on 2/5/25.
 //
-
 import BookMatchCore
 import Foundation
 import UIKit
 
 /// Mock 추천 서비스 클래스
-class MockRecommendationService: BookMatchable {
+class MockRecommendationService: BookRecommendable {
     let mockBookData = [
         BookItem(
             id: "12313",
@@ -97,15 +96,11 @@ class MockRecommendationService: BookMatchable {
         ),
     ]
 
-    func recommendBooks(from _: [BookMatchCore.OwnedBook]) async -> [BookMatchCore.BookItem] {
+    func recommendBooks(from _: [OwnedBook]) async -> [BookItem] {
         []
     }
 
-    func matchBook(_: [[String]], image _: UIImage) async -> BookMatchCore.BookItem? {
-        nil
-    }
-
-    func recommendBooks(for _: BookMatchCore.BookMatchModuleInput) async -> BookMatchCore
+    func recommendBooks(for _: String, from _: [OwnedBook]) async -> BookMatchCore
         .BookMatchModuleOutput {
         BookMatchModuleOutput(
             ownedISBNs: [
