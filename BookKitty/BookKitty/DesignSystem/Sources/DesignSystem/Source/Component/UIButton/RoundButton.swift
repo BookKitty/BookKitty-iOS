@@ -97,6 +97,7 @@ extension RoundButton {
         var config = configuration
         isRounded = !isRounded
         config?.background.cornerRadius = isRounded ? Vars.radiusMini : 0
+        configuration = config
     }
 
     public func changeBackgroundColor(to color: UIColor) {

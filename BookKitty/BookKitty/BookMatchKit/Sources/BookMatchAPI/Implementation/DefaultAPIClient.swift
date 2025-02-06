@@ -1,5 +1,6 @@
 import BookMatchCore
 import Foundation
+import RxSwift
 
 /// 네이버 책 검색 API와 OpenAI API를 사용하여 도서 검색 및 추천 기능을 제공하는 클라이언트입니다.
 public final class DefaultAPIClient: APIClientProtocol {
@@ -22,30 +23,69 @@ public final class DefaultAPIClient: APIClientProtocol {
     ///     - limit: 검색 결과 제한 수 (기본값: 10)
     ///  - Returns: 검색된 도서 목록
     ///  - Throws: 단순 네트워크 에러
-    public func searchBooks(query: String, limit: Int = 10) async throws -> [BookItem] {
+    public func searchBooks(query: String, limit: Int = 10) -> Single<[BookItem]> {
         guard !query.isEmpty else {
-            return []
+            return .just([])
         }
 
-        let queryString = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let urlString =
-            "\(configuration.naverBaseURL)?query=\(queryString)&display=\(limit)&start=1"
+        return Single.create { [weak self] single in
+            guard let self else {
+                single(.failure(BookMatchError.invalidResponse))
+                return Disposables.create()
+            }
 
-        guard let url = URL(string: urlString) else {
-            throw BookMatchError.networkError("Invalid URL")
+            guard let queryString = query
+                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                let url =
+                URL(
+                    string: "\(configuration.naverBaseURL)?query=\(queryString)&display=\(limit)&start=1"
+                )
+            else {
+                single(.failure(BookMatchError.networkError("Invalid URL")))
+                return Disposables.create()
+            }
+
+            var request = URLRequest(url: url)
+            request.setValue(configuration.naverClientId, forHTTPHeaderField: "X-Naver-Client-Id")
+            request.setValue(
+                configuration.naverClientSecret,
+                forHTTPHeaderField: "X-Naver-Client-Secret"
+            )
+
+            let task = session.dataTask(with: request) { data, _, error in
+                if let error {
+                    single(.failure(error))
+                    return
+                }
+
+                guard let data,
+                      let naverResponse = try? JSONDecoder().decode(
+                          NaverBooksResponse.self,
+                          from: data
+                      )
+                else {
+                    single(.failure(BookMatchError.invalidResponse))
+                    return
+                }
+
+                single(.success(naverResponse.items.map { $0.toBookItem() }))
+            }
+
+            // URLSession 데이터 태스크를 실제로 시작
+            task.resume()
+
+            // RxSwift의 구독이 해제(dispose)될 때 실행될 정리(cleanup) 코드를 정의
+            //
+            // dispose() 직접 실행하거나, 화면에 dismiss됨으로서, disposeBag이 메모리 해제될 때, task.cancel이 호출됨
+            //
+            // 아래 상황에서 task.cancel()이 호출됨
+            // - 사용자가 화면을 벗어날 때
+            // - 새로운 요청이 시작될 때
+            // - 구독이 명시적으로 해제될 때disposeBag이 해제될 때
+            return Disposables.create {
+                task.cancel()
+            }
         }
-
-        var request = URLRequest(url: url)
-        request.setValue(configuration.naverClientId, forHTTPHeaderField: "X-Naver-Client-Id")
-        request.setValue(
-            configuration.naverClientSecret,
-            forHTTPHeaderField: "X-Naver-Client-Secret"
-        )
-
-        let (data, _) = try await session.data(for: request)
-
-        let naverResponse = try JSONDecoder().decode(NaverBooksResponse.self, from: data)
-        return naverResponse.items.map { $0.toBookItem() }
     }
 
     /// `ChatGPT api`를 활용, `질문 기반 추천 도서`를 요청 및 반환받습니다.
@@ -58,7 +98,7 @@ public final class DefaultAPIClient: APIClientProtocol {
     public func getBookRecommendation(
         question: String,
         ownedBooks: [OwnedBook]
-    ) async throws -> GPTRecommendationForQuestion {
+    ) -> Single<GPTRecommendationForQuestion> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.recommendationForQuestion),
             ChatMessage(
@@ -67,38 +107,27 @@ public final class DefaultAPIClient: APIClientProtocol {
             ),
         ]
 
-        let maxRetries = 3
-        var retryCount = 0
-
-        while retryCount < maxRetries {
-            do {
-                let response = try await sendChatRequest(
-                    messages: messages,
-                    temperature: 0.01,
-                    maxTokens: 500
-                )
-
-                guard let jsonString = response.choices.first?.message.content,
-                      let jsonData = jsonString.data(using: .utf8) else {
-                    throw BookMatchError.invalidResponse
-                }
-
-                let result = try JSONDecoder().decode(
-                    GPTRecommendationForQuestionDTO.self,
-                    from: jsonData
-                )
-
-                return result.toDomain(ownedBooks)
-            } catch {
-                retryCount += 1
-                print("Retry attempt in getBookRecommendation \(retryCount): \(error)")
-                continue
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 100
+        )
+        .map { response in
+            guard let jsonString = response.choices.first?.message.content,
+                  let jsonData = jsonString.data(using: .utf8),
+                  let result = try? JSONDecoder().decode(
+                      GPTRecommendationForQuestionDTO.self,
+                      from: jsonData
+                  ) else {
+                throw BookMatchError.invalidResponse
             }
-        }
 
-        // 3회 재시도하여도 sendChatRequest로부터 에러를 계속 반환받거나, GPT로부터 반환받은 결과가 형식에 맞지 않을 경우 invalidResponse를
-        // 반환합니다.
-        throw BookMatchError.invalidResponse
+            return result.toDomain(ownedBooks)
+        }
+        .retry(3)
+        .catch { _ in
+            throw BookMatchError.invalidResponse
+        }
     }
 
     /// `ChatGPT api`를 활용, `보유도서 기반 추천 도서`를 요청 및 반환받습니다.
@@ -107,8 +136,8 @@ public final class DefaultAPIClient: APIClientProtocol {
     ///     - ownedBooks: 사용자 보유 도서 배열
     ///  - Returns: ``Rawbook`` 타입의 추천도서 배열
     ///  - Throws: GPT 반환 형식 에러
-    public func getBookRecommendation(ownedBooks: [OwnedBook]) async throws
-        -> GPTRecommendationFromOwnedBooks {
+    public func getBookRecommendation(ownedBooks: [OwnedBook])
+        -> Single<GPTRecommendationFromOwnedBooks> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.recommendationFromOwnedBooks),
             ChatMessage(
@@ -120,35 +149,29 @@ public final class DefaultAPIClient: APIClientProtocol {
         let maxRetries = 3
         var retryCount = 0
 
-        while retryCount < maxRetries {
-            do {
-                let response = try await sendChatRequest(
-                    messages: messages,
-                    temperature: 0.01,
-                    maxTokens: 500
-                )
-
-                guard let jsonString = response.choices.first?.message.content,
-                      let jsonData = jsonString.data(using: .utf8) else {
-                    throw BookMatchError.invalidResponse
-                }
-
-                let result = try JSONDecoder().decode(
-                    GPTRecommendationFromOwnedBooksDTO.self,
-                    from: jsonData
-                )
-
-                return result.toDomain()
-            } catch {
-                retryCount += 1
-                print("Retry attempt in getBookRecommendation \(retryCount): \(error)")
-                continue
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 500
+        )
+        .map { response in
+            guard let jsonString = response.choices.first?.message.content,
+                  let jsonData = jsonString.data(using: .utf8),
+                  let result = try? JSONDecoder().decode(
+                      GPTRecommendationFromOwnedBooksDTO.self,
+                      from: jsonData
+                  )
+            else {
+                throw BookMatchError.invalidResponse
             }
-        }
 
-        // 3회 재시도하여도 sendChatRequest로부터 에러를 계속 반환받거나, GPT로부터 반환받은 결과가 형식에 맞지 않을 경우 invalidResponse를
-        // 반환합니다.
-        throw BookMatchError.invalidResponse
+            return result.toDomain()
+        }
+        .retry(3)
+        .catch { _ in
+            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
+            throw BookMatchError.invalidResponse
+        }
     }
 
     /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 새로운 추천도서`를 `재요청` 및 반환받습니다.
@@ -161,7 +184,7 @@ public final class DefaultAPIClient: APIClientProtocol {
     public func getAdditionalBook(
         question: String,
         previousBooks: [RawBook]
-    ) async throws -> RawBook {
+    ) -> Single<RawBook> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.additionalBook),
             ChatMessage(
@@ -170,37 +193,27 @@ public final class DefaultAPIClient: APIClientProtocol {
             ),
         ]
 
-        let maxRetries = 3
-        var retryCount = 0
-
-        while retryCount < maxRetries {
-            do {
-                let response = try await sendChatRequest(
-                    messages: messages,
-                    temperature: 0.01,
-                    maxTokens: 100
-                )
-
-                guard let result = response.choices.first?.message.content,
-                      result.map({ String($0) }).contains("-") else {
-                    throw BookMatchError.invalidResponse
-                }
-
-                let arr = result
-                    .split(separator: "-")
-                    .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-
-                return RawBook(title: arr[0], author: arr[1])
-            } catch {
-                retryCount += 1
-                print("Retry attempt in getAdditionalBook \(retryCount): \(error)")
-                continue
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 100
+        )
+        .map { response in
+            guard let result = response.choices.first?.message.content else {
+                throw BookMatchError.invalidResponse
             }
-        }
 
-        // 3회 재시도하여도 sendChatRequest로부터 에러를 계속 반환받거나, GPT로부터 반환받은 결과가 형식에 맞지 않을 경우 invalidResponse를
-        // 반환합니다.
-        throw BookMatchError.invalidResponse
+            let arr = result
+                .split(separator: "-")
+                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+
+            return RawBook(title: arr[0], author: arr[1])
+        }
+        .retry(3)
+        .catch { _ in
+            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
+            throw BookMatchError.invalidResponse
+        }
     }
 
     /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 도서 추천 이유`를 요청 및 반환받습니다.
@@ -213,7 +226,7 @@ public final class DefaultAPIClient: APIClientProtocol {
     public func getDescription(
         question: String,
         books: [RawBook]
-    ) async throws -> String {
+    ) -> Single<String> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.description),
             ChatMessage(
@@ -222,34 +235,28 @@ public final class DefaultAPIClient: APIClientProtocol {
             ),
         ]
 
-        let maxRetries = 3
-        var retryCount = 0
-
-        while retryCount < maxRetries {
-            do {
-                let response = try await sendChatRequest(
-                    model: "gpt-4o-mini",
-                    messages: messages,
-                    temperature: 1.0,
-                    maxTokens: 500
-                )
-
-                guard let result = response.choices.first?.message.content else {
-                    throw BookMatchError.invalidResponse
-                }
-
-                return result
-            } catch {
-                retryCount += 1
-                print("Retry attempt in getDescription \(retryCount): \(error)")
-                continue
+        return sendChatRequest(
+            model: "gpt-4o-mini",
+            messages: messages,
+            temperature: 1.0,
+            maxTokens: 500
+        )
+        .map { response -> String in
+            guard let result = response.choices.first?.message.content else {
+                throw BookMatchError.invalidResponse
             }
+            return result
         }
-
-        // 3회 재시도하여도 sendChatRequest로부터 에러를 계속 반환받거나, GPT로부터 반환받은 결과가 형식에 맞지 않을 경우 invalidResponse를
-        // 반환합니다.
-        throw BookMatchError.invalidResponse
+        .retry(3)
+        .catch { _ in
+            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
+            throw BookMatchError.invalidResponse
+        }
     }
+
+    // MARK: Internal
+
+    let disposeBag = DisposeBag()
 
     // MARK: Private
 
@@ -269,29 +276,61 @@ public final class DefaultAPIClient: APIClientProtocol {
         messages: [ChatMessage],
         temperature: Double,
         maxTokens: Int
-    ) async throws -> ChatGPTResponse {
-        guard let url = URL(string: configuration.openAIBaseURL) else {
-            throw BookMatchError.networkError("Invalid URL")
+    ) -> Single<ChatGPTResponse> {
+        Single.create { [weak self] single in
+            guard let self else {
+                single(.failure(BookMatchError.invalidResponse))
+                return Disposables.create()
+            }
+
+            guard let url = URL(string: configuration.openAIBaseURL) else {
+                single(.failure(BookMatchError.networkError("Invalid URL")))
+                return Disposables.create()
+            }
+
+            let requestBody: [String: Any] = [
+                "model": model,
+                "messages": messages.map { ["role": $0.role, "content": $0.content] },
+                "temperature": temperature,
+                "max_tokens": maxTokens,
+            ]
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue(
+                "Bearer \(configuration.openAIApiKey)",
+                forHTTPHeaderField: "Authorization"
+            )
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+            do {
+                request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+            } catch {
+                single(.failure(error))
+                return Disposables.create()
+            }
+
+            let task = session.dataTask(with: request) { data, _, error in
+                if let error {
+                    single(.failure(error))
+                    return
+                }
+
+                guard let data,
+                      let response = try? JSONDecoder().decode(ChatGPTResponse.self, from: data)
+                else {
+                    single(.failure(BookMatchError.invalidResponse))
+                    return
+                }
+
+                single(.success(response))
+            }
+
+            task.resume()
+
+            return Disposables.create {
+                task.cancel()
+            }
         }
-
-        let requestBody: [String: Any] = [
-            "model": model,
-            "messages": messages.map { ["role": $0.role, "content": $0.content] },
-            "temperature": temperature,
-            "max_tokens": maxTokens,
-        ]
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue(
-            "Bearer \(configuration.openAIApiKey)",
-            forHTTPHeaderField: "Authorization"
-        )
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-        let (data, _) = try await session.data(for: request)
-
-        return try JSONDecoder().decode(ChatGPTResponse.self, from: data)
     }
 }
