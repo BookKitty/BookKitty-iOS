@@ -2,7 +2,7 @@
 //  QuestionAnswerEntity+CoreDataProperties.swift
 //  BookKitty
 //
-//  Created by 임성수 on 2/6/25.
+//  Created by MaxBook on 2/6/25.
 //
 //
 

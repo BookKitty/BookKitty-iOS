@@ -83,7 +83,10 @@ public final class BookRecommendationKit: BookRecommendable {
     ///   - input: 사용자의 질문과 보유 도서 정보를 포함한 입력 데이터
     /// - Returns: 추천된 도서 목록과 설명을 포함한 출력 데이터
     /// - Throws: BookMatchError.questionShort (질문이 4글자 미만인 경우)
-    public func recommendBooks(for question: String, from ownedBooks: [OwnedBook]) async -> BookMatchModuleOutput {
+    public func recommendBooks(
+        for question: String,
+        from ownedBooks: [OwnedBook]
+    ) async -> BookMatchModuleOutput {
         do {
             let startTime = Date().timeIntervalSince1970
             guard question.count >= 4 else {
