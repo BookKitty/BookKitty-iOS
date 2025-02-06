@@ -9,7 +9,6 @@ import Foundation
 
 /// 테스트를 위한 가짜 레포지토리
 final class MockBookRepository: BookRepository {
-    
     let mockBookList = [
         Book(
             isbn: "9788950963262",
@@ -59,8 +58,8 @@ final class MockBookRepository: BookRepository {
         )
     )
 
-    // 아래 함수는 실제로 레포지토리에서 구현되지 않았습니다.
-    // fetchBookList 함수를 사용해 주세요.
+    /// 아래 함수는 실제로 레포지토리에서 구현되지 않았습니다.
+    /// fetchBookList 함수를 사용해 주세요.
     func fetchAllBooks() -> [Book] {
         [
             Book(
@@ -101,37 +100,37 @@ final class MockBookRepository: BookRepository {
             ),
         ]
     }
-    
-    func fetchBookList(offset: Int, limit: Int) -> [Book] {
+
+    func fetchBookList(offset _: Int, limit _: Int) -> [Book] {
         mockBookList
     }
-    
-    func fetchBookDetail(by isbn: String) -> Book? {
+
+    func fetchBookDetail(by _: String) -> Book? {
         mockBookDetail
     }
-    
-    func fetchBookDetailFromISBNs(isbnList: [String]) -> [Book] {
+
+    func fetchBookDetailFromISBNs(isbnList _: [String]) -> [Book] {
         mockBookList
     }
-    
+
     func fetchRecentRecommendedBooks() -> [Book] {
         mockBookList
     }
-    
-    func saveBookList(data: [Book]) -> Bool {
-        return true
+
+    func saveBookList(data _: [Book]) -> Bool {
+        true
     }
-    
-    func saveBook(book: Book) -> Bool {
-        return true
+
+    func saveBook(book _: Book) -> Bool {
+        true
     }
-    
-    func addBookToShelf(isbn: String) -> Bool {
-        return true
+
+    func addBookToShelf(isbn _: String) -> Bool {
+        true
     }
-    
-    func exceptBookFromShelf(isbn: String) -> Bool {
-        return true
+
+    func exceptBookFromShelf(isbn _: String) -> Bool {
+        true
     }
 
     // MARK: Private

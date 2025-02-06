@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 /// 로컬에 저장된 책 정보에 대한 레포지토리 기능을 나타냅니다.
 protocol BookRepository {
     // 요구사항은 추후 변경됩니다
@@ -69,23 +68,28 @@ struct LocalBookRepository: BookRepository {
     /// - Parameter : isbn 문자열의 배열.
     /// - Returns: Book 모델의 배열
     func fetchBookDetailFromISBNs(isbnList: [String]) -> [Book] {
-        guard !isbnList.isEmpty else { return [] }
-        
-        let bookEntities = bookCoreDataManager.selectBooksWithIsbnArray(isbnList: isbnList, context: context)
+        guard !isbnList.isEmpty else {
+            return []
+        }
+
+        let bookEntities = bookCoreDataManager.selectBooksWithIsbnArray(
+            isbnList: isbnList,
+            context: context
+        )
         return bookEntities.compactMap { bookCoreDataManager.entityToModel(entity: $0) }
     }
 
     func fetchRecentRecommendedBooks() -> [Book] {
         let linkEntities = bookQALinkCoreDataManager.selectRecentRecommendedBooks(context: context)
         var books: [Book] = []
-        
-        linkEntities.forEach {
-            if let bookEntity = $0.book,
-                let book = bookCoreDataManager.entityToModel(entity: bookEntity) {
+
+        for linkEntity in linkEntities {
+            if let bookEntity = linkEntity.book,
+               let book = bookCoreDataManager.entityToModel(entity: bookEntity) {
                 books.append(book)
             }
         }
-        
+
         return books
     }
 

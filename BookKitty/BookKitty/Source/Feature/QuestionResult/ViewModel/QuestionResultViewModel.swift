@@ -103,7 +103,7 @@ final class QuestionResultViewModel: ViewModelType {
             .withUnretained(self)
             .flatMapLatest { _ in
                 // 코어데이터에서 사용자가 소유한 책 가져오기 (예제 데이터)
-                let ownedBooks = self.bookRepository.fetchAllBooks().map {
+                let ownedBooks = self.bookRepository.fetchBookList(offset: 0, limit: 15).map {
                     OwnedBook(
                         id: $0.isbn,
                         title: $0.title,
@@ -140,7 +140,7 @@ final class QuestionResultViewModel: ViewModelType {
 
         // 코어데이터에서 저장된 책 정보 가져오기
         let isbnList = output.ownedISBNs
-        let ownedBooks = bookRepository.fetchBookDetailFromISBNs(isbnList)
+        let ownedBooks = bookRepository.fetchBookDetailFromISBNs(isbnList: isbnList)
 
         // 새로운 추천 도서를 Book 모델로 변환
         let newBooks = output.newBooks.map {
@@ -161,9 +161,10 @@ final class QuestionResultViewModel: ViewModelType {
             createdAt: Date(),
             userQuestion: question,
             gptAnswer: output.description,
+            id: UUID(),
             recommendedBooks: recommendedBooks
         )
-        questionHistoryRepository.saveQuestion(questionToSave)
+        questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         return [SectionOfBook(items: recommendedBooks)]
     }

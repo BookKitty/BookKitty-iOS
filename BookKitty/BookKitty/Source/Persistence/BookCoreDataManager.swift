@@ -15,7 +15,8 @@ protocol BookCoreDataManageable {
         -> [BookEntity]
     func selectBookByIsbn(isbn: String, context: NSManagedObjectContext) -> BookEntity?
     func selectOwnedBooks(offset: Int, limit: Int, context: NSManagedObjectContext) -> [BookEntity]
-    func selectBooksWithIsbnArray(isbnList: [String], context: NSManagedObjectContext) -> [BookEntity]
+    func selectBooksWithIsbnArray(isbnList: [String], context: NSManagedObjectContext)
+        -> [BookEntity]
 }
 
 /// Book 엔티티를 관리하는 객체
@@ -112,7 +113,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
         request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
         request.fetchOffset = offset
         request.fetchLimit = limit
-        
+
         // updatedAt 내림차순 정렬 추가
         let sortDescriptor = NSSortDescriptor(key: "updatedAt", ascending: false)
         request.sortDescriptors = [sortDescriptor]
@@ -124,19 +125,21 @@ final class BookCoreDataManager: BookCoreDataManageable {
             return []
         }
     }
-    
+
     /// isbn 리스트로 해당하는 책 데이터 가져오기
     /// - Parameters:
     ///   - isbnList: isbn 문자열이 담긴 배열
     ///   - context: 코어데이터 컨텍스트
     /// - Returns: BookEntity의 배열
-    func selectBooksWithIsbnArray(isbnList: [String], context: NSManagedObjectContext) -> [BookEntity] {
+    func selectBooksWithIsbnArray(
+        isbnList: [String],
+        context: NSManagedObjectContext
+    ) -> [BookEntity] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isbn IN %@", isbnList)
 
         do {
-            let bookEntities = try context.fetch(request)
-            return bookEntities
+            return try context.fetch(request)
         } catch {
             print("ISBN 목록으로 책 데이터 가져오기 실패: \(error.localizedDescription)")
             return []
@@ -165,7 +168,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
         entity.pubDate = model.pubDate
         entity.publisher = model.publisher
         entity.title = model.title
-        
+
         return entity
     }
 }
