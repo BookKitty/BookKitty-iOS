@@ -34,6 +34,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
+        .package(path: "../Network"),
     ],
 
     targets: [
@@ -62,7 +63,12 @@ let package = Package(
         ),
         .target(
             name: "BookMatchAPI",
-            dependencies: ["RxSwift", "SwiftFormat", "BookMatchCore"]
+            dependencies: [
+                "RxSwift",
+                "SwiftFormat",
+                "BookMatchCore",
+                .product(name: "Network", package: "Network"),
+            ]
         ),
         .testTarget(
             name: "BookMatchKitTests",
