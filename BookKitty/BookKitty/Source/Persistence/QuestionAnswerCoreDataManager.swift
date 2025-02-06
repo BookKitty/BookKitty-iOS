@@ -19,7 +19,7 @@ protocol QuestionAnswerCoreDataManageable {
 
 /// QuestionAnswer 엔티티를 관리하는 객체
 final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
-    func modelToEntity(model _: QuestionAnswer) -> QuestionAnswerEntity? {
+    private func modelToEntityWithoutBooks(model: QuestionAnswer) -> QuestionAnswerEntity? {
         nil
     }
 

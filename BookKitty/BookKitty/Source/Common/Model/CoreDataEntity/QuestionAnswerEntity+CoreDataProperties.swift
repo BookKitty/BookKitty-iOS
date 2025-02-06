@@ -6,40 +6,41 @@
 //
 //
 
-import CoreData
 import Foundation
+import CoreData
+
 
 extension QuestionAnswerEntity {
-    @nonobjc
-    public class func fetchRequest() -> NSFetchRequest<QuestionAnswerEntity> {
-        NSFetchRequest<QuestionAnswerEntity>(entityName: "QuestionAnswerEntity")
+
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<QuestionAnswerEntity> {
+        return NSFetchRequest<QuestionAnswerEntity>(entityName: "QuestionAnswerEntity")
     }
 
     @NSManaged public var aiAnswer: String?
     @NSManaged public var id: UUID?
     @NSManaged public var userQuestion: String?
     @NSManaged public var createdAt: Date?
-    @NSManaged public var bookQestionAnswerLinks: NSSet?
+    @NSManaged public var bookQuestionAnswerLinks: NSSet?
+
 }
 
-// MARK: Generated accessors for bookQestionAnswerLinks
-
+// MARK: Generated accessors for bookQuestionAnswerLinks
 extension QuestionAnswerEntity {
-    @objc(addBookQestionAnswerLinksObject:)
-    @NSManaged
-    public func addToBookQestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(removeBookQestionAnswerLinksObject:)
-    @NSManaged
-    public func removeFromBookQestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
+    @objc(addBookQuestionAnswerLinksObject:)
+    @NSManaged public func addToBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(addBookQestionAnswerLinks:)
-    @NSManaged
-    public func addToBookQestionAnswerLinks(_ values: NSSet)
+    @objc(removeBookQuestionAnswerLinksObject:)
+    @NSManaged public func removeFromBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(removeBookQestionAnswerLinks:)
-    @NSManaged
-    public func removeFromBookQestionAnswerLinks(_ values: NSSet)
+    @objc(addBookQuestionAnswerLinks:)
+    @NSManaged public func addToBookQuestionAnswerLinks(_ values: NSSet)
+
+    @objc(removeBookQuestionAnswerLinks:)
+    @NSManaged public func removeFromBookQuestionAnswerLinks(_ values: NSSet)
+
 }
 
-extension QuestionAnswerEntity: Identifiable {}
+extension QuestionAnswerEntity : Identifiable {
+
+}

@@ -6,13 +6,14 @@
 //
 //
 
-import CoreData
 import Foundation
+import CoreData
+
 
 extension BookEntity {
-    @nonobjc
-    public class func fetchRequest() -> NSFetchRequest<BookEntity> {
-        NSFetchRequest<BookEntity>(entityName: "BookEntity")
+
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<BookEntity> {
+        return NSFetchRequest<BookEntity>(entityName: "BookEntity")
     }
 
     @NSManaged public var author: String?
@@ -27,27 +28,27 @@ extension BookEntity {
     @NSManaged public var createdAt: Date?
     @NSManaged public var isOwned: Bool
     @NSManaged public var updatedAt: Date?
-    @NSManaged public var bookQestionAnswerLinks: NSSet?
+    @NSManaged public var bookQuestionAnswerLinks: NSSet?
+
 }
 
-// MARK: Generated accessors for bookQestionAnswerLinks
-
+// MARK: Generated accessors for bookQuestionAnswerLinks
 extension BookEntity {
-    @objc(addBookQestionAnswerLinksObject:)
-    @NSManaged
-    public func addToBookQestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(removeBookQestionAnswerLinksObject:)
-    @NSManaged
-    public func removeFromBookQestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
+    @objc(addBookQuestionAnswerLinksObject:)
+    @NSManaged public func addToBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(addBookQestionAnswerLinks:)
-    @NSManaged
-    public func addToBookQestionAnswerLinks(_ values: NSSet)
+    @objc(removeBookQuestionAnswerLinksObject:)
+    @NSManaged public func removeFromBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
-    @objc(removeBookQestionAnswerLinks:)
-    @NSManaged
-    public func removeFromBookQestionAnswerLinks(_ values: NSSet)
+    @objc(addBookQuestionAnswerLinks:)
+    @NSManaged public func addToBookQuestionAnswerLinks(_ values: NSSet)
+
+    @objc(removeBookQuestionAnswerLinks:)
+    @NSManaged public func removeFromBookQuestionAnswerLinks(_ values: NSSet)
+
 }
 
-extension BookEntity: Identifiable {}
+extension BookEntity : Identifiable {
+
+}

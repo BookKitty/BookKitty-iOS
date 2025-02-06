@@ -13,18 +13,18 @@
         <attribute name="publisher" attributeType="String"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="bookQestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="book" inverseEntity="BookQuestionAnswerLinkEntity"/>
+        <relationship name="bookQuestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="book" inverseEntity="BookQuestionAnswerLinkEntity"/>
     </entity>
     <entity name="BookQuestionAnswerLinkEntity" representedClassName="BookQuestionAnswerLinkEntity" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="BookEntity" inverseName="bookQestionAnswerLinks" inverseEntity="BookEntity"/>
-        <relationship name="questionAnswer" maxCount="1" deletionRule="Nullify" destinationEntity="QuestionAnswerEntity" inverseName="bookQestionAnswerLinks" inverseEntity="QuestionAnswerEntity"/>
+        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="BookEntity" inverseName="bookQuestionAnswerLinks" inverseEntity="BookEntity"/>
+        <relationship name="questionAnswer" maxCount="1" deletionRule="Nullify" destinationEntity="QuestionAnswerEntity" inverseName="bookQuestionAnswerLinks" inverseEntity="QuestionAnswerEntity"/>
     </entity>
     <entity name="QuestionAnswerEntity" representedClassName="QuestionAnswerEntity" syncable="YES">
         <attribute name="aiAnswer" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="userQuestion" attributeType="String"/>
-        <relationship name="bookQestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="questionAnswer" inverseEntity="BookQuestionAnswerLinkEntity"/>
+        <relationship name="bookQuestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="questionAnswer" inverseEntity="BookQuestionAnswerLinkEntity"/>
     </entity>
 </model>
