@@ -31,7 +31,8 @@ final class QuestionHistoryViewController: BaseViewController {
     override func bind() {
         let input = QuestionHistoryViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            questionSelected: questionTableView.rx.modelSelected(Question.self).asObservable(),
+            questionSelected: questionTableView.rx.modelSelected(QuestionAnswer.self)
+                .asObservable(),
             reachedScrollEnd: questionTableView.rx.reachedBottom()
         )
 
@@ -121,7 +122,7 @@ extension Reactive where Base: UIScrollView {
 #Preview {
     QuestionHistoryViewController(
         viewModel: QuestionHistoryViewModel(
-            questionRepository: MockQuestionHistoryRepository()
+            questionHistoryRepository: MockQuestionHistoryRepository()
         )
     )
 }

@@ -7,6 +7,7 @@
 
 import BookMatchAPI
 import BookMatchKit
+import BookRecommendationKit
 import RxCocoa
 import RxSwift
 import UIKit
@@ -63,14 +64,10 @@ extension AddQuestionCoordinator {
     /// - Parameter question: 사용자가 입력한 질문 내용
     private func showQuestionResultScene(with question: String) {
         // TODO: xcconfig 활용, API 키 집어넣기
-        let recommendationService = BookMatchModule(
-            apiClient: DefaultAPIClient(
-                configuration: .init(
-                    naverClientId: "",
-                    naverClientSecret: "",
-                    openAIApiKey: ""
-                )
-            )
+        let recommendationService = BookRecommendationKit(
+            naverClientId: "",
+            naverClientSecret: "",
+            openAIApiKey: ""
         )
         // TODO: Mock 레포지토리들 Real로 변경
         let repository = MockBookRepository()
@@ -90,7 +87,6 @@ extension AddQuestionCoordinator {
         questionResultViewModel.navigateToBookDetail
             .withUnretained(self)
             .bind(onNext: { owner, book in
-                // TODO: book을 넘겨주는 방식으로 변경
                 owner.showBookDetailScene(with: book.isbn)
             }).disposed(by: disposeBag)
 

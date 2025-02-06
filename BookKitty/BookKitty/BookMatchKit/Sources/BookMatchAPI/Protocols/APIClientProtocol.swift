@@ -1,5 +1,6 @@
 import BookMatchCore
 import RxSwift
+import UIKit
 
 public protocol APIClientProtocol {
     func searchBooks(query: String, limit: Int) -> Single<[BookItem]>
@@ -8,4 +9,5 @@ public protocol APIClientProtocol {
     func getBookRecommendation(ownedBooks: [OwnedBook]) -> Single<GPTRecommendationFromOwnedBooks>
     func getAdditionalBook(question: String, previousBooks: [RawBook]) -> Single<RawBook>
     func getDescription(question: String, books: [RawBook]) -> Single<String>
+    func downloadImage(from urlString: String) -> Single<UIImage>
 }

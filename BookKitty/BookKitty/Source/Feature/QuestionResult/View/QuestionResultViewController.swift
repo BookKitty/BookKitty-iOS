@@ -9,6 +9,7 @@ import BookMatchCore
 import DesignSystem
 import RxCocoa
 import RxDataSources
+import RxRelay
 import RxSwift
 import SnapKit
 import Then
@@ -94,8 +95,8 @@ final class QuestionResultViewController: BaseViewController {
     override func bind() {
         let input = QuestionResultViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            bookSelected: .empty(),
-            lalalaButtonTapped: .empty()
+            bookSelected: bookSelectedRelay.asObservable(),
+            submitButtonTapped: submitButtonTappedRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -122,9 +123,24 @@ final class QuestionResultViewController: BaseViewController {
                 print("Error occurred : \(error)")
             })
             .disposed(by: disposeBag)
+
+        recommendedBooksCollectionView.rx.itemSelected
+            .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
+                let books = sectionOfBooks[0].items
+                return books[indexPath.item]
+            }
+            .bind(to: bookSelectedRelay)
+            .disposed(by: disposeBag)
+
+        submitButton.rx.tap
+            .bind(to: submitButtonTappedRelay)
+            .disposed(by: disposeBag)
     }
 
     // MARK: Private
+
+    private let bookSelectedRelay = PublishRelay<Book>()
+    private let submitButtonTappedRelay = PublishRelay<Void>()
 
     private let scrollView = UIScrollView().then {
         $0.showsVerticalScrollIndicator = false

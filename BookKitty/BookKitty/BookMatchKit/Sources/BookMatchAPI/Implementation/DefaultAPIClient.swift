@@ -1,17 +1,17 @@
 import BookMatchCore
 import Foundation
+import Network
 import RxSwift
+import UIKit
 
 /// 네이버 책 검색 API와 OpenAI API를 사용하여 도서 검색 및 추천 기능을 제공하는 클라이언트입니다.
 public final class DefaultAPIClient: APIClientProtocol {
     // MARK: Lifecycle
 
     public init(
-        configuration: APIConfiguration,
-        session: URLSession = .shared
+        configuration: APIConfiguration
     ) {
         self.configuration = configuration
-        self.session = session
     }
 
     // MARK: Public
@@ -28,64 +28,34 @@ public final class DefaultAPIClient: APIClientProtocol {
             return .just([])
         }
 
-        return Single.create { [weak self] single in
-            guard let self else {
-                single(.failure(BookMatchError.invalidResponse))
-                return Disposables.create()
-            }
+        let endpoint = NaverBooksEndpoint(
+            query: query,
+            limit: limit,
+            configuration: configuration
+        )
 
-            guard let queryString = query
-                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                let url =
-                URL(
-                    string: "\(configuration.naverBaseURL)?query=\(queryString)&display=\(limit)&start=1"
-                )
-            else {
-                single(.failure(BookMatchError.networkError("Invalid URL")))
-                return Disposables.create()
-            }
-
-            var request = URLRequest(url: url)
-            request.setValue(configuration.naverClientId, forHTTPHeaderField: "X-Naver-Client-Id")
-            request.setValue(
-                configuration.naverClientSecret,
-                forHTTPHeaderField: "X-Naver-Client-Secret"
-            )
-
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error {
-                    single(.failure(error))
-                    return
+        return NetworkManager.shared.request(endpoint)
+            .map { response -> [BookItem] in
+                guard let response else {
+                    throw BookMatchError.invalidResponse
                 }
-
-                guard let data,
-                      let naverResponse = try? JSONDecoder().decode(
-                          NaverBooksResponse.self,
-                          from: data
-                      )
-                else {
-                    single(.failure(BookMatchError.invalidResponse))
-                    return
+                return response.items.map { $0.toBookItem() }
+            }
+            .catch { error in
+                // NetworkError를 BookMatchError로 변환
+                if let networkError = error as? NetworkError {
+                    switch networkError {
+                    case .invalidURL:
+                        return .error(BookMatchError.networkError("Invalid URL"))
+                    default:
+                        return .error(
+                            BookMatchError
+                                .networkError(networkError.localizedDescription)
+                        )
+                    }
                 }
-
-                single(.success(naverResponse.items.map { $0.toBookItem() }))
+                return .error(error)
             }
-
-            // URLSession 데이터 태스크를 실제로 시작
-            task.resume()
-
-            // RxSwift의 구독이 해제(dispose)될 때 실행될 정리(cleanup) 코드를 정의
-            //
-            // dispose() 직접 실행하거나, 화면에 dismiss됨으로서, disposeBag이 메모리 해제될 때, task.cancel이 호출됨
-            //
-            // 아래 상황에서 task.cancel()이 호출됨
-            // - 사용자가 화면을 벗어날 때
-            // - 새로운 요청이 시작될 때
-            // - 구독이 명시적으로 해제될 때disposeBag이 해제될 때
-            return Disposables.create {
-                task.cancel()
-            }
-        }
     }
 
     /// `ChatGPT api`를 활용, `질문 기반 추천 도서`를 요청 및 반환받습니다.
@@ -145,9 +115,6 @@ public final class DefaultAPIClient: APIClientProtocol {
                 content: "보유도서 제목-저자 목록: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
             ),
         ]
-
-        let maxRetries = 3
-        var retryCount = 0
 
         return sendChatRequest(
             messages: messages,
@@ -216,6 +183,41 @@ public final class DefaultAPIClient: APIClientProtocol {
         }
     }
 
+    /// URL로부터 이미지를 다운로드합니다.
+    ///
+    /// - Parameters:
+    ///   - urlString: 이미지 URL 문자열
+    /// - Returns: 다운로드된 UIImage
+    /// - Throws: BookMatchError.networkError
+    public func downloadImage(from urlString: String) -> Single<UIImage> {
+        let endpoint = ImageDownloadEndpoint(urlString: urlString)
+
+        return NetworkManager.shared.request(endpoint)
+            .map { data -> UIImage in
+                guard let data,
+                      let image = UIImage(data: data) else {
+                    throw BookMatchError.networkError("Image Fetch Failed")
+                }
+                return image
+            }
+            .catch { error in
+                if let networkError = error as? NetworkError {
+                    switch networkError {
+                    case .invalidURL:
+                        return .error(BookMatchError.networkError("Invalid URL"))
+                    case .decodingFailed:
+                        return .error(BookMatchError.networkError("Image Fetch Failed"))
+                    default:
+                        return .error(
+                            BookMatchError
+                                .networkError(networkError.localizedDescription)
+                        )
+                    }
+                }
+                return .error(error)
+            }
+    }
+
     /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 도서 추천 이유`를 요청 및 반환받습니다.
     ///
     ///  - Parameters:
@@ -261,7 +263,6 @@ public final class DefaultAPIClient: APIClientProtocol {
     // MARK: Private
 
     private let configuration: APIConfiguration
-    private let session: URLSession
 
     /// `ChatGPT api`를 요청합니다. APIClient의 public 메서드들이 모두 이 메서드를 공용합니다.
     ///
@@ -277,60 +278,36 @@ public final class DefaultAPIClient: APIClientProtocol {
         temperature: Double,
         maxTokens: Int
     ) -> Single<ChatGPTResponse> {
-        Single.create { [weak self] single in
-            guard let self else {
-                single(.failure(BookMatchError.invalidResponse))
-                return Disposables.create()
-            }
+        let endpoint = ChatGPTEndpoint(
+            model: model,
+            messages: messages,
+            temperature: temperature,
+            maxTokens: maxTokens,
+            configuration: configuration
+        )
 
-            guard let url = URL(string: configuration.openAIBaseURL) else {
-                single(.failure(BookMatchError.networkError("Invalid URL")))
-                return Disposables.create()
-            }
-
-            let requestBody: [String: Any] = [
-                "model": model,
-                "messages": messages.map { ["role": $0.role, "content": $0.content] },
-                "temperature": temperature,
-                "max_tokens": maxTokens,
-            ]
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue(
-                "Bearer \(configuration.openAIApiKey)",
-                forHTTPHeaderField: "Authorization"
-            )
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-            } catch {
-                single(.failure(error))
-                return Disposables.create()
-            }
-
-            let task = session.dataTask(with: request) { data, _, error in
-                if let error {
-                    single(.failure(error))
-                    return
+        return NetworkManager.shared.request(endpoint)
+            .map { response -> ChatGPTResponse in
+                guard let response else {
+                    throw BookMatchError.invalidResponse
                 }
-
-                guard let data,
-                      let response = try? JSONDecoder().decode(ChatGPTResponse.self, from: data)
-                else {
-                    single(.failure(BookMatchError.invalidResponse))
-                    return
+                return response
+            }
+            .catch { error in
+                if let networkError = error as? NetworkError {
+                    switch networkError {
+                    case .invalidURL:
+                        return .error(BookMatchError.networkError("Invalid URL"))
+                    case .decodingFailed:
+                        return .error(BookMatchError.invalidResponse)
+                    default:
+                        return .error(
+                            BookMatchError
+                                .networkError(networkError.localizedDescription)
+                        )
+                    }
                 }
-
-                single(.success(response))
+                return .error(error)
             }
-
-            task.resume()
-
-            return Disposables.create {
-                task.cancel()
-            }
-        }
     }
 }

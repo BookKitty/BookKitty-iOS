@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import RxDataSources
 
-struct Book: Hashable {
+struct Book: IdentifiableType, Hashable {
     // MARK: Lifecycle
 
     init(
@@ -52,4 +53,8 @@ struct Book: Hashable {
     let description: String
     let price: String
     let pubDate: String
+
+    var identity: String {
+        isbn
+    }
 }
