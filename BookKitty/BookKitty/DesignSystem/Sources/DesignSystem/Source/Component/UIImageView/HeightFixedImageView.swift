@@ -50,7 +50,6 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
 
     public var imageUrl: String
     public var fixedHeight: CGFloat
-    public var isRounded = false
     public var onImageLoaded: (() -> Void)?
 }
 
@@ -76,12 +75,15 @@ extension HeightFixedImageView {
 
             // 이미지의 원본 비율에 맞춰 높이 조정
             if let imageSize = bookImage?.size {
-                let aspectRatio = imageSize.width / imageSize.height
-                snp.remakeConstraints { make in
-                    make.height.equalTo(fixedHeight) // 높이 고정
-                    make.width.equalTo(fixedHeight * aspectRatio) // 너비 자동 조정
+                let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
+                let calculatedWidth = fixedHeight * aspectRatio
+
+                // 기존 제약조건 업데이트
+                snp.updateConstraints { make in
+                    make.width.equalTo(calculatedWidth)
                 }
             }
+
             // 이미지 로딩 완료 후 콜백 실행
             onImageLoaded?()
         }
@@ -90,7 +92,7 @@ extension HeightFixedImageView {
     private func setupLayouts() {
         snp.makeConstraints { make in
             make.height.equalTo(fixedHeight)
-            make.width.greaterThanOrEqualTo(Vars.viewSizeReg)
+            make.width.equalTo(Vars.viewSizeReg)
         }
     }
 }
@@ -98,8 +100,7 @@ extension HeightFixedImageView {
 // MARK: - Methods
 
 extension HeightFixedImageView {
-    public func toggleRadius() {
-        isRounded = !isRounded
-        layer.cornerRadius = isRounded ? Vars.radiusMini : 0
+    public func setRadius(to isRound: Bool) {
+        layer.cornerRadius = isRound ? Vars.radiusMini : 0
     }
 }
