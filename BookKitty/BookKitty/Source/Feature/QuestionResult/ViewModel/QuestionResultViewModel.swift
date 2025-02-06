@@ -5,7 +5,6 @@
 //  Created by 권승용 on 1/31/25.
 //
 
-import BookMatchCore
 import BookRecommendationKit
 import Foundation
 import RxCocoa
