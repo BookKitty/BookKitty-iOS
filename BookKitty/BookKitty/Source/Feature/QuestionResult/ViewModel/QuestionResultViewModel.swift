@@ -93,8 +93,7 @@ final class QuestionResultViewModel: ViewModelType {
     private let recommendationService: BookMatchable
 
     private let userQuestionRelay = BehaviorRelay<String>(value: "")
-    private let recommendedBooksRelay =
-        BehaviorRelay<[SectionOfBook]>(value: [])
+    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
     private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
     private let errorRelay = PublishRelay<Error>()
 

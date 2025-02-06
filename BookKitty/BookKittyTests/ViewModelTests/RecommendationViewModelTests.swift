@@ -11,6 +11,7 @@ import Foundation
 import RxSwift
 import Testing
 
+@Suite(.serialized)
 struct RecommendationViewModelTests {
     // MARK: Internal
 
@@ -65,10 +66,12 @@ struct RecommendationViewModelTests {
 
         // 출력 값이 추천 책과 일치하는지 확인
         for await value in await output.recommendedBooks.values {
-            #expect(
-                value[0].items == recommendationService.mockTestCompareData
-            )
-            break
+            if !value.isEmpty {
+                #expect(
+                    value[0].items == recommendationService.mockTestCompareData
+                )
+                break
+            }
         }
     }
 
@@ -111,7 +114,7 @@ struct RecommendationViewModelTests {
 
     // 테스트: 버튼 클릭 이벤트가 올바르게 처리되는지 확인하는 테스트
     @Test
-    func test_lalalaButtonTapped_navigateToQuestionList() async {
+    func test_submitButtonTapped_navigateToQuestionList() async {
         // RecommendationViewModel 인스턴스 생성
         let vm = QuestionResultViewModel(
             userQuestion: "유저 질문",
@@ -119,13 +122,14 @@ struct RecommendationViewModelTests {
             bookRepository: bookRepository,
             questionHistoryRepository: questionHistoryRepository
         )
-        let lalalaButtonTappedSubject = PublishSubject<Void>()
+
+        let submitButtonTappedSubject = PublishSubject<Void>()
 
         // 입력 값 정의: 버튼 클릭 이벤트
         let input = QuestionResultViewModel.Input(
             viewDidLoad: .empty(), // viewDidLoad 이벤트 없음
             bookSelected: .empty(), // 책 선택 이벤트 없음
-            lalalaButtonTapped: lalalaButtonTappedSubject.asObservable() // 버튼 클릭 이벤트
+            lalalaButtonTapped: submitButtonTappedSubject.asObservable() // 버튼 클릭 이벤트
         )
 
         // 변환된 출력 값 가져오기
@@ -134,7 +138,7 @@ struct RecommendationViewModelTests {
         // PublishSubject에 값을 전달하기 위해 3초후 버튼 클릭 이벤트 발생
         Task {
             try await Task.sleep(nanoseconds: 3_000_000_000)
-            lalalaButtonTappedSubject.onNext(())
+            submitButtonTappedSubject.onNext(())
         }
 
         // 출력 값이 질문 목록 페이지로 이동하는지 확인
