@@ -42,21 +42,25 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
 
     // MARK: Private
 
+    // MARK: - Private Properties
+
     private let disposeBag = DisposeBag()
+    private let confirmButtonRelay = PublishRelay<Void>() // ✅ `confirmButton` 이벤트를 위한 Relay 추가
 
     private func setupBindings() {
         let manualTitleRelay = PublishRelay<String>()
 
         let input = AddBookViewModel.Input(
             captureButtonTapped: addBookViewController.captureButton.rx.tap.asObservable(),
+            // ✅ `BaseCameraViewController`의 captureButton 사용
             manualAddButtonTapped: manualTitleRelay.asObservable(),
-            confirmButtonTapped: addBookViewController.confirmButton.rx.tap.asObservable()
+            confirmButtonTapped: confirmButtonRelay.asObservable() // ✅ `confirmButton`을 Relay로 변경
         )
 
         let output = addBookViewModel.transform(input)
 
         // ✅ 수동 입력 버튼 클릭 시 팝업 표시
-        addBookViewController.manualAddButton.rx.tap
+        addBookViewController.navigationItem.rightBarButtonItem?.rx.tap
             .bind { [weak self] in self?.showManualTitleInput(relay: manualTitleRelay) }
             .disposed(by: disposeBag)
 

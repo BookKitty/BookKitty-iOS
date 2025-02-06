@@ -27,6 +27,15 @@ final class BookCaptureViewController: BaseCameraViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: Internal
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
+    }
+
     // MARK: Private
 
     // MARK: - Private Properties
@@ -59,9 +68,8 @@ final class BookCaptureViewController: BaseCameraViewController {
 
     private let confirmButton = RoundButton(title: "확인")
 
-    private var customCaptureButton: UIButton {
-        CircleIconButton(iconId: "camera.fill")
-    }
+    /// ✅ `lazy var`를 사용하여 **한 번만 생성**
+    private lazy var customCaptureButton = CircleIconButton(iconId: "camera.fill")
 
     // MARK: - UI Setup
 
@@ -125,19 +133,19 @@ final class BookCaptureViewController: BaseCameraViewController {
             .bind { [weak self] bookList in
                 self?.navigateToReview(bookList: bookList)
             }
-            .disposed(by: super.disposeBag)
+            .disposed(by: disposeBag) // ✅ 불필요한 옵셔널 언래핑 제거
 
         output.showTitleInputPopup
             .bind { [weak self] in
                 self?.showTitleInputPopup()
             }
-            .disposed(by: super.disposeBag)
+            .disposed(by: disposeBag)
 
         customCaptureButton.rx.tap
             .subscribe(onNext: { [weak self] in
                 self?.capturePhoto()
             })
-            .disposed(by: super.disposeBag)
+            .disposed(by: disposeBag)
     }
 
     private func navigateToReview(bookList: [String]) {

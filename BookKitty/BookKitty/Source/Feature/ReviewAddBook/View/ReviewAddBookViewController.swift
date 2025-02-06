@@ -2,6 +2,7 @@
 
 import DesignSystem
 import RxCocoa
+import RxDataSources
 import RxSwift
 import SnapKit
 import Then
@@ -22,6 +23,23 @@ final class ReviewAddBookViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: Internal
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
+    }
+
+    func appendBook(_ book: Book) {
+        guard !addedBookTitles.contains(book.title) else {
+            return
+        }
+        addedBookTitles.insert(book.title)
+        viewModel.appendBook(book)
+    }
+
     // MARK: Private
 
     // MARK: - Private Properties
@@ -29,41 +47,24 @@ final class ReviewAddBookViewController: BaseViewController {
     private let viewModel: ReviewAddBookViewModel
     private let deleteBookSubject = PublishSubject<Int>()
     private let manualTitleSubject = PublishSubject<String>()
+    private var addedBookTitles = Set<String>()
 
-    private let backButton = TextButton(title: "돌아가기")
     private let titleLabel = UILabel().then {
         $0.text = "촬영 결과"
         $0.font = UIFont.systemFont(ofSize: 20, weight: .bold)
-        $0.textAlignment = .center
+        $0.textAlignment = .left
     }
 
     private lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewCompositionalLayout { [weak self] _, layoutEnvironment in
-            var config = UICollectionLayoutListConfiguration(appearance: .plain)
-            config.backgroundColor = .clear
-
-            config.trailingSwipeActionsConfigurationProvider = { indexPath in
-                let deleteAction = UIContextualAction(
-                    style: .destructive,
-                    title: nil
-                ) { _, _, completion in
-                    self?.deleteBookSubject.onNext(indexPath.item)
-                    completion(true)
-                }
-                deleteAction.image = UIImage(systemName: "trash.fill")
-                deleteAction.backgroundColor = .red
-                return UISwipeActionsConfiguration(actions: [deleteAction])
-            }
-
-            return NSCollectionLayoutSection.list(
-                using: config,
-                layoutEnvironment: layoutEnvironment
-            )
+        let config = UICollectionLayoutListConfiguration(appearance: .plain)
+        var layoutConfig = config
+        layoutConfig.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+            return self?.swipeActionsConfiguration(for: indexPath)
         }
-
+        let layout = UICollectionViewCompositionalLayout.list(using: layoutConfig)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .white
         collectionView.register(BookCell.self, forCellWithReuseIdentifier: BookCell.identifier)
-        collectionView.backgroundColor = .clear
         return collectionView
     }()
 
@@ -80,7 +81,6 @@ final class ReviewAddBookViewController: BaseViewController {
 
     private func setupUI() {
         view.backgroundColor = .white
-        view.addSubview(backButton)
         view.addSubview(titleLabel)
         view.addSubview(collectionView)
         view.addSubview(missingBookLabel)
@@ -88,38 +88,32 @@ final class ReviewAddBookViewController: BaseViewController {
         view.addSubview(confirmButton)
     }
 
-    // MARK: - Constraints
-
     private func setupConstraints() {
-        backButton.snp.makeConstraints {
-            $0.top.leading.equalTo(view.safeAreaLayoutGuide).inset(16)
-        }
-
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(backButton.snp.bottom).offset(10)
-            $0.centerX.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            $0.leading.equalToSuperview().inset(20)
         }
 
         collectionView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(20)
             $0.leading.trailing.equalToSuperview().inset(20)
-            $0.bottom.equalTo(confirmButton.snp.top).offset(-80)
-        }
-
-        missingBookLabel.snp.makeConstraints {
-            $0.top.equalTo(collectionView.snp.bottom).offset(20)
-            $0.leading.equalToSuperview().inset(20)
-        }
-
-        addBookButton.snp.makeConstraints {
-            $0.top.equalTo(missingBookLabel.snp.bottom).offset(4)
-            $0.leading.equalTo(missingBookLabel.snp.leading)
+            $0.bottom.equalTo(missingBookLabel.snp.top).offset(-16)
         }
 
         confirmButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(20)
             $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
             $0.height.equalTo(48)
+        }
+
+        missingBookLabel.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.bottom.equalTo(addBookButton.snp.top).offset(-4)
+        }
+
+        addBookButton.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(20)
+            $0.bottom.equalTo(confirmButton.snp.top).offset(-16)
         }
     }
 
@@ -134,18 +128,20 @@ final class ReviewAddBookViewController: BaseViewController {
 
         let output = viewModel.transform(input)
 
-        output.bookList
-            .observe(on: MainScheduler.instance)
-            .bind(to: collectionView.rx.items(
-                cellIdentifier: BookCell.identifier,
-                cellType: BookCell.self
-            )) { [weak self] index, book, cell in
+        let dataSource = RxCollectionViewSectionedReloadDataSource<SectionModel<String, Book>>(
+            configureCell: { _, collectionView, indexPath, book in
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: BookCell.identifier,
+                    for: indexPath
+                ) as! BookCell
                 cell.configure(with: book)
-
-                if index == output.bookList.value.count - 1 {
-                    self?.updateMissingBookUI(below: cell)
-                }
+                return cell
             }
+        )
+
+        output.bookList
+            .map { [SectionModel(model: "Books", items: $0)] }
+            .bind(to: collectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
 
         addBookButton.rx.tap
@@ -161,18 +157,19 @@ final class ReviewAddBookViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    // MARK: - Update UI for Missing Book Section
-
-    private func updateMissingBookUI(below cell: UICollectionViewCell) {
-        missingBookLabel.snp.remakeConstraints {
-            $0.top.equalTo(cell.snp.bottom).offset(20)
-            $0.leading.equalToSuperview().inset(20)
+    private func swipeActionsConfiguration(for indexPath: IndexPath)
+        -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(
+            style: .destructive,
+            title: "삭제"
+        ) { [weak self] _, _, completion in
+            self?.deleteBookSubject.onNext(indexPath.item)
+            completion(true)
         }
+        deleteAction.image = UIImage(systemName: "trash.fill")
+        deleteAction.backgroundColor = .red
 
-        addBookButton.snp.remakeConstraints {
-            $0.top.equalTo(missingBookLabel.snp.bottom).offset(4)
-            $0.leading.equalTo(missingBookLabel.snp.leading)
-        }
+        return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
     // MARK: - Show Manual Title Input
@@ -221,45 +218,73 @@ final class BookCell: UICollectionViewCell {
     func configure(with book: Book) {
         titleLabel.text = book.title
         authorLabel.text = "\(book.author) 지음"
+
+        if let imageUrl = book.thumbnailUrl {
+            bookImageView.loadImage(from: imageUrl)
+        } else {
+            bookImageView.image = UIImage(named: "default_book")
+        }
     }
 
     // MARK: Private
 
+    private let bookImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.layer.cornerRadius = 4
+        $0.clipsToBounds = true
+    }
+
     private let titleLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         $0.textColor = .black
-        $0.numberOfLines = 1
+        $0.numberOfLines = 2
+        $0.textAlignment = .left
     }
 
     private let authorLabel = UILabel().then {
         $0.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         $0.textColor = .darkGray
         $0.numberOfLines = 1
+        $0.textAlignment = .left
     }
 
     private func setupUI() {
-        contentView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.1)
-        contentView.layer.cornerRadius = 8
+        contentView.addSubview(bookImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(authorLabel)
     }
 
     private func setupConstraints() {
-        contentView.snp.makeConstraints {
-            $0.width.equalTo(354)
-            $0.height.equalTo(72)
+        bookImageView.snp.makeConstraints {
+            $0.leading.equalToSuperview().offset(12)
+            $0.centerY.equalToSuperview()
+            $0.width.height.equalTo(48)
         }
 
         titleLabel.snp.makeConstraints {
+            $0.leading.equalTo(bookImageView.snp.trailing).offset(12)
+            $0.trailing.equalToSuperview().inset(12)
             $0.top.equalToSuperview().offset(12)
-            $0.leading.trailing.equalToSuperview().inset(16)
-            $0.width.equalTo(257.74)
-            $0.height.equalTo(46)
         }
 
         authorLabel.snp.makeConstraints {
+            $0.leading.trailing.equalTo(titleLabel)
             $0.top.equalTo(titleLabel.snp.bottom).offset(4)
-            $0.leading.trailing.equalToSuperview().inset(16)
+        }
+    }
+}
+
+// MARK: - UIImageView Extension
+
+extension UIImageView {
+    func loadImage(from url: URL) {
+        DispatchQueue.global().async {
+            if let data = try? Data(contentsOf: url),
+               let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self.image = image
+                }
+            }
         }
     }
 }
