@@ -25,7 +25,7 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
             ]
         ),
         QuestionAnswer(
-            createdAt: Date().addingTimeInterval(-86400), // 하루 전
+            createdAt: Date(),
             userQuestion: "자기계발 관련 책 추천해주세요.",
             gptAnswer: "자기계발에 좋은 책 몇 권을 추천해드릴게요.",
             recommendedBooks: [
@@ -60,7 +60,7 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
             ]
         ),
         QuestionAnswer(
-            createdAt: Date().addingTimeInterval(-86400), // 하루 전
+            createdAt: Date(),
             userQuestion: "자기계발 관련 책 추천해주세요.",
             gptAnswer: "자기계발에 좋은 책 몇 권을 추천해드릴게요.",
             recommendedBooks: [
@@ -81,6 +81,10 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
             ]
         ),
     ]
+
+    func removeQuestion(_: QuestionAnswer) {
+        print("question removed")
+    }
 
     func saveQuestion(_: QuestionAnswer) {
         print("questionSaved")
