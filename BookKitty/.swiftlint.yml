@@ -5,6 +5,7 @@ disabled_rules:
     - implicit_return             # return 사용 무시
     - trailing_comma              # 마지막 콤마 있어도 됨
     - explicit_enum_raw_value     # 열거형 원시값 명시적으로 안 넣어줘도 됨
+    - missing_docs                # public 또는 open 접근 제어자에 문서화 주석없어도 됨
 
 # 활성화할 옵트인 규칙
 opt_in_rules:

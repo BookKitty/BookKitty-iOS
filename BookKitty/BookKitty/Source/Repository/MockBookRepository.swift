@@ -58,6 +58,8 @@ final class MockBookRepository: BookRepository {
         )
     )
 
+    /// 아래 함수는 실제로 레포지토리에서 구현되지 않았습니다.
+    /// fetchBookList 함수를 사용해 주세요.
     func fetchAllBooks() -> [Book] {
         [
             Book(
@@ -99,21 +101,37 @@ final class MockBookRepository: BookRepository {
         ]
     }
 
-    func fetchBookDetailFromISBNs(_: [String]) -> [Book] {
-        []
-    }
-
     func fetchBookList(offset _: Int, limit _: Int) -> [Book] {
         mockBookList
     }
 
-    func fetchBookDetail() -> Book {
+    func fetchBookDetail(by _: String) -> Book? {
         mockBookDetail
     }
 
-    func saveBookList() {}
+    func fetchBookDetailFromISBNs(isbnList _: [String]) -> [Book] {
+        mockBookList
+    }
 
-    func deleteBook() {}
+    func fetchRecentRecommendedBooks() -> [Book] {
+        mockBookList
+    }
+
+    func saveBookList(data _: [Book]) -> Bool {
+        true
+    }
+
+    func saveBook(book _: Book) -> Bool {
+        true
+    }
+
+    func addBookToShelf(isbn _: String) -> Bool {
+        true
+    }
+
+    func exceptBookFromShelf(isbn _: String) -> Bool {
+        true
+    }
 
     // MARK: Private
 }

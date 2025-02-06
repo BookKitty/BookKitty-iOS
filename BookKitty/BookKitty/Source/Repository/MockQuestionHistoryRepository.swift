@@ -175,12 +175,17 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
         ),
     ]
 
-    func removeQuestion(_: QuestionAnswer) {
-        print("question removed")
+    func fetchQuestion(by _: UUID) -> QuestionAnswer? {
+        mockQuestionList[0]
     }
 
-    func saveQuestion(_: QuestionAnswer) {
-        print("questionSaved")
+    func saveQuestionAnswer(data _: QuestionAnswer) -> UUID? {
+        UUID()
+    }
+
+    func deleteQuestionAnswer(uuid _: UUID) -> Bool {
+        print("question removed")
+        return true
     }
 
     func fetchQuestions(offset _: Int, limit _: Int) -> Single<[QuestionAnswer]> {

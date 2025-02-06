@@ -2,7 +2,7 @@
 //  WidthFixedImageView.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 2/4/25.
+//  Created by 임성수 on 2/4/25.
 //
 
 import SnapKit
