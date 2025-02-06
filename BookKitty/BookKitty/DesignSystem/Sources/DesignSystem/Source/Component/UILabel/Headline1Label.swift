@@ -2,7 +2,7 @@
 //  Headline1Label.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 1/29/25.
+//  Created by 임성수 on 1/29/25.
 //
 
 import SnapKit

@@ -2,7 +2,7 @@
 //  UIButton+Extensions.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 2/1/25.
+//  Created by 임성수 on 2/1/25.
 //
 
 import UIKit
