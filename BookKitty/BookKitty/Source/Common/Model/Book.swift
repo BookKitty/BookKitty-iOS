@@ -12,5 +12,10 @@ struct Book: Hashable {
     let title: String
     let author: String
     let publisher: String
-    let thumbnailUrl: URL?
+    let price: String
+    let descriptions: String
+    let bookInfoLink: String
+    let imageLink: String
+    let createdAt: String
+    let pubDate: String
 }
