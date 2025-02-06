@@ -7,10 +7,11 @@
 
 import BookMatchCore
 import Foundation
+import RxSwift
 import UIKit
 
 /// Mock 추천 서비스 클래스
-class MockRecommendationService: BookMatchable {
+class MockRecommendationService: BookRecommendable {
     let mockBookData = [
         BookItem(
             id: "12313",
@@ -97,15 +98,7 @@ class MockRecommendationService: BookMatchable {
         ),
     ]
 
-    func recommendBooks(from _: [BookMatchCore.OwnedBook]) async -> [BookMatchCore.BookItem] {
-        []
-    }
-
-    func matchBook(_: [[String]], image _: UIImage) async -> BookMatchCore.BookItem? {
-        nil
-    }
-
-    func recommendBooks(for _: BookMatchCore.BookMatchModuleInput) async -> BookMatchCore
+    func recommendBooks(for _: String, from _: [BookMatchCore.OwnedBook]) async -> BookMatchCore
         .BookMatchModuleOutput {
         BookMatchModuleOutput(
             ownedISBNs: [
@@ -115,5 +108,19 @@ class MockRecommendationService: BookMatchable {
             newBooks: mockBookData,
             description: "이러한 이유로 당신에게 책을 추천합니당"
         )
+    }
+
+    func matchBook(_: [[String]], image _: UIImage) -> RxSwift.Single<BookMatchCore.BookItem?> {
+        Single.create { _ in
+            Disposables.create {}
+        }
+    }
+
+    func recommendBooks(from _: [BookMatchCore.OwnedBook]) async -> [BookMatchCore.BookItem] {
+        []
+    }
+
+    func matchBook(_: [[String]], image _: UIImage) async -> BookMatchCore.BookItem? {
+        nil
     }
 }

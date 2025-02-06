@@ -33,12 +33,12 @@ final class QuestionHistoryCell: UITableViewCell {
 
     static let identifier = "QuestionHistoryCell"
 
-    func configure(with question: Question) {
-        let isOverlapNeeded = question.recommandedBooks.count > 3
+    func configure(with questionAnswer: QuestionAnswer) {
+        let isOverlapNeeded = questionAnswer.recommendedBooks.count > 3
 
-        dateLabel.text = DateFormatter.shared.string(from: question.createdAt)
-        questionLabel.text = question.userQuestion
-        answerLabel.text = question.gptAnswer
+        dateLabel.text = DateFormatter.shared.string(from: questionAnswer.createdAt)
+        questionLabel.text = questionAnswer.userQuestion
+        answerLabel.text = questionAnswer.gptAnswer
 
         recommendedBooksStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
@@ -46,7 +46,7 @@ final class QuestionHistoryCell: UITableViewCell {
             recommendedBooksStackView.spacing = -48
         }
 
-        for book in question.recommandedBooks {
+        for book in questionAnswer.recommendedBooks {
             let imageView = HeightFixedImageView(
                 imageUrl: book.thumbnailUrl?.absoluteString ?? "",
                 height: .regular

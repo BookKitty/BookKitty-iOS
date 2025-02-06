@@ -11,8 +11,17 @@ struct SectionOfBook {
     var items: [Item]
 }
 
-extension SectionOfBook: SectionModelType {
+enum SectionType: Hashable {
+    case main
+}
+
+extension SectionOfBook: AnimatableSectionModelType {
+    typealias Identity = SectionType
     typealias Item = Book
+
+    var identity: SectionType {
+        .main
+    }
 
     init(original: SectionOfBook, items: [Book]) {
         self = original

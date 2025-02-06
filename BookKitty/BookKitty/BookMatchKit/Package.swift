@@ -70,6 +70,6 @@ let package = Package(
                 "RxSwift", "SwiftFormat",
                 "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
             ]
-        )
+        ),
     ]
 )

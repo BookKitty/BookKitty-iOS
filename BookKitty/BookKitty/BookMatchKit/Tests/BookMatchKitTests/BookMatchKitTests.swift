@@ -1,4 +1,4 @@
-//@testable import BookMatchCore
+// @testable import BookMatchCore
 @testable import BookMatchKit
 @testable import BookRecommendationKit
 import XCTest
@@ -36,32 +36,32 @@ final class BookMatchKitTests: XCTestCase {
             naverClientSecret: "",
             openAIApiKey: ""
         )
-        
+
         //        for id in 0 ..< 5 {
         for question in questions {
-            
             let result = await module.recommendBooks(for: question, from: [])
             total += result.newBooks.count
-            
+
             XCTAssertTrue(!result.description.isEmpty)
             XCTAssertTrue(!result.newBooks.isEmpty)
-            
+
             //                for book in result.newBooks {
-            //                    let myBool = await accurancyTester(question: question, title: book.title)
+            //                    let myBool = await accurancyTester(question: question, title:
+            //                    book.title)
             //                    if myBool == 1 {
             //                        cnt += 1
             //                    }
             //                }
-            
+
             print(result)
         }
         let acc = Double(cnt) / Double(total)
         XCTAssertTrue(acc > 0.9)
 //        print("accurancy in \(id + 1)th try: \(acc)")
-        
+
         results.append(acc)
         //        }
-        
+
         print("total accurancy: \(results.reduce(0.0,+) / 5.0)")
     }
 

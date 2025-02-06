@@ -6,12 +6,17 @@
 //
 
 import Foundation
+import RxDataSources
 
-struct Book: Hashable {
+struct Book: IdentifiableType, Hashable {
     let isbn: String
     let title: String
     let author: String
     let publisher: String
     let thumbnailUrl: URL?
     var isOwned = false
+
+    var identity: String {
+        isbn
+    }
 }
