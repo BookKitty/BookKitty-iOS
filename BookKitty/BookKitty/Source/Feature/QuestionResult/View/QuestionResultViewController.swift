@@ -71,7 +71,7 @@ final class QuestionResultViewController: BaseViewController {
         recommendedBooksCollectionView.snp.makeConstraints { make in
             make.top.equalTo(recommendedBooksHeadlineLabel.snp.bottom).offset(Vars.spacing24)
             make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide)
-            make.height.equalTo(376)
+            make.height.greaterThanOrEqualTo(448)
         }
 
         recommendationHeadlineLabel.snp.makeConstraints { make in
@@ -197,8 +197,8 @@ final class QuestionResultViewController: BaseViewController {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .absolute(200),
-            heightDimension: .absolute(280)
+            widthDimension: .absolute(240),
+            heightDimension: .absolute(352)
         )
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 
