@@ -2,7 +2,7 @@
 //  UserQuestionView.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 2/4/25.
+//  Created by 임성수 on 2/4/25.
 //
 
 import SnapKit
@@ -24,6 +24,12 @@ public class UserQuestionView: UIScrollView {
     @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: Public
+
+    public func setQuestionText(_ text: String) {
+        bodyLabel.text = text
     }
 
     // MARK: Internal
@@ -63,4 +69,9 @@ extension UserQuestionView {
             make.edges.equalToSuperview().inset(Vars.paddingReg)
         }
     }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    UserQuestionView(questionText: "text")
 }

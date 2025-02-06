@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="BookEntity" representedClassName="BookEntity" syncable="YES">
+        <attribute name="author" attributeType="String"/>
+        <attribute name="bookInfoLink" attributeType="String"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="descriptions" attributeType="String"/>
+        <attribute name="imageLink" attributeType="String"/>
+        <attribute name="isbn" attributeType="String"/>
+        <attribute name="isOwned" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="price" attributeType="String"/>
+        <attribute name="pubDate" attributeType="String"/>
+        <attribute name="publisher" attributeType="String"/>
+        <attribute name="title" attributeType="String"/>
+        <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="bookQuestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="book" inverseEntity="BookQuestionAnswerLinkEntity"/>
+    </entity>
+    <entity name="BookQuestionAnswerLinkEntity" representedClassName="BookQuestionAnswerLinkEntity" syncable="YES">
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="book" maxCount="1" deletionRule="Nullify" destinationEntity="BookEntity" inverseName="bookQuestionAnswerLinks" inverseEntity="BookEntity"/>
+        <relationship name="questionAnswer" maxCount="1" deletionRule="Nullify" destinationEntity="QuestionAnswerEntity" inverseName="bookQuestionAnswerLinks" inverseEntity="QuestionAnswerEntity"/>
+    </entity>
+    <entity name="QuestionAnswerEntity" representedClassName="QuestionAnswerEntity" syncable="YES">
+        <attribute name="aiAnswer" attributeType="String"/>
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="userQuestion" attributeType="String"/>
+        <relationship name="bookQuestionAnswerLinks" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BookQuestionAnswerLinkEntity" inverseName="questionAnswer" inverseEntity="BookQuestionAnswerLinkEntity"/>
+    </entity>
+</model>

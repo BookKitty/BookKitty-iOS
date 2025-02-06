@@ -2,7 +2,7 @@
 //  OwnedTagLabel.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 2/3/25.
+//  Created by 임성수 on 2/3/25.
 //
 
 import SnapKit
@@ -27,6 +27,11 @@ public class OwnedTagLabel: UILabel {
     // MARK: Internal
 
     var isOwned: Bool
+
+    func configure(isOwned: Bool) {
+        self.isOwned = isOwned
+        setupProperties()
+    }
 }
 
 // MARK: - UI Configure

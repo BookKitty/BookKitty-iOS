@@ -6,9 +6,11 @@
 //  Created by 전성규 on 1/26/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
+import Then
 import UIKit
 
 final class QuestionHistoryViewController: BaseViewController {
@@ -29,44 +31,98 @@ final class QuestionHistoryViewController: BaseViewController {
     override func bind() {
         let input = QuestionHistoryViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            questionSelected: Observable.empty(), // TODO: 연결 필요
-            reachedScrollEnd: Observable.empty() // TODO: 연결 필요
+            questionSelected: questionTableView.rx.modelSelected(QuestionAnswer.self)
+                .asObservable(),
+            reachedScrollEnd: questionTableView.rx.reachedBottom()
         )
 
-        _ = viewModel.transform(input)
+        let output = viewModel.transform(input)
+
+        output.questions
+            .drive(questionTableView.rx.items(
+                cellIdentifier: QuestionHistoryCell.identifier,
+                cellType: QuestionHistoryCell.self
+            )) { _, item, cell in
+                cell.configure(with: item)
+            }
+            .disposed(by: disposeBag)
     }
 
     override func configureHierarchy() {
-        [testLabel, testButton].forEach { view.addSubview($0) }
+        view.addSubview(questionTableView)
+
+        // titleLabel을 포함할 containerView 생성
+        let headerView = UIView(frame: CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: 42 + Vars.paddingReg
+        ))
+        headerView.addSubview(titleLabel)
+
+        // titleLabel 제약조건 설정
+        titleLabel.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalToSuperview().inset(Vars.paddingSmall)
+        }
+
+        questionTableView.tableHeaderView = headerView
     }
 
     override func configureLayout() {
-        testLabel.snp.makeConstraints { $0.center.equalToSuperview() }
-
-        testButton.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.top.equalTo(testLabel.snp.bottom).offset(20.0)
+        questionTableView.snp.makeConstraints { make in
+            make.verticalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingSmall)
         }
     }
 
     // MARK: Private
 
-    private var viewModel: QuestionHistoryViewModel
+    private let viewModel: QuestionHistoryViewModel
 
-    private let testLabel: UILabel = {
-        let label = UILabel()
-        label.text = "P-002"
-        label.font = .systemFont(ofSize: 30.0, weight: .bold)
+    private let titleLabel = Headline1Label(weight: .extraBold).then {
+        $0.text = "QnA 히스토리"
+        $0.textColor = Colors.fontMain
+    }
 
-        return label
+    private lazy var questionTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(
+            QuestionHistoryCell.self,
+            forCellReuseIdentifier: QuestionHistoryCell.identifier
+        )
+        tableView.separatorStyle = .none
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 240
+        tableView.showsVerticalScrollIndicator = false
+
+        return tableView
     }()
+}
 
-    private let testButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .tintColor
-        button.setTitle("Push P-007", for: .normal)
-        button.layer.cornerRadius = 12.0
+extension Reactive where Base: UIScrollView {
+    fileprivate func reachedBottom() -> Observable<Void> {
+        contentOffset
+            .map { [weak base] offset in
+                guard let base else {
+                    return false
+                }
+                let contentHeight = base.contentSize.height
+                let scrollViewHeight = base.bounds.height
+                let threshold: CGFloat = 100
+                return offset.y + scrollViewHeight + threshold > contentHeight
+            }
+            .distinctUntilChanged()
+            .filter { $0 }
+            .map { _ in () }
+    }
+}
 
-        return button
-    }()
+@available(iOS 17.0, *)
+#Preview {
+    QuestionHistoryViewController(
+        viewModel: QuestionHistoryViewModel(
+            questionHistoryRepository: MockQuestionHistoryRepository()
+        )
+    )
 }

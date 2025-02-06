@@ -2,14 +2,14 @@
 //  ViewSampleViewController.swift
 //  BookKitty
 //
-//  Created by MaxBook on 2/4/25.
+//  Created by 임성수 on 2/4/25.
 //
 
 //
 //  EtcSampleViewController.swift
 //  BookKitty
 //
-//  Created by MaxBook on 2/4/25.
+//  Created by 임성수 on 2/4/25.
 //
 
 import DesignSystem
@@ -33,14 +33,14 @@ class ViewSampleViewController: BaseViewController {
         bookTitle: "내가 소유한 책",
         bookAuthor: "권승용",
         imageUrl: "https://shopping-phinf.pstatic.net/main_3249784/32497843121.20221230071919.jpg",
-        isOwened: true
+        isOwned: true
     )
 
     let recBookUnowned = RecommendedBookView(
         bookTitle: "내가 안 소유한 책. 여튼 가지고 있지 않은 그런 책.",
         bookAuthor: "김형석 외 절대 다수. 매우 많은 사람들. 내배캠 사람들.",
         imageUrl: "https://shopping-phinf.pstatic.net/main_3246426/32464267002.20221230072620.jpg",
-        isOwened: false
+        isOwned: false
     )
 
     override func viewDidLoad() {

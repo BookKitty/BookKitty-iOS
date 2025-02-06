@@ -2,7 +2,7 @@
 //  HeightFixedImageView.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 2/4/25.
+//  Created by 임성수 on 2/4/25.
 //
 
 import SnapKit
@@ -23,7 +23,7 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     /// 책 이미지를 표시하는데 사용되며, 높이값은 200 고정입니다.
     ///
     /// - Parameters:
-    ///   - imageUrl: 사용하고자 하는 이미지의
+    ///   - imageUrl: 사용하고자 하는 이미지의 URL
     public init(imageUrl: String = "", height: BookImageFixedHeight) {
         self.imageUrl = imageUrl
 
@@ -50,8 +50,14 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
 
     public var imageUrl: String
     public var fixedHeight: CGFloat
-    public var isRounded = false
     public var onImageLoaded: (() -> Void)?
+
+    // MARK: Internal
+
+    func configure(imageUrl: String) {
+        self.imageUrl = imageUrl
+        setupProperties()
+    }
 }
 
 // MARK: - Setup UI
@@ -76,12 +82,15 @@ extension HeightFixedImageView {
 
             // 이미지의 원본 비율에 맞춰 높이 조정
             if let imageSize = bookImage?.size {
-                let aspectRatio = imageSize.width / imageSize.height
-                snp.remakeConstraints { make in
-                    make.height.equalTo(fixedHeight) // 높이 고정
-                    make.width.equalTo(fixedHeight * aspectRatio) // 너비 자동 조정
+                let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
+                let calculatedWidth = fixedHeight * aspectRatio
+
+                // 기존 제약조건 업데이트
+                snp.updateConstraints { make in
+                    make.width.equalTo(calculatedWidth)
                 }
             }
+
             // 이미지 로딩 완료 후 콜백 실행
             onImageLoaded?()
         }
@@ -90,7 +99,7 @@ extension HeightFixedImageView {
     private func setupLayouts() {
         snp.makeConstraints { make in
             make.height.equalTo(fixedHeight)
-            make.width.greaterThanOrEqualTo(Vars.viewSizeReg)
+            make.width.equalTo(Vars.viewSizeReg)
         }
     }
 }
@@ -98,8 +107,7 @@ extension HeightFixedImageView {
 // MARK: - Methods
 
 extension HeightFixedImageView {
-    public func toggleRadius() {
-        isRounded = !isRounded
-        layer.cornerRadius = isRounded ? Vars.radiusMini : 0
+    public func setRadius(to isRound: Bool) {
+        layer.cornerRadius = isRound ? Vars.radiusMini : 0
     }
 }

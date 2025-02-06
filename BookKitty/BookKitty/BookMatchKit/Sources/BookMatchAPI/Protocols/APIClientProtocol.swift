@@ -1,11 +1,13 @@
 import BookMatchCore
+import RxSwift
+import UIKit
 
 public protocol APIClientProtocol {
-    func searchBooks(query: String, limit: Int) async throws -> [BookItem]
-    func getBookRecommendation(question: String, ownedBooks: [OwnedBook]) async throws
-        -> GPTRecommendationForQuestion
-    func getBookRecommendation(ownedBooks: [OwnedBook]) async throws
-        -> GPTRecommendationFromOwnedBooks
-    func getAdditionalBook(question: String, previousBooks: [RawBook]) async throws -> RawBook
-    func getDescription(question: String, books: [RawBook]) async throws -> String
+    func searchBooks(query: String, limit: Int) -> Single<[BookItem]>
+    func getBookRecommendation(question: String, ownedBooks: [OwnedBook])
+        -> Single<GPTRecommendationForQuestion>
+    func getBookRecommendation(ownedBooks: [OwnedBook]) -> Single<GPTRecommendationFromOwnedBooks>
+    func getAdditionalBook(question: String, previousBooks: [RawBook]) -> Single<RawBook>
+    func getDescription(question: String, books: [RawBook]) -> Single<String>
+    func downloadImage(from urlString: String) -> Single<UIImage>
 }

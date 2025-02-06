@@ -2,7 +2,7 @@
 //  Colors.swift
 //  DesignSystem
 //
-//  Created by MaxBook on 1/29/25.
+//  Created by 임성수 on 1/29/25.
 //  기본적으로 컬러는 Colors 에셋 파일에서 직접 가져다 쓰는 것을 원칙으로 합니다.
 
 import UIKit

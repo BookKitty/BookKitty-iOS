@@ -35,11 +35,6 @@ final class NewQuestionViewModel: ViewModelType {
     /// - Returns: Output 구조체
     func transform(_ input: Input) -> Output {
         input.submitButtonTapped
-            .filter {
-                // 빈 문자열 방지
-                // TODO: 사용자에게 빈 문자열은 입력하지 못함에 대한 알림 필요
-                $0 != ""
-            }
             .bind(to: navigateToQuestionResult)
             .disposed(by: disposeBag)
 

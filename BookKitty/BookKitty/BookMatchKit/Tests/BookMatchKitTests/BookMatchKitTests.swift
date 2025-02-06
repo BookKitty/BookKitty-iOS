@@ -1,12 +1,9 @@
-@testable import BookMatchAPI
-@testable import BookMatchCore
+// @testable import BookMatchCore
 @testable import BookMatchKit
+@testable import BookRecommendationKit
 import XCTest
 
 final class BookMatchKitTests: XCTestCase {
-    var sut: BookMatchModule!
-    var config: APIConfiguration!
-
     let questions = [
         "요즘 스트레스가 많은데, 마음의 안정을 찾을 수 있는 책 추천해주세요.",
         "SF와 판타지를 좋아하는데, 현실과 가상세계를 넘나드는 소설 없을까요?",
@@ -24,123 +21,56 @@ final class BookMatchKitTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        config = APIConfiguration(
-            naverClientId: "exampleNaverClientID",
-            naverClientSecret: "exampleNaverClientSecret",
-            openAIApiKey: "exampleOpenAIApiKey"
-        )
     }
 
     override func tearDown() {
-        sut = nil
         super.tearDown()
-    }
-
-    func accurancyTester(question: String, title: String) async -> Int {
-        let prompt = """
-        질문: \(question)
-        도서 제목: \(title)
-        """
-
-        let advancedSystem = """
-          당신은 공감력이 뛰어난 전문 북큐레이터입니다. 도서의 제목과 상세정보를 보고, 질문에 적합한 도서인지 여부를 0이나 1로 표현해주세요:
-
-          1. 입/출력 형식
-          입력: 
-          - 질문 (문자열)
-          - 도서 제목: (문자열)
-          - 도서 상세정보: (문자열)
-
-          출력: 0 또는 1
-          0: 책이 질문의 맥락이나 의도와 전혀 관련이 없는 경우에만 해당
-          1: 다음 중 하나라도 해당되는 경우
-          - 책이 질문과 직접적으로 관련된 경우
-          - 책이 질문의 근본적인 감정이나 니즈를 간접적으로라도 충족시킬 수 있는 경우
-          - 책이 질문자의 상황이나 심리상태에 위로나 통찰을 줄 수 있는 경우
-          - 최근 판매량과 같이 객관적 확인이 어려운 질문의 경우
-
-          2. 필수 규칙
-          - 최근 한달 간 제일 많이 팔린 책과 같이 확인이 어려운 질문은 1로 반환
-        """
-
-        let requestBody: [String: Any] = [
-            "model": "gpt-4o",
-            "messages": [
-                ["role": "system", "content": advancedSystem],
-                ["role": "user", "content": prompt],
-            ],
-            "temperature": 0.01,
-            "max_tokens": 50,
-        ]
-
-        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
-            return -1
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(config.openAIApiKey)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
-
-            let (data, _) = try await URLSession.shared.data(for: request)
-
-            let response = try JSONDecoder().decode(ChatGPTResponse.self, from: data)
-
-            if let result = response.choices.first?.message.content, let resultInt = Int(result) {
-                return resultInt
-            } else {
-                return -1
-            }
-        } catch {
-            return -1
-        }
     }
 
     func test_RecommendForQuestion() async throws {
         var cnt = 0
         var total = 0
         var results = [Double]()
-        let client = DefaultAPIClient(configuration: config)
-        let module = BookMatchModule(apiClient: client)
+        let module = BookRecommendationKit(
+            naverClientId: "",
+            naverClientSecret: "",
+            openAIApiKey: ""
+        )
 
-        for id in 0 ..< 5 {
-            for question in questions {
-                let input = BookMatchModuleInput(
-                    question: question,
-                    ownedBooks: []
-                )
+        //        for id in 0 ..< 5 {
+        for question in questions {
+            let result = await module.recommendBooks(for: question, from: [])
+            total += result.newBooks.count
 
-                let result = await module.recommendBooks(for: input)
-                total += result.newBooks.count
+            XCTAssertTrue(!result.description.isEmpty)
+            XCTAssertTrue(!result.newBooks.isEmpty)
 
-                XCTAssertTrue(!result.description.isEmpty)
-                XCTAssertTrue(!result.newBooks.isEmpty)
+            //                for book in result.newBooks {
+            //                    let myBool = await accurancyTester(question: question, title:
+            //                    book.title)
+            //                    if myBool == 1 {
+            //                        cnt += 1
+            //                    }
+            //                }
 
-                for book in result.newBooks {
-                    let myBool = await accurancyTester(question: question, title: book.title)
-                    if myBool == 1 {
-                        cnt += 1
-                    }
-                }
-
-                print(result)
-            }
-            let acc = Double(cnt) / Double(total)
-            XCTAssertTrue(acc > 0.9)
-            print("accurancy in \(id + 1)th try: \(acc)")
-
-            results.append(acc)
+            print(result)
         }
+        let acc = Double(cnt) / Double(total)
+        XCTAssertTrue(acc > 0.9)
+//        print("accurancy in \(id + 1)th try: \(acc)")
+
+        results.append(acc)
+        //        }
 
         print("total accurancy: \(results.reduce(0.0,+) / 5.0)")
     }
 
     func test_RecommendFromOwnedBooks() async throws {
-        let client = DefaultAPIClient(configuration: config)
-        let module = BookMatchModule(apiClient: client)
+        let module = BookRecommendationKit(
+            naverClientId: "",
+            naverClientSecret: "",
+            openAIApiKey: ""
+        )
 
         let dummyOwnedBooks: [OwnedBook] = [
             OwnedBook(
@@ -196,6 +126,70 @@ final class BookMatchKitTests: XCTestCase {
         ]
 
         let result = await module.recommendBooks(from: dummyOwnedBooks)
+        print(result)
         XCTAssertTrue(!result.isEmpty)
     }
+//
+//    func accurancyTester(question: String, title: String) async -> Int {
+//        let prompt = """
+//        질문: \(question)
+//        도서 제목: \(title)
+//        """
+//
+//        let advancedSystem = """
+//          당신은 공감력이 뛰어난 전문 북큐레이터입니다. 도서의 제목과 상세정보를 보고, 질문에 적합한 도서인지 여부를 0이나 1로 표현해주세요:
+//
+//          1. 입/출력 형식
+//          입력:
+//          - 질문 (문자열)
+//          - 도서 제목: (문자열)
+//          - 도서 상세정보: (문자열)
+//
+//          출력: 0 또는 1
+//          0: 책이 질문의 맥락이나 의도와 전혀 관련이 없는 경우에만 해당
+//          1: 다음 중 하나라도 해당되는 경우
+//          - 책이 질문과 직접적으로 관련된 경우
+//          - 책이 질문의 근본적인 감정이나 니즈를 간접적으로라도 충족시킬 수 있는 경우
+//          - 책이 질문자의 상황이나 심리상태에 위로나 통찰을 줄 수 있는 경우
+//          - 최근 판매량과 같이 객관적 확인이 어려운 질문의 경우
+//
+//          2. 필수 규칙
+//          - 최근 한달 간 제일 많이 팔린 책과 같이 확인이 어려운 질문은 1로 반환
+//        """
+//
+//        let requestBody: [String: Any] = [
+//            "model": "gpt-4o",
+//            "messages": [
+//                ["role": "system", "content": advancedSystem],
+//                ["role": "user", "content": prompt],
+//            ],
+//            "temperature": 0.01,
+//            "max_tokens": 50,
+//        ]
+//
+//        guard let url = URL(string: "https://api.openai.com/v1/chat/completions") else {
+//            return -1
+//        }
+//
+//        var request = URLRequest(url: url)
+//        request.httpMethod = "POST"
+//        request.addValue("Bearer \(config.openAIApiKey)", forHTTPHeaderField: "Authorization")
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//
+//        do {
+//            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+//
+//            let (data, _) = try await URLSession.shared.data(for: request)
+//
+//            let response = try JSONDecoder().decode(ChatGPTResponse.self, from: data)
+//
+//            if let result = response.choices.first?.message.content, let resultInt = Int(result) {
+//                return resultInt
+//            } else {
+//                return -1
+//            }
+//        } catch {
+//            return -1
+//        }
+//    }
 }

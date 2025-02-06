@@ -5,6 +5,9 @@
 //  Created by 전성규 on 2/3/25.
 //
 
+import BookMatchAPI
+import BookMatchKit
+import BookRecommendationKit
 import RxCocoa
 import RxSwift
 import UIKit
@@ -60,18 +63,31 @@ extension AddQuestionCoordinator {
     /// 질문 결과 화면을 표시하는 메서드
     /// - Parameter question: 사용자가 입력한 질문 내용
     private func showQuestionResultScene(with question: String) {
-        let questionResultViewModel = QuestionResultViewModel()
+        // TODO: xcconfig 활용, API 키 집어넣기
+        let recommendationService = BookRecommendationKit(
+            naverClientId: "",
+            naverClientSecret: "",
+            openAIApiKey: ""
+        )
+        // TODO: Mock 레포지토리들 Real로 변경
+        let repository = MockBookRepository()
+        let questionHistoryRepository = MockQuestionHistoryRepository()
+
+        let questionResultViewModel = QuestionResultViewModel(
+            userQuestion: question,
+            recommendationService: recommendationService,
+            bookRepository: repository,
+            questionHistoryRepository: questionHistoryRepository
+        )
+
         let questionResultViewController =
             QuestionResultViewController(viewModel: questionResultViewModel)
-
-        // 질문 결과 ViewModel에 사용자가 입력한 질문 전달
-        questionResultViewModel.questionRelay.accept(question)
 
         // 책 상세 화면으로 이동하는 이벤트를 구독
         questionResultViewModel.navigateToBookDetail
             .withUnretained(self)
-            .bind(onNext: { owner, isbn in
-                owner.showBookDetailScene(with: isbn)
+            .bind(onNext: { owner, book in
+                owner.showBookDetailScene(with: book.isbn)
             }).disposed(by: disposeBag)
 
         // 루트 화면으로 이동하는 이벤트를 구독
@@ -96,6 +112,12 @@ extension AddQuestionCoordinator {
         bookDetailViewModel.isbnRelay.accept(isbn)
 
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
+
+        bookDetailViewModel.navigate
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
 
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }

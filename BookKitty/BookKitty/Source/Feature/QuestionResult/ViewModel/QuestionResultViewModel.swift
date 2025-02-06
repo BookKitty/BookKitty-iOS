@@ -2,52 +2,176 @@
 //  QuestionResultViewModel.swift
 //  BookKitty
 //
-//  Created by 전성규 on 2/3/25.
+//  Created by 권승용 on 1/31/25.
 //
 
+import BookMatchCore
+import BookRecommendationKit
 import Foundation
 import RxCocoa
 import RxSwift
 
 final class QuestionResultViewModel: ViewModelType {
+    // MARK: Lifecycle
+
+    init(
+        userQuestion: String,
+        recommendationService: BookRecommendable,
+        bookRepository: BookRepository,
+        questionHistoryRepository: QuestionHistoryRepository
+    ) {
+        self.userQuestion = userQuestion
+        self.recommendationService = recommendationService
+        self.bookRepository = bookRepository
+        self.questionHistoryRepository = questionHistoryRepository
+    }
+
     // MARK: Internal
 
     struct Input {
-        let viewDidLoad: Observable<Void>
-        let bookThumbnailButtonTapTigger: Observable<String>
-        let confirmButtonTrigger: Observable<Void>
+        let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
+        let bookSelected: Observable<Book> // 사용자가 선택한 책
+        let submitButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
     }
 
     struct Output {
-        let question: Driver<String>
+        let userQuestion: Driver<String> // 사용자의 질문
+        let recommendedBooks: Driver<[SectionOfBook]> // 추천된 책 목록
+        let recommendationReason: Driver<String> // 추천 이유
+        let error: Observable<Error> // 에러 처리
     }
 
     let disposeBag = DisposeBag()
-    /// 질문 내용을 저장하는 Relay
-    let questionRelay = ReplayRelay<String>.create(bufferSize: 1)
-    /// 책 상세 화면으로 이동하는 이벤트
-    let navigateToBookDetail = PublishRelay<String>()
-    /// 루트 화면으로 이동하는 이벤트
+    // 화면 이동을 위한 Relay
+    let navigateToBookDetail = PublishRelay<Book>()
+    let navigateToQuestionHistory = PublishRelay<Void>()
     let navigateToRoot = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
-            .withLatestFrom(questionRelay)
-            .bind(to: requestQuestion)
+            .withUnretained(self)
+            .map { _ in
+                self.userQuestion
+            }
+            .bind(to: userQuestionRelay) // 질문을 저장
             .disposed(by: disposeBag)
 
-        input.bookThumbnailButtonTapTigger
-            .bind(to: navigateToBookDetail)
+        let fetchBookInfoFromService = fetchBookInfoFromService(input.viewDidLoad)
+
+        fetchBookInfoFromService
+            .map(saveQuestionAndmapRecommendedBooks) // 추천된 책 정보 변환
+            .bind(to: recommendedBooksRelay)
             .disposed(by: disposeBag)
 
-        input.confirmButtonTrigger
-            .bind(to: navigateToRoot)
+        fetchBookInfoFromService
+            .map(mapRecommendationReason) // 추천 이유 변환
+            .bind(to: recommendationReasonRelay)
             .disposed(by: disposeBag)
 
-        return Output(question: requestQuestion.asDriver(onErrorJustReturn: ""))
+        input.bookSelected
+            .bind(to: navigateToBookDetail) // 책 상세 화면으로 이동
+            .disposed(by: disposeBag)
+
+        input.submitButtonTapped
+            .bind(to: navigateToQuestionHistory) // 질문 내역 화면으로 이동
+            .disposed(by: disposeBag)
+
+        return Output(
+            userQuestion: userQuestionRelay.asDriver(),
+            recommendedBooks: recommendedBooksRelay.asDriver(),
+            recommendationReason: recommendationReasonRelay.asDriver(),
+            error: errorRelay.asObservable()
+        )
     }
 
     // MARK: Private
 
-    private let requestQuestion = PublishRelay<String>()
+    private let userQuestion: String
+
+    private let questionHistoryRepository: QuestionHistoryRepository
+    private let bookRepository: BookRepository
+    private let recommendationService: BookRecommendable
+
+    private let userQuestionRelay = BehaviorRelay<String>(value: "")
+    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
+    private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
+    private let errorRelay = PublishRelay<Error>()
+
+    private func fetchBookInfoFromService(_ viewDidLoad: Observable<Void>)
+        -> Observable<(String, BookMatchModuleOutput)> {
+        viewDidLoad
+            .withUnretained(self)
+            .flatMapLatest { _ in
+                // 코어데이터에서 사용자가 소유한 책 가져오기 (예제 데이터)
+                let ownedBooks = self.bookRepository.fetchBookList(offset: 0, limit: 15).map {
+                    OwnedBook(
+                        id: $0.isbn,
+                        title: $0.title,
+                        author: $0.author
+                    )
+                }
+
+                // 추천 서비스 호출
+                return Observable<(String, BookMatchModuleOutput)>.create { observer in
+                    let task = Task {
+                        // TODO: 에러 받아서 처리하기
+                        let output = await self.recommendationService.recommendBooks(
+                            for: self.userQuestion,
+                            from: ownedBooks
+                        )
+                        observer.onNext((self.userQuestion, output)) // 결과 방출
+                    }
+                    return Disposables.create {
+                        task.cancel() // 작업 취소
+                    }
+                }
+            }
+            .share()
+    }
+
+    /// 추천된 책 정보를 매핑하는 함수
+    private func saveQuestionAndmapRecommendedBooks(_ questionAndOutput: (
+        String,
+        BookMatchModuleOutput
+    ))
+        -> [SectionOfBook] {
+        let question = questionAndOutput.0
+        let output = questionAndOutput.1
+
+        // 코어데이터에서 저장된 책 정보 가져오기
+        let isbnList = output.ownedISBNs
+        let ownedBooks = bookRepository.fetchBookDetailFromISBNs(isbnList: isbnList)
+
+        // 새로운 추천 도서를 Book 모델로 변환
+        let newBooks = output.newBooks.map {
+            Book(
+                isbn: $0.isbn,
+                title: $0.title,
+                author: $0.author,
+                publisher: $0.publisher,
+                thumbnailUrl: URL(string: $0.image)
+            )
+        }
+
+        // 기존 책 + 새로운 책 결합
+        let recommendedBooks = ownedBooks + newBooks
+
+        // 질문 및 추천 정보를 저장
+        let questionToSave = QuestionAnswer(
+            createdAt: Date(),
+            userQuestion: question,
+            gptAnswer: output.description,
+            id: UUID(),
+            recommendedBooks: recommendedBooks
+        )
+        questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
+
+        return [SectionOfBook(items: recommendedBooks)]
+    }
+
+    /// 추천된 이유를 매핑하는 함수
+    private func mapRecommendationReason(_ questionAndOutput: (String, BookMatchModuleOutput))
+        -> String {
+        questionAndOutput.1.description
+    }
 }

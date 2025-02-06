@@ -31,7 +31,7 @@ struct MyLibraryViewModelTests {
         let output = vm.transform(input)
         // 책 목록이 방출될 때까지 기다림
         for await value in output.bookList.values {
-            #expect(value == repository.mockBookList) // 방출된 값이 예상한 책 목록과 같은지 확인
+            #expect(value[0].items == repository.mockBookList) // 방출된 값이 예상한 책 목록과 같은지 확인
             break
         }
     }
@@ -85,7 +85,7 @@ struct MyLibraryViewModelTests {
         // 책 목록이 방출될 때까지 기다림
         // BehaviorRelay로 동작하기 때문에 값 곧바로 얻음
         for await value in output.bookList.values {
-            #expect(value == repository.mockBookList) // 방출된 값이 예상한 책 목록과 같은지 확인
+            #expect(value[0].items == repository.mockBookList) // 방출된 값이 예상한 책 목록과 같은지 확인
             break
         }
     }

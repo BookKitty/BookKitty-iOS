@@ -14,6 +14,10 @@ let package = Package(
             targets: ["BookMatchKit"]
         ),
         .library(
+            name: "BookRecommendationKit",
+            targets: ["BookRecommendationKit"]
+        ),
+        .library(
             name: "BookMatchCore",
             targets: ["BookMatchCore"]
         ),
@@ -26,41 +30,51 @@ let package = Package(
             targets: ["BookMatchStrategy"]
         ),
     ],
+
     dependencies: [
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
+        .package(path: "../Network"),
     ],
+
     targets: [
         .target(
-            name: "BookMatchCore",
-            dependencies: ["SwiftFormat"]
+            name: "BookMatchKit",
+            dependencies: [
+                "RxSwift", "SwiftFormat",
+                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
+            ]
         ),
-
         .target(
-            name: "BookMatchAPI",
-            dependencies: ["BookMatchCore", "SwiftFormat"]
+            name: "BookRecommendationKit",
+            dependencies: [
+                "RxSwift", "SwiftFormat",
+                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
+            ]
         ),
 
         .target(
             name: "BookMatchStrategy",
-            dependencies: ["BookMatchCore", "SwiftFormat"]
+            dependencies: ["SwiftFormat", "BookMatchCore"]
         ),
-
         .target(
-            name: "BookMatchKit",
+            name: "BookMatchCore",
+            dependencies: ["RxSwift", "SwiftFormat"]
+        ),
+        .target(
+            name: "BookMatchAPI",
             dependencies: [
-                "BookMatchCore",
-                "BookMatchAPI",
-                "BookMatchStrategy",
+                "RxSwift",
                 "SwiftFormat",
+                "BookMatchCore",
+                .product(name: "Network", package: "Network"),
             ]
         ),
-
         .testTarget(
             name: "BookMatchKitTests",
             dependencies: [
-                "BookMatchKit",
-                "BookMatchCore",
-                "BookMatchAPI",
+                "RxSwift", "SwiftFormat",
+                "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
             ]
         ),
     ]
