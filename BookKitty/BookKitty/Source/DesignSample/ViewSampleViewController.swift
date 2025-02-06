@@ -71,6 +71,15 @@ extension ViewSampleViewController {
     }
 
     private func setupProperties() {
+        let apiKey: String = {
+            guard let apiKey = Bundle.main
+                .object(forInfoDictionaryKey: "TEST_SAMPLE_TXT") as? String else {
+                fatalError("TEST_SAMPLE_TXT not found in Info.plist")
+            }
+            return apiKey
+        }()
+
+        print(apiKey)
         view.backgroundColor = Colors.brandMain30
     }
 
