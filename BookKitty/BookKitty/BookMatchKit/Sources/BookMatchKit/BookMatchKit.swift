@@ -15,11 +15,8 @@ public final class BookMatchKit: BookMatchable {
     public init(
         naverClientId: String,
         naverClientSecret: String,
-        session: URLSession = .shared,
         naverBaseURL _: String = "https://openapi.naver.com/v1/search/book.json"
     ) {
-        self.session = session
-
         let config = APIConfiguration(
             naverClientId: naverClientId,
             naverClientSecret: naverClientSecret,
@@ -51,7 +48,7 @@ public final class BookMatchKit: BookMatchable {
                         guard let self else {
                             return Observable.empty()
                         }
-                        return downloadImage(from: book.image)
+                        return apiClient.downloadImage(from: book.image)
                             .flatMap { downloadedImage in
                                 self.imageStrategy.calculateSimilarity(image, downloadedImage)
                                     .map { similarity in
@@ -75,7 +72,6 @@ public final class BookMatchKit: BookMatchable {
     // MARK: Private
 
     private let imageStrategy = VisionImageStrategy()
-    private let session: URLSession
     private let apiClient: APIClientProtocol
     private let disposeBag = DisposeBag()
 
@@ -147,47 +143,5 @@ public final class BookMatchKit: BookMatchable {
             return Disposables.create()
         }
         .asSingle()
-    }
-
-    /// URL로부터 이미지를 다운로드합니다.
-    ///
-    /// - Parameters:
-    ///   - urlString: 이미지 URL 문자열
-    /// - Returns: 다운로드된 UIImage
-    /// - Throws: BookMatchError.networkError
-    private func downloadImage(from urlString: String) -> Single<UIImage> {
-        Single.create { [weak self] single in
-            guard let self else {
-                single(.failure(BookMatchError.invalidResponse))
-                return Disposables.create()
-            }
-
-            guard let url = URL(string: urlString) else {
-                single(.failure(BookMatchError.networkError("Invalid URL")))
-                return Disposables.create()
-            }
-
-            let task = session.dataTask(with: url) { data, _, error in
-                if let error {
-                    single(.failure(error))
-                    return
-                }
-
-                guard let data,
-                      let image = UIImage(data: data) else {
-                    print("UIImage")
-                    single(.failure(BookMatchError.networkError("Image Fetch Failed")))
-                    return
-                }
-
-                single(.success(image))
-            }
-
-            task.resume()
-
-            return Disposables.create {
-                task.cancel()
-            }
-        }
     }
 }
