@@ -31,7 +31,7 @@ final class QuestionResultViewModel: ViewModelType {
     struct Input {
         let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
         let bookSelected: Observable<Book> // 사용자가 선택한 책
-        let lalalaButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
+        let submitButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
     }
 
     struct Output {
@@ -72,7 +72,7 @@ final class QuestionResultViewModel: ViewModelType {
             .bind(to: navigateToBookDetail) // 책 상세 화면으로 이동
             .disposed(by: disposeBag)
 
-        input.lalalaButtonTapped
+        input.submitButtonTapped
             .bind(to: navigateToQuestionHistory) // 질문 내역 화면으로 이동
             .disposed(by: disposeBag)
 
