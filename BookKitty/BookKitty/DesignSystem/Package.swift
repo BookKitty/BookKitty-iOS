@@ -26,8 +26,8 @@ let package = Package(
         .target(
             name: "DesignSystem",
             dependencies: [
-                "SnapKit",
-                "Then",
+                .product(name: "SnapKit", package: "SnapKit"),
+                .product(name: "Then", package: "Then"),
             ],
             resources: [
                 .process("Resource/Fonts"),

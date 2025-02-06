@@ -137,7 +137,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				603741522D40EAC800E6A9B1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				606DA25A2D420CB100C7FAA3 /* BookKitty */,
@@ -209,7 +208,6 @@
 			mainGroup = 60551C5C2D40E6E800CFC16A;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
 				606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				606DA2432D42076100C7FAA3 /* XCRemoteSwiftPackageReference "Then" */,
 				606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */,
@@ -282,10 +280,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		603741522D40EAC800E6A9B1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = 603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */;
-		};
 		60CC57C12D4B157000DE3ACB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 60551C642D40E6E800CFC16A /* BookKitty */;
@@ -548,14 +542,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SimplyDanny/SwiftLintPlugins";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.58.2;
-			};
-		};
 		606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift.git";
@@ -591,11 +577,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		603741512D40EAC800E6A9B1 /* SwiftLintBuildToolPlugin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 603741502D40EAAC00E6A9B1 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */;
-			productName = "plugin:SwiftLintBuildToolPlugin";
-		};
 		6041EB672D507E2800061ED0 /* RxDataSources */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 606DA2462D42079900C7FAA3 /* XCRemoteSwiftPackageReference "RxDataSources" */;
