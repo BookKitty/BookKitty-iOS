@@ -26,6 +26,12 @@ public class UserQuestionView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: Public
+
+    public func setQuestionText(_ text: String) {
+        bodyLabel.text = text
+    }
+
     // MARK: Internal
 
     var questionText: String
@@ -63,4 +69,9 @@ extension UserQuestionView {
             make.edges.equalToSuperview().inset(Vars.paddingReg)
         }
     }
+}
+
+@available(iOS 17.0, *)
+#Preview {
+    UserQuestionView(questionText: "text")
 }

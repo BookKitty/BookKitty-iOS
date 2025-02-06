@@ -27,6 +27,11 @@ public class OwnedTagLabel: UILabel {
     // MARK: Internal
 
     var isOwned: Bool
+
+    func configure(isOwned: Bool) {
+        self.isOwned = isOwned
+        setupProperties()
+    }
 }
 
 // MARK: - UI Configure

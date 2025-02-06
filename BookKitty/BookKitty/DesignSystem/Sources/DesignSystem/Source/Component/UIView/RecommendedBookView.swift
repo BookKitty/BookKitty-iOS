@@ -16,9 +16,9 @@ public class RecommendedBookView: UIView {
         bookTitle: String,
         bookAuthor: String,
         imageUrl: String,
-        isOwened: Bool
+        isOwned: Bool
     ) {
-        tagLabel = OwnedTagLabel(isOwned: isOwened)
+        tagLabel = OwnedTagLabel(isOwned: isOwned)
         bookImageView = HeightFixedImageView(imageUrl: imageUrl, height: .regular)
         bookTitleLabel = BodyLabel(weight: .semiBold).then {
             $0.text = bookTitle
@@ -50,6 +50,18 @@ public class RecommendedBookView: UIView {
 
         setupLayouts()
         setupProperties()
+    }
+
+    public func configureView(
+        bookTitle: String,
+        bookAuthor: String,
+        imageUrl: String,
+        isOwned: Bool
+    ) {
+        tagLabel.configure(isOwned: isOwned)
+        bookImageView.configure(imageUrl: imageUrl)
+        bookTitleLabel.text = bookTitle
+        bookAuthorLabel.text = bookAuthor
     }
 
     // MARK: Internal

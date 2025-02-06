@@ -8,7 +8,7 @@
 import Foundation
 
 /// 질문답변을 나타내는 모델
-struct QuestionAnswer {
+struct QuestionAnswer: Hashable {
     let createdAt: Date
     let userQuestion: String
     let gptAnswer: String
