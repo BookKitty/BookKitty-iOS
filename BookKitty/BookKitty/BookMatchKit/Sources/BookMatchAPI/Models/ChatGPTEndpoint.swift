@@ -27,8 +27,8 @@ struct ChatGPTEndpoint: Endpoint {
     var baseURL: String {
         configuration.openAIBaseURL
     }
-
-    var path: String { "" }
+    
+    var path: String { "/v1/chat/completions" }
 
     var method: HTTPMethod { .post }
 

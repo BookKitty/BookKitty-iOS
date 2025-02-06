@@ -287,7 +287,7 @@ public final class DefaultAPIClient: APIClientProtocol {
         )
 
         return NetworkManager.shared.request(endpoint)
-            .map { response -> ChatGPTResponse in
+            .map { response in
                 guard let response else {
                     throw BookMatchError.invalidResponse
                 }
