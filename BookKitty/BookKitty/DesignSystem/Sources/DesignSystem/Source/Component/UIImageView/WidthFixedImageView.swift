@@ -54,6 +54,33 @@ public class WidthFixedImageView: UIImageView, ImageLoadableView {
 // MARK: - Setup UI
 
 extension WidthFixedImageView {
+    public func setupImage(imageLink: String) {
+        imageLink.loadAsyncImage { [weak self] image in
+            guard let self else {
+                return
+            }
+            let bookImage = image ?? UIImage(
+                named: "DefaultBookImage",
+                in: Bundle.module,
+                compatibleWith: nil
+            )
+
+            self.image = bookImage
+
+            // 이미지의 원본 비율에 맞춰 높이 조정
+            if let imageSize = bookImage?.size {
+                let aspectRatio = imageSize.height / imageSize.width
+                snp.remakeConstraints { make in
+                    make.width.equalTo(fixedWidth) // 너비 고정
+                    make.height.equalTo(fixedWidth * aspectRatio) // 높이 자동 조정
+                }
+            }
+
+            // 이미지 로딩 완료 후 콜백 실행
+            onImageLoaded?()
+        }
+    }
+
     private func setupProperties() {
         contentMode = .scaleAspectFit
         clipsToBounds = true

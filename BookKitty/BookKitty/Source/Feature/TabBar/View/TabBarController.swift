@@ -121,6 +121,7 @@ final class TabBarController: BaseViewController {
     /// 탭 바에서 선택된 인덱스를 감지하고 뷰 컨트롤러 전환
     private func bindTabBar() {
         tabBar.selectedIndex
+            .skip(1)
             .distinctUntilChanged()
             .withUnretained(self)
             .subscribe(onNext: { owner, index in
