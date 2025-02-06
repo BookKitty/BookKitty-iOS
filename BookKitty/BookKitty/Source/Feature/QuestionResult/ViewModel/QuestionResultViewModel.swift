@@ -6,7 +6,7 @@
 //
 
 import BookMatchCore
-import BookMatchKit
+import BookRecommendationKit
 import Foundation
 import RxCocoa
 import RxSwift
@@ -16,7 +16,7 @@ final class QuestionResultViewModel: ViewModelType {
 
     init(
         userQuestion: String,
-        recommendationService: BookMatchable,
+        recommendationService: BookRecommendable,
         bookRepository: BookRepository,
         questionHistoryRepository: QuestionHistoryRepository
     ) {
@@ -90,7 +90,7 @@ final class QuestionResultViewModel: ViewModelType {
 
     private let questionHistoryRepository: QuestionHistoryRepository
     private let bookRepository: BookRepository
-    private let recommendationService: BookMatchable
+    private let recommendationService: BookRecommendable
 
     private let userQuestionRelay = BehaviorRelay<String>(value: "")
     private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
@@ -111,22 +111,15 @@ final class QuestionResultViewModel: ViewModelType {
                     )
                 }
 
-                // 서비스 입력을 위한 데이터 생성
-                let input = BookMatchModuleInput(
-                    question: self.userQuestion,
-                    ownedBooks: ownedBooks
-                )
-
                 // 추천 서비스 호출
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
-                        do {
-                            // TODO: 에러 받아서 처리하기
-                            let output = await self.recommendationService.recommendBooks(for: input)
-                            observer.onNext((self.userQuestion, output)) // 결과 방출
-                        } catch {
-                            self.errorRelay.accept(error) // 에러 발생 시 처리
-                        }
+                        // TODO: 에러 받아서 처리하기
+                        let output = await self.recommendationService.recommendBooks(
+                            for: self.userQuestion,
+                            from: ownedBooks
+                        )
+                        observer.onNext((self.userQuestion, output)) // 결과 방출
                     }
                     return Disposables.create {
                         task.cancel() // 작업 취소
