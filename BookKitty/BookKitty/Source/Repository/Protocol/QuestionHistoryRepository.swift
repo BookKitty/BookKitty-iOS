@@ -32,16 +32,30 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
 
     // MARK: Internal
 
+    func fetchQuestions(offset: Int, limit: Int) -> RxSwift.Single<[QuestionAnswer]> {
+        let qnaEntities = questionAnswerCoreDataManager.selectQuestionHistories(
+            offset: offset,
+            limit: limit,
+            context: context
+        )
+
+        guard !qnaEntities.isEmpty else {
+            return .just([])
+        }
+
+        let questions: [QuestionAnswer] = qnaEntities.compactMap {
+            questionEntityToModel(entity: $0)
+        }
+
+        return .just(questions)
+    }
+
     func fetchQuestion(by _: UUID) -> QuestionAnswer? {
         nil
     }
 
     func saveQuestionAnswer(data _: QuestionAnswer) -> UUID? {
         nil
-    }
-
-    func fetchQuestions(offset _: Int, limit _: Int) -> RxSwift.Single<[QuestionAnswer]> {
-        .just([])
     }
 
     func deleteQuestionAnswer(uuid _: UUID) -> Bool {
@@ -54,4 +68,21 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     private let bookCoreDataManager: BookCoreDataManageable
     private let questionAnswerCoreDataManager: QuestionAnswerCoreDataManageable
     private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
+
+    private func questionEntityToModel(entity: QuestionAnswerEntity) -> QuestionAnswer {
+        let bookEntities = (entity.bookQuestionAnswerLinks as? Set<BookQuestionAnswerLinkEntity>)?
+            .compactMap(\.book) ?? []
+
+        let books = bookEntities.compactMap {
+            bookCoreDataManager.entityToModel(entity: $0)
+        }
+
+        return QuestionAnswer(
+            createdAt: entity.createdAt ?? Date(),
+            userQuestion: entity.userQuestion ?? "",
+            gptAnswer: entity.aiAnswer ?? "",
+            id: entity.id ?? UUID(),
+            recommendedBooks: books
+        )
+    }
 }

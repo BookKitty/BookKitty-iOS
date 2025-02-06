@@ -55,7 +55,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
     /// - Returns: 성공 여부를 Bool 타입으로 반환
     func insertBook(model: Book, context: NSManagedObjectContext) -> Bool {
         do {
-            let entity = modelToEntity(model: model, context: context)
+            _ = modelToEntity(model: model, context: context)
             try context.save()
             return true
         } catch {

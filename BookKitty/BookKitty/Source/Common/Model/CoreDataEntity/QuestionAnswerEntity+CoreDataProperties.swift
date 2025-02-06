@@ -6,14 +6,13 @@
 //
 //
 
-import Foundation
 import CoreData
-
+import Foundation
 
 extension QuestionAnswerEntity {
-
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<QuestionAnswerEntity> {
-        return NSFetchRequest<QuestionAnswerEntity>(entityName: "QuestionAnswerEntity")
+    @nonobjc
+    public class func fetchRequest() -> NSFetchRequest<QuestionAnswerEntity> {
+        NSFetchRequest<QuestionAnswerEntity>(entityName: "QuestionAnswerEntity")
     }
 
     @NSManaged public var aiAnswer: String?
@@ -21,26 +20,26 @@ extension QuestionAnswerEntity {
     @NSManaged public var userQuestion: String?
     @NSManaged public var createdAt: Date?
     @NSManaged public var bookQuestionAnswerLinks: NSSet?
-
 }
 
 // MARK: Generated accessors for bookQuestionAnswerLinks
-extension QuestionAnswerEntity {
 
+extension QuestionAnswerEntity {
     @objc(addBookQuestionAnswerLinksObject:)
-    @NSManaged public func addToBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
+    @NSManaged
+    public func addToBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
     @objc(removeBookQuestionAnswerLinksObject:)
-    @NSManaged public func removeFromBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
+    @NSManaged
+    public func removeFromBookQuestionAnswerLinks(_ value: BookQuestionAnswerLinkEntity)
 
     @objc(addBookQuestionAnswerLinks:)
-    @NSManaged public func addToBookQuestionAnswerLinks(_ values: NSSet)
+    @NSManaged
+    public func addToBookQuestionAnswerLinks(_ values: NSSet)
 
     @objc(removeBookQuestionAnswerLinks:)
-    @NSManaged public func removeFromBookQuestionAnswerLinks(_ values: NSSet)
-
+    @NSManaged
+    public func removeFromBookQuestionAnswerLinks(_ values: NSSet)
 }
 
-extension QuestionAnswerEntity : Identifiable {
-
-}
+extension QuestionAnswerEntity: Identifiable {}
