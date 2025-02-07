@@ -40,7 +40,7 @@ final class BookDetailViewModel: ViewModelType {
     let disposeBag = DisposeBag()
     let isbnRelay = ReplayRelay<String>.create(bufferSize: 1)
     let modelRelay = ReplayRelay<TestBookModel>.create(bufferSize: 1) // TODO: TestBookModel -> Book
-    let navigate = PublishRelay<Void>()
+    let navigateBackRelay = PublishRelay<Void>()
 
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
@@ -58,11 +58,11 @@ final class BookDetailViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.leftBarButtonTapTrigger
-            .bind(to: navigate)
+            .bind(to: navigateBackRelay)
             .disposed(by: disposeBag)
 
         input.popupViewConfirmButtonTapTrigger
-            .bind(to: navigate) // add, remove
+            .bind(to: navigateBackRelay) // add, remove
             .disposed(by: disposeBag)
 
         return Output(model: model)
