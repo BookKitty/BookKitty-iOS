@@ -3,13 +3,7 @@ import RxCocoa
 import RxSwift
 
 final class HomeViewModel: ViewModelType {
-    // MARK: - Lifecycle
-
-    init(
-        bookRepository: BookRepository
-    ) {
-        self.bookRepository = bookRepository
-    }
+    // MARK: - Nested Types
 
     // MARK: - Internal
 
@@ -23,9 +17,28 @@ final class HomeViewModel: ViewModelType {
         let error: Observable<Error> // 에러 처리
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
 
     let navigateToBookDetail = PublishRelay<Book>()
+
+    // MARK: - Private
+
+    private let bookRepository: BookRepository
+
+    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
+    private let errorRelay = PublishRelay<Error>()
+
+    // MARK: - Lifecycle
+
+    init(
+        bookRepository: BookRepository
+    ) {
+        self.bookRepository = bookRepository
+    }
+
+    // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
@@ -50,11 +63,4 @@ final class HomeViewModel: ViewModelType {
             error: errorRelay.asObservable()
         )
     }
-
-    // MARK: - Private
-
-    private let bookRepository: BookRepository
-
-    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
-    private let errorRelay = PublishRelay<Error>()
 }

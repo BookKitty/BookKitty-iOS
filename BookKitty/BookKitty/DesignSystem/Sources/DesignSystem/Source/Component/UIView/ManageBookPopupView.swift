@@ -15,22 +15,7 @@ public enum ManageBookMode {
 }
 
 public class ManageBookPopupView: UIView {
-    // MARK: - Lifecycle
-
-    public init(bookTitle: String = "책 제목", mode: ManageBookMode) {
-        self.bookTitle = bookTitle
-        self.mode = mode
-        super.init(frame: .zero)
-
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Public
 
@@ -61,6 +46,23 @@ public class ManageBookPopupView: UIView {
     private let bookTitleLabel = BodyLabel(weight: .semiBold).then {
         $0.textAlignment = .center
         $0.textColor = Colors.brandSub
+    }
+
+    // MARK: - Lifecycle
+
+    public init(bookTitle: String = "책 제목", mode: ManageBookMode) {
+        self.bookTitle = bookTitle
+        self.mode = mode
+        super.init(frame: .zero)
+
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

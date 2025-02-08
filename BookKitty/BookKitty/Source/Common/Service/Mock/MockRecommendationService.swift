@@ -12,6 +12,8 @@ import UIKit
 
 /// Mock 추천 서비스 클래스
 class MockRecommendationService: BookRecommendable {
+    // MARK: - Properties
+
     let mockBookData = [
         BookItem(
             id: "12313",
@@ -97,6 +99,8 @@ class MockRecommendationService: BookRecommendable {
             isOwned: false
         ),
     ]
+
+    // MARK: - Functions
 
     func recommendBooks(for _: String, from _: [BookMatchCore.OwnedBook]) async -> BookMatchCore
         .BookMatchModuleOutput {

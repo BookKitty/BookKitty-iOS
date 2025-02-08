@@ -10,27 +10,7 @@ import Then
 import UIKit
 
 public class FailAlertPopupView: UIView {
-    // MARK: - Lifecycle
-
-    public init(
-        primaryMessage: String = "촬영에 실패하였습니다.",
-        secondaryMessage: String = "지속적으로 실패할 경우 한권씩 책 등처럼 제목을 쉽게 식별가능한 사진을 찍어주세요.",
-        buttonTitle: String = "다시 촬영하기"
-    ) {
-        self.primaryMessage = primaryMessage
-        self.secondaryMessage = secondaryMessage
-        self.buttonTitle = buttonTitle
-        super.init(frame: .zero)
-
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Public
 
@@ -56,6 +36,28 @@ public class FailAlertPopupView: UIView {
 
     private let secondaryMessageLabel = BodyLabel().then {
         $0.textAlignment = .center
+    }
+
+    // MARK: - Lifecycle
+
+    public init(
+        primaryMessage: String = "촬영에 실패하였습니다.",
+        secondaryMessage: String = "지속적으로 실패할 경우 한권씩 책 등처럼 제목을 쉽게 식별가능한 사진을 찍어주세요.",
+        buttonTitle: String = "다시 촬영하기"
+    ) {
+        self.primaryMessage = primaryMessage
+        self.secondaryMessage = secondaryMessage
+        self.buttonTitle = buttonTitle
+        super.init(frame: .zero)
+
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

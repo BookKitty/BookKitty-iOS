@@ -9,36 +9,7 @@ import Then
 import UIKit
 
 final class ReviewAddBookViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    // MARK: - Init
-
-    init(viewModel: ReviewAddBookViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        bindViewModel()
-    }
-
-    // MARK: - Internal
-
-    func appendBook(_ book: Book) {
-        guard !addedBookTitles.contains(book.title) else {
-            return
-        }
-        addedBookTitles.insert(book.title)
-        viewModel.appendBook(book)
-    }
+    // MARK: - Properties
 
     // MARK: - Private
 
@@ -76,6 +47,39 @@ final class ReviewAddBookViewController: BaseViewController {
 
     private let addBookButton = TextButton(title: "+ 책 추가하기")
     private let confirmButton = RoundButton(title: "추가 완료")
+
+    // MARK: - Lifecycle
+
+    // MARK: - Init
+
+    init(viewModel: ReviewAddBookViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
+    }
+
+    // MARK: - Functions
+
+    // MARK: - Internal
+
+    func appendBook(_ book: Book) {
+        guard !addedBookTitles.contains(book.title) else {
+            return
+        }
+        addedBookTitles.insert(book.title)
+        viewModel.appendBook(book)
+    }
 
     // MARK: - UI Setup
 
@@ -198,33 +202,13 @@ final class ReviewAddBookViewController: BaseViewController {
 // MARK: - BookCell
 
 final class BookCell: UICollectionViewCell {
-    // MARK: - Lifecycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-        setupConstraints()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Static Properties
 
     // MARK: - Internal
 
     static let identifier = "BookCell"
 
-    func configure(with book: Book) {
-        titleLabel.text = book.title
-        authorLabel.text = "\(book.author) 지음"
-
-        if let imageUrl = book.thumbnailUrl {
-            bookImageView.loadImage(from: imageUrl)
-        } else {
-            bookImageView.image = UIImage(named: "default_book")
-        }
-    }
+    // MARK: - Properties
 
     // MARK: - Private
 
@@ -250,6 +234,32 @@ final class BookCell: UICollectionViewCell {
         $0.textAlignment = .left
         $0.adjustsFontSizeToFitWidth = true // ✅ 글자 크기 자동 조정
         $0.minimumScaleFactor = 0.9
+    }
+
+    // MARK: - Lifecycle
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupUI()
+        setupConstraints()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Functions
+
+    func configure(with book: Book) {
+        titleLabel.text = book.title
+        authorLabel.text = "\(book.author) 지음"
+
+        if let imageUrl = book.thumbnailUrl {
+            bookImageView.loadImage(from: imageUrl)
+        } else {
+            bookImageView.image = UIImage(named: "default_book")
+        }
     }
 
     private func setupUI() {

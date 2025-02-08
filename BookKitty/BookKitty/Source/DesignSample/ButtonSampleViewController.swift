@@ -11,14 +11,7 @@ import Then
 import UIKit
 
 class ButtonSampleViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -41,6 +34,15 @@ class ButtonSampleViewController: BaseViewController {
 
     let textButton1 = TextButton()
     let textButton2 = TextButton(title: "+ 책 추가하기")
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
 }
 
 // MARK: - UI Configure

@@ -11,13 +11,7 @@ import UIKit
 ///
 /// `BookCoordinator`는 책 목록과 책 상세 화면 간의 흐름을 관리
 final class BookCoordinator: Coordinator {
-    // MARK: - Lifecycle
-
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
-        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -28,11 +22,21 @@ final class BookCoordinator: Coordinator {
     var myLibraryViewController: MyLibraryViewController
     var myLibraryViewModel: MyLibraryViewModel
 
-    func start() { showMyLibraryScene() }
-
     // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
+        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showMyLibraryScene() }
 }
 
 extension BookCoordinator {

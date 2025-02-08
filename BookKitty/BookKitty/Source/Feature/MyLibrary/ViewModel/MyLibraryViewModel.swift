@@ -13,11 +13,7 @@ import RxSwift
 /// 내 서재 화면을 위한 ViewModel
 /// 사용자의 책 목록을 관리하고 표시하는 책임을 가짐
 final class MyLibraryViewModel: ViewModelType {
-    // MARK: - Lifecycle
-
-    init(bookRepository: BookRepository) {
-        self.bookRepository = bookRepository
-    }
+    // MARK: - Nested Types
 
     // MARK: - Internal
 
@@ -38,10 +34,32 @@ final class MyLibraryViewModel: ViewModelType {
         let bookList: Driver<[SectionOfBook]>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
 
     /// 책 상세 화면으로 이동할 때 사용되는 이벤트 스트림
     var navigateToBookDetail = PublishRelay<Book>()
+
+    // MARK: - Private
+
+    private let bookList = BehaviorRelay<[SectionOfBook]>(value: [])
+
+    private var offset = 0
+    private let limit = 15
+    private var books: [Book] = []
+    private var isLoading = false
+
+    /// 책 데이터 관리를 위한 Repository
+    private let bookRepository: BookRepository
+
+    // MARK: - Lifecycle
+
+    init(bookRepository: BookRepository) {
+        self.bookRepository = bookRepository
+    }
+
+    // MARK: - Functions
 
     /// Input을 Output으로 변환하는 메서드
     /// - Parameter input: 사용자 및 시스템 이벤트
@@ -90,16 +108,4 @@ final class MyLibraryViewModel: ViewModelType {
             bookList: bookList.asDriver()
         )
     }
-
-    // MARK: - Private
-
-    private let bookList = BehaviorRelay<[SectionOfBook]>(value: [])
-
-    private var offset = 0
-    private let limit = 15
-    private var books: [Book] = []
-    private var isLoading = false
-
-    /// 책 데이터 관리를 위한 Repository
-    private let bookRepository: BookRepository
 }

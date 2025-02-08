@@ -9,6 +9,19 @@ import Foundation
 import OSLog
 
 enum NetworkEventLogger {
+    // MARK: - Static Properties
+
+    // MARK: - Private
+
+    // 로깅에 사용되는 Logger 인스턴스
+
+    private static let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.BookshelfML.BookKitty",
+        category: "Network"
+    )
+
+    // MARK: - Static Functions
+
     // MARK: - Internal
 
     /// 네트워크 요청이 완료되었을 때 호출되어 요청 정보를 로깅합니다.
@@ -46,15 +59,6 @@ enum NetworkEventLogger {
             """
         )
     }
-
-    // MARK: - Private
-
-    // 로깅에 사용되는 Logger 인스턴스
-
-    private static let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "com.BookshelfML.BookKitty",
-        category: "Network"
-    )
 }
 
 extension Data {

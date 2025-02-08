@@ -10,6 +10,15 @@ import Then
 import UIKit
 
 public class RecommendedBookView: UIView {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let tagLabel: OwnedTagLabel
+    let bookImageView: HeightFixedImageView
+    let bookTitleLabel: BodyLabel
+    let bookAuthorLabel: CaptionLabel
+
     // MARK: - Lifecycle
 
     public init(
@@ -50,6 +59,8 @@ public class RecommendedBookView: UIView {
         setupProperties()
     }
 
+    // MARK: - Functions
+
     // MARK: - Public
 
     public func configureView(
@@ -63,13 +74,6 @@ public class RecommendedBookView: UIView {
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = bookAuthor
     }
-
-    // MARK: - Internal
-
-    let tagLabel: OwnedTagLabel
-    let bookImageView: HeightFixedImageView
-    let bookTitleLabel: BodyLabel
-    let bookAuthorLabel: CaptionLabel
 }
 
 // MARK: - UI Configure

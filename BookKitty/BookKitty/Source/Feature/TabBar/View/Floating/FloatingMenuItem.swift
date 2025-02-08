@@ -11,20 +11,7 @@ import Then
 import UIKit
 
 final class FloatingMenuItem: UIButton {
-    // MARK: - Lifecycle
-
-    init(with type: FloatingMenuItemType) {
-        self.type = type
-        super.init(frame: .zero)
-
-        configureHierarchy()
-        configureLayout()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -51,6 +38,23 @@ final class FloatingMenuItem: UIButton {
         $0.textColor = Colors.fontMain
         $0.font = Fonts.bodyRegular
     }
+
+    // MARK: - Lifecycle
+
+    init(with type: FloatingMenuItemType) {
+        self.type = type
+        super.init(frame: .zero)
+
+        configureHierarchy()
+        configureLayout()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Functions
 
     private func configureHierarchy() {
         addSubview(contentHStackView)

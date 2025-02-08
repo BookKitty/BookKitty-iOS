@@ -23,6 +23,14 @@ protocol BookRepository {
 }
 
 struct LocalBookRepository: BookRepository {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let context = CoreDataStack.shared.context
+    private let bookCoreDataManager: BookCoreDataManageable
+    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
+
     // MARK: - Lifecycle
 
     init(
@@ -32,6 +40,8 @@ struct LocalBookRepository: BookRepository {
         self.bookCoreDataManager = bookCoreDataManager
         self.bookQALinkCoreDataManager = bookQALinkCoreDataManager
     }
+
+    // MARK: - Functions
 
     // MARK: - Internal
 
@@ -143,10 +153,4 @@ struct LocalBookRepository: BookRepository {
             return false
         }
     }
-
-    // MARK: - Private
-
-    private let context = CoreDataStack.shared.context
-    private let bookCoreDataManager: BookCoreDataManageable
-    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
 }

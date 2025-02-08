@@ -19,7 +19,11 @@ struct TestCodableType: Codable, Equatable {
 }
 
 struct TestEndpoint: Endpoint {
+    // MARK: - Nested Types
+
     typealias Response = TestCodableType
+
+    // MARK: - Properties
 
     var method = Network.HTTPMethod.get
 

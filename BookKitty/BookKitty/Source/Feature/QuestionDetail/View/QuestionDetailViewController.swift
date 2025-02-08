@@ -15,6 +15,71 @@ import Then
 import UIKit
 
 final class QuestionDetailViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let bookTappedRelay = PublishRelay<Book>()
+
+    private let viewModel: QuestionDetailViewModel
+    private let deleteButtonTappedRelay = PublishRelay<Void>()
+
+    private let scrollView = UIScrollView().then {
+        $0.isScrollEnabled = true
+        $0.showsVerticalScrollIndicator = false
+        $0.showsHorizontalScrollIndicator = false
+    }
+
+    private let contentView = UIView()
+
+    private let dateCaptionLabel = CaptionLabel()
+
+    private let userQuestionHeadlineLabel = Headline3Label(weight: .extraBold).then {
+        $0.textColor = Colors.brandSub
+    }
+
+    private let userQuestionBodyLabel = UserQuestionView(questionText: "")
+
+    private let recommendationReasonHeadlineLabel = Headline3Label(weight: .extraBold).then {
+        $0.text = "추천해요"
+        $0.textColor = Colors.brandSub
+    }
+
+    private let recommendationReasonBodyLabel = BodyLabel()
+
+    private lazy var recommendedBooksCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(
+            frame: .zero,
+            collectionViewLayout: makeCollectionViewLayout()
+        )
+        collectionView.backgroundColor = Colors.brandMain30
+        collectionView.register(
+            RecommendedBookCell.self,
+            forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
+        )
+        return collectionView
+    }()
+
+    private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
+        configureCell: { _, collectionView, indexPath, item in
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: RecommendedBookCell.reuseIdentifier,
+                for: indexPath
+            ) as? RecommendedBookCell else {
+                return RecommendedBookCell(frame: .zero)
+            }
+
+            cell.configureCell(
+                bookTitle: item.title,
+                bookAuthor: item.author,
+                imageUrl: item.thumbnailUrl?.absoluteString ?? "",
+                isOwned: item.isOwned
+            )
+
+            return cell
+        }
+    )
+
     // MARK: - Lifecycle
 
     init(viewModel: QuestionDetailViewModel) {
@@ -44,6 +109,8 @@ final class QuestionDetailViewController: BaseViewController {
         }
         // content hugging, compression resistance priority도 괜찮은 것 같음
     }
+
+    // MARK: - Overridden Functions
 
     // MARK: - Internal
 
@@ -154,68 +221,7 @@ final class QuestionDetailViewController: BaseViewController {
         }
     }
 
-    // MARK: - Private
-
-    private let bookTappedRelay = PublishRelay<Book>()
-
-    private let viewModel: QuestionDetailViewModel
-    private let deleteButtonTappedRelay = PublishRelay<Void>()
-
-    private let scrollView = UIScrollView().then {
-        $0.isScrollEnabled = true
-        $0.showsVerticalScrollIndicator = false
-        $0.showsHorizontalScrollIndicator = false
-    }
-
-    private let contentView = UIView()
-
-    private let dateCaptionLabel = CaptionLabel()
-
-    private let userQuestionHeadlineLabel = Headline3Label(weight: .extraBold).then {
-        $0.textColor = Colors.brandSub
-    }
-
-    private let userQuestionBodyLabel = UserQuestionView(questionText: "")
-
-    private let recommendationReasonHeadlineLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "추천해요"
-        $0.textColor = Colors.brandSub
-    }
-
-    private let recommendationReasonBodyLabel = BodyLabel()
-
-    private lazy var recommendedBooksCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(
-            frame: .zero,
-            collectionViewLayout: makeCollectionViewLayout()
-        )
-        collectionView.backgroundColor = Colors.brandMain30
-        collectionView.register(
-            RecommendedBookCell.self,
-            forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
-        )
-        return collectionView
-    }()
-
-    private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
-        configureCell: { _, collectionView, indexPath, item in
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: RecommendedBookCell.reuseIdentifier,
-                for: indexPath
-            ) as? RecommendedBookCell else {
-                return RecommendedBookCell(frame: .zero)
-            }
-
-            cell.configureCell(
-                bookTitle: item.title,
-                bookAuthor: item.author,
-                imageUrl: item.thumbnailUrl?.absoluteString ?? "",
-                isOwned: item.isOwned
-            )
-
-            return cell
-        }
-    )
+    // MARK: - Functions
 
     @objc
     private func deleteButtonTapped() {

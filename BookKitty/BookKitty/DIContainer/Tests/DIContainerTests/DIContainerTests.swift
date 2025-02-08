@@ -5,14 +5,7 @@ import Testing
 /// Container 클래스의 기능을 테스트하기 위한 테스트 스위트
 @Suite(.serialized)
 final class ContainerTests {
-    // MARK: - Lifecycle
-
-    // MARK: 생명주기
-
-    /// 인스턴스가 해제될 때 정리 작업을 수행합니다
-    deinit {
-        Container.removeAll()
-    }
+    // MARK: - Nested Types
 
     // MARK: - Internal
 
@@ -20,6 +13,15 @@ final class ContainerTests {
 
     /// 컨테이너 기능을 테스트하기 위한 목업 서비스 클래스
     class TestService {
+        // MARK: - Properties
+
+        // MARK: - Internal
+
+        // MARK: 내부 프로퍼티
+
+        /// 저장된 문자열 값
+        let value: String
+
         // MARK: - Lifecycle
 
         // MARK: 생명주기
@@ -29,14 +31,18 @@ final class ContainerTests {
         init(value: String) {
             self.value = value
         }
-
-        // MARK: - Internal
-
-        // MARK: 내부 프로퍼티
-
-        /// 저장된 문자열 값
-        let value: String
     }
+
+    // MARK: - Lifecycle
+
+    // MARK: 생명주기
+
+    /// 인스턴스가 해제될 때 정리 작업을 수행합니다
+    deinit {
+        Container.removeAll()
+    }
+
+    // MARK: - Functions
 
     /// 컨테이너에 서비스를 등록하고 가져오는 테스트
     @Test("Test Register and Resolve")

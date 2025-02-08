@@ -13,6 +13,18 @@ import Then
 import UIKit
 
 final class FloatingButton: UIButton {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    /// 버튼 회전 상태 여부를 나타내는 `BehaviorRelay`
+    /// - `true`이면 버튼이 45도 회전하고, `false`이면 원래 상태로 복귀
+    let isRotated = BehaviorRelay(value: false)
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
     // MARK: - Lifecycle
 
     override init(frame: CGRect) {
@@ -33,15 +45,7 @@ final class FloatingButton: UIButton {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
     }
 
-    // MARK: - Internal
-
-    /// 버튼 회전 상태 여부를 나타내는 `BehaviorRelay`
-    /// - `true`이면 버튼이 45도 회전하고, `false`이면 원래 상태로 복귀
-    let isRotated = BehaviorRelay(value: false)
-
-    // MARK: - Private
-
-    private let disposeBag = DisposeBag()
+    // MARK: - Functions
 
     private func setupUI() {
         layer.cornerRadius = Vars.radiusReg

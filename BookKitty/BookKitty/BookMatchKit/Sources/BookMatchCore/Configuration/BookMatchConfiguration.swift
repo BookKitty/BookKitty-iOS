@@ -3,6 +3,23 @@
 //  may have shared mutable state
 
 public struct BookMatchConfiguration: Sendable {
+    // MARK: - Static Properties
+
+    // MARK: - Public
+
+    /// 예약어와 이름이 충돌하므로, 백틱을 통해 변수명임을 명시합니다.
+    public static let `default` = BookMatchConfiguration(
+        titleSimilarityThreshold: 0.4,
+        authorSimilarityThreshold: 0.8,
+        maxRetries: 3
+    )
+
+    // MARK: - Properties
+
+    public let titleSimilarityThreshold: Double
+    public let authorSimilarityThreshold: Double
+    public let maxRetries: Int
+
     // MARK: - Lifecycle
 
     public init(
@@ -14,17 +31,4 @@ public struct BookMatchConfiguration: Sendable {
         self.authorSimilarityThreshold = authorSimilarityThreshold
         self.maxRetries = maxRetries
     }
-
-    // MARK: - Public
-
-    /// 예약어와 이름이 충돌하므로, 백틱을 통해 변수명임을 명시합니다.
-    public static let `default` = BookMatchConfiguration(
-        titleSimilarityThreshold: 0.4,
-        authorSimilarityThreshold: 0.8,
-        maxRetries: 3
-    )
-
-    public let titleSimilarityThreshold: Double
-    public let authorSimilarityThreshold: Double
-    public let maxRetries: Int
 }

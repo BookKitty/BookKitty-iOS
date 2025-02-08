@@ -11,14 +11,7 @@ import Then
 import UIKit
 
 final class LabelSample2ViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -54,6 +47,15 @@ final class LabelSample2ViewController: BaseViewController {
     let twoLineLabel = TwoLineLabel(text1: "첫번째 줄 텍스트", text2: "두번째 줄 텍스트. brandMain color")
     let tagLabel1 = OwnedTagLabel()
     let tagLabel2 = OwnedTagLabel(isOwned: false)
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
 }
 
 // MARK: - UI Configure

@@ -11,15 +11,7 @@ import Then
 import UIKit
 
 class ImageSampleViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
-        updateLayouts()
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -64,6 +56,16 @@ class ImageSampleViewController: BaseViewController {
         """,
         height: .small
     )
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+        updateLayouts()
+    }
 }
 
 // MARK: - UI Configure

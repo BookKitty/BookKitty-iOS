@@ -10,6 +10,24 @@ import SnapKit
 import UIKit
 
 final class MyLibraryCollectionViewCell: UICollectionViewCell {
+    // MARK: - Static Properties
+
+    // MARK: - Internal
+
+    static let reuseIdentifier = "MyLibraryCollectionViewCell"
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private var imageLoadTask: URLSessionDataTask?
+    private var currentImageUrl: URL?
+
+    private let cellImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.isUserInteractionEnabled = true
+    }
+
     // MARK: - Lifecycle
 
     override init(frame: CGRect) {
@@ -31,9 +49,7 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         currentImageUrl = nil
     }
 
-    // MARK: - Internal
-
-    static let reuseIdentifier = "MyLibraryCollectionViewCell"
+    // MARK: - Functions
 
     // TODO: 고도화 필요
     func configureCell(imageUrl: URL?) {
@@ -68,16 +84,6 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
             }
         }
         imageLoadTask?.resume()
-    }
-
-    // MARK: - Private
-
-    private var imageLoadTask: URLSessionDataTask?
-    private var currentImageUrl: URL?
-
-    private let cellImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
-        $0.isUserInteractionEnabled = true
     }
 
     private func configureHierarchy() {

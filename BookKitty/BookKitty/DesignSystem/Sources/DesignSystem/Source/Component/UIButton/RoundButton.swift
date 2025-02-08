@@ -9,6 +9,14 @@ import SnapKit
 import UIKit
 
 public class RoundButton: UIButton {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var title: String
+    var isSecondary: Bool
+    var isRounded = true
+
     // MARK: - Lifecycle
 
     // MARK: - Initializer
@@ -35,12 +43,6 @@ public class RoundButton: UIButton {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Internal
-
-    var title: String
-    var isSecondary: Bool
-    var isRounded = true
 }
 
 // MARK: - Setup UI

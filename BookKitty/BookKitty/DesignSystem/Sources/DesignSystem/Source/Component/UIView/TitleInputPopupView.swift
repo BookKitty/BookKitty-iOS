@@ -10,20 +10,7 @@ import Then
 import UIKit
 
 public class TitleInputPopupView: UIView {
-    // MARK: - Lifecycle
-
-    public init() {
-        super.init(frame: .zero)
-
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Public
 
@@ -51,6 +38,21 @@ public class TitleInputPopupView: UIView {
     private let messageLabel = BodyLabel(weight: .semiBold).then {
         $0.textAlignment = .center
         $0.text = "책 제목으로 직접 추가하기"
+    }
+
+    // MARK: - Lifecycle
+
+    public init() {
+        super.init(frame: .zero)
+
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

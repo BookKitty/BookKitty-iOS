@@ -17,6 +17,15 @@ protocol QuestionHistoryRepository {
 }
 
 struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let context = CoreDataStack.shared.context
+    private let bookCoreDataManager: BookCoreDataManageable
+    private let questionAnswerCoreDataManager: QuestionAnswerCoreDataManageable
+    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
+
     // MARK: - Lifecycle
 
     init(
@@ -29,6 +38,8 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         self.questionAnswerCoreDataManager = questionAnswerCoreDataManager
         self.bookQALinkCoreDataManager = bookQALinkCoreDataManager
     }
+
+    // MARK: - Functions
 
     // MARK: - Internal
 
@@ -89,13 +100,6 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     func deleteQuestionAnswer(uuid: UUID) -> Bool {
         questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
-
-    // MARK: - Private
-
-    private let context = CoreDataStack.shared.context
-    private let bookCoreDataManager: BookCoreDataManageable
-    private let questionAnswerCoreDataManager: QuestionAnswerCoreDataManageable
-    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
 
     private func questionEntityToModel(entity: QuestionAnswerEntity) -> QuestionAnswer {
         let bookEntities = (entity.bookQuestionAnswerLinks as? Set<BookQuestionAnswerLinkEntity>)?

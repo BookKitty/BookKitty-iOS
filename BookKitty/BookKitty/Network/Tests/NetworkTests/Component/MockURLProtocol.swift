@@ -9,7 +9,11 @@ import Foundation
 import OSLog
 
 class MockURLProtocol: URLProtocol {
+    // MARK: - Static Properties
+
     static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+
+    // MARK: - Overridden Functions
 
     override class func canInit(with _: URLRequest) -> Bool {
         true

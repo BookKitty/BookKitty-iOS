@@ -25,6 +25,8 @@ struct TestBookModel: Hashable {
 }
 
 final class BookDetailViewModel: ViewModelType {
+    // MARK: - Nested Types
+
     // MARK: - Internal
 
     struct Input {
@@ -37,36 +39,12 @@ final class BookDetailViewModel: ViewModelType {
         let model: PublishRelay<TestBookModel>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
     let isbnRelay = ReplayRelay<String>.create(bufferSize: 1)
     let modelRelay = ReplayRelay<TestBookModel>.create(bufferSize: 1) // TODO: TestBookModel -> Book
     let navigateBackRelay = PublishRelay<Void>()
-
-    func transform(_ input: Input) -> Output {
-        input.viewDidLoad
-            .withLatestFrom(modelRelay)
-            .withUnretained(self) // Test
-            .map { owner, _ in owner.textBookDtailModel } // Test
-            .bind(to: model)
-            .disposed(by: disposeBag)
-
-        // Test
-        input.viewDidLoad
-            .withUnretained(self)
-            .map { owner, _ in owner.textBookDtailModel }
-            .bind(to: model)
-            .disposed(by: disposeBag)
-
-        input.leftBarButtonTapTrigger
-            .bind(to: navigateBackRelay)
-            .disposed(by: disposeBag)
-
-        input.popupViewConfirmButtonTapTrigger
-            .bind(to: navigateBackRelay) // add, remove
-            .disposed(by: disposeBag)
-
-        return Output(model: model)
-    }
 
     // MARK: - Private
 
@@ -93,4 +71,32 @@ final class BookDetailViewModel: ViewModelType {
         pubdate: "1999년 01월 01일 출판",
         isOwned: true
     )
+
+    // MARK: - Functions
+
+    func transform(_ input: Input) -> Output {
+        input.viewDidLoad
+            .withLatestFrom(modelRelay)
+            .withUnretained(self) // Test
+            .map { owner, _ in owner.textBookDtailModel } // Test
+            .bind(to: model)
+            .disposed(by: disposeBag)
+
+        // Test
+        input.viewDidLoad
+            .withUnretained(self)
+            .map { owner, _ in owner.textBookDtailModel }
+            .bind(to: model)
+            .disposed(by: disposeBag)
+
+        input.leftBarButtonTapTrigger
+            .bind(to: navigateBackRelay)
+            .disposed(by: disposeBag)
+
+        input.popupViewConfirmButtonTapTrigger
+            .bind(to: navigateBackRelay) // add, remove
+            .disposed(by: disposeBag)
+
+        return Output(model: model)
+    }
 }

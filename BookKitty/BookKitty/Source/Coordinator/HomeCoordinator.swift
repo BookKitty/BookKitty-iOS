@@ -13,14 +13,7 @@ protocol HomeCoordinator: Coordinator {
 }
 
 final class DefaultHomeCoordinator: Coordinator {
-    // MARK: - Lifecycle
-
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        let repository = MockBookRepository()
-        homeViewModel = HomeViewModel(bookRepository: repository)
-        homeViewController = HomeViewController(viewModel: homeViewModel)
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -33,11 +26,22 @@ final class DefaultHomeCoordinator: Coordinator {
     var homeViewModel: HomeViewModel
     var finishDelegate: (any CoordinatorFinishDelegate)?
 
-    func start() { showHomeScreen() }
-
     // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        let repository = MockBookRepository()
+        homeViewModel = HomeViewModel(bookRepository: repository)
+        homeViewController = HomeViewController(viewModel: homeViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showHomeScreen() }
 }
 
 extension DefaultHomeCoordinator {

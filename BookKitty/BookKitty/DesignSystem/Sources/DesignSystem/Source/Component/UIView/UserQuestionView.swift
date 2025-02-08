@@ -10,6 +10,15 @@ import Then
 import UIKit
 
 public class UserQuestionView: UIScrollView {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var questionText: String
+
+    let contentView = UIView()
+    let bodyLabel = BodyLabel()
+
     // MARK: - Lifecycle
 
     public init(questionText: String) {
@@ -26,18 +35,13 @@ public class UserQuestionView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Functions
+
     // MARK: - Public
 
     public func setQuestionText(_ text: String) {
         bodyLabel.text = text
     }
-
-    // MARK: - Internal
-
-    var questionText: String
-
-    let contentView = UIView()
-    let bodyLabel = BodyLabel()
 }
 
 // MARK: - UI Configure

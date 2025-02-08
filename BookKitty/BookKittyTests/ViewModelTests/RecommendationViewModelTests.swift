@@ -13,6 +13,17 @@ import Testing
 
 @Suite(.serialized)
 struct RecommendationViewModelTests {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    // Mock 서비스 및 리포지토리 인스턴스
+    private let recommendationService = MockRecommendationService()
+    private let bookRepository = MockBookRepository()
+    private let questionHistoryRepository = MockQuestionHistoryRepository()
+
+    // MARK: - Functions
+
     // MARK: - Internal
 
     // 테스트: viewDidLoad에서 유저 질문이 올바르게 처리되는지 확인하는 테스트
@@ -149,13 +160,6 @@ struct RecommendationViewModelTests {
             }
         } catch {}
     }
-
-    // MARK: - Private
-
-    // Mock 서비스 및 리포지토리 인스턴스
-    private let recommendationService = MockRecommendationService()
-    private let bookRepository = MockBookRepository()
-    private let questionHistoryRepository = MockQuestionHistoryRepository()
 }
 
 /// 테스트용 상수 정의

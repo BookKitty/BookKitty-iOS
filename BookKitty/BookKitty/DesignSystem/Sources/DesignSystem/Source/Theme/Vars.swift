@@ -9,6 +9,8 @@ import UIKit
 
 /// 각종 사이즈 상수값 관리
 public enum Vars {
+    // MARK: - Static Properties
+
     // MARK: - Padding Values
 
     /// 레이아웃에서 패딩(inset) 영역 지정용 / large / 32
@@ -92,6 +94,8 @@ public enum Vars {
 
     /// 상단 네비게이션바 높이용 사이즈 / 56
     public static let gnbHeight: CGFloat = 56
+
+    // MARK: - Static Functions
 
     public static func setContainerInset(_ inset: CGFloat) -> UIEdgeInsets {
         UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)

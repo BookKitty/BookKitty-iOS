@@ -10,6 +10,12 @@ import Then
 import UIKit
 
 public class CustomInput: UITextField {
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public let placeholderText = "책의 제목을 입력해주세요."
+
     // MARK: - Lifecycle
 
     // MARK: - Initializer
@@ -25,10 +31,6 @@ public class CustomInput: UITextField {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Public
-
-    public let placeholderText = "책의 제목을 입력해주세요."
 }
 
 // MARK: - Setup UI

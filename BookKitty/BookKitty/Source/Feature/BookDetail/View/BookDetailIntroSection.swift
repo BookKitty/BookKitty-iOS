@@ -10,6 +10,13 @@ import Then
 import UIKit
 
 final class BookDetailIntroSection: UIStackView {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let titleLabel = TitleLabel(weight: .extraBold).then { $0.text = "책 소개" }
+    private let introLabel = BodyLabel(weight: .regular)
+
     // MARK: - Lifecycle
 
     override init(frame _: CGRect) {
@@ -24,16 +31,13 @@ final class BookDetailIntroSection: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Functions
+
     // MARK: - Internal
 
     func setupData(with description: String) {
         introLabel.text = description
     }
-
-    // MARK: - Private
-
-    private let titleLabel = TitleLabel(weight: .extraBold).then { $0.text = "책 소개" }
-    private let introLabel = BodyLabel(weight: .regular)
 
     private func configureUI() {
         axis = .vertical

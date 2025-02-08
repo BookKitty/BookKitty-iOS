@@ -6,6 +6,16 @@ import UIKit
 
 /// 네이버 책 검색 API와 OpenAI API를 사용하여 도서 검색 및 추천 기능을 제공하는 클라이언트입니다.
 public final class DefaultAPIClient: APIClientProtocol {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let disposeBag = DisposeBag()
+
+    // MARK: - Private
+
+    private let configuration: APIConfiguration
+
     // MARK: - Lifecycle
 
     public init(
@@ -13,6 +23,8 @@ public final class DefaultAPIClient: APIClientProtocol {
     ) {
         self.configuration = configuration
     }
+
+    // MARK: - Functions
 
     // MARK: - Public
 
@@ -255,14 +267,6 @@ public final class DefaultAPIClient: APIClientProtocol {
             throw BookMatchError.invalidResponse
         }
     }
-
-    // MARK: - Internal
-
-    let disposeBag = DisposeBag()
-
-    // MARK: - Private
-
-    private let configuration: APIConfiguration
 
     /// `ChatGPT api`를 요청합니다. APIClient의 public 메서드들이 모두 이 메서드를 공용합니다.
     ///

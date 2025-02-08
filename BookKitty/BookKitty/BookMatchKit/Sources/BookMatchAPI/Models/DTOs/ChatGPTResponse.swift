@@ -2,23 +2,35 @@ import BookMatchCore
 
 /// OpenAI API로부터 받은 응답을 디코딩하기 위한 구조체입니다.
 struct ChatGPTResponse: Codable {
+    // MARK: - Nested Types
+
     struct Choice: Codable {
+        // MARK: - Nested Types
+
         struct Message: Codable {
             let content: String
         }
 
+        // MARK: - Properties
+
         let message: Message
     }
+
+    // MARK: - Properties
 
     let choices: [Choice]
 }
 
 /// GPT 모델의 응답을 `사용자 질문 기반 추천 도서` 데이터로 변환하는 DTO 구조체입니다.
 public struct GPTRecommendationForQuestionDTO: Codable {
+    // MARK: - Properties
+
     // MARK: - Public
 
     public let recommendationOwned: [String]
     public let recommendationNew: [String]
+
+    // MARK: - Functions
 
     // MARK: - Internal
 
@@ -44,9 +56,13 @@ public struct GPTRecommendationForQuestionDTO: Codable {
 
 /// GPT 모델의 응답을 `사용자 보유도서 기반 추천 도서` 데이터로 변환하는 DTO 구조체입니다.
 public struct GPTRecommendationFromOwnedBooksDTO: Codable {
+    // MARK: - Properties
+
     // MARK: - Public
 
     public let recommendations: [String]
+
+    // MARK: - Functions
 
     // MARK: - Internal
 

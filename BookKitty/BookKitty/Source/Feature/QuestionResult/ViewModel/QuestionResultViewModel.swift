@@ -11,19 +11,7 @@ import RxCocoa
 import RxSwift
 
 final class QuestionResultViewModel: ViewModelType {
-    // MARK: - Lifecycle
-
-    init(
-        userQuestion: String,
-        recommendationService: BookRecommendable,
-        bookRepository: BookRepository,
-        questionHistoryRepository: QuestionHistoryRepository
-    ) {
-        self.userQuestion = userQuestion
-        self.recommendationService = recommendationService
-        self.bookRepository = bookRepository
-        self.questionHistoryRepository = questionHistoryRepository
-    }
+    // MARK: - Nested Types
 
     // MARK: - Internal
 
@@ -40,11 +28,42 @@ final class QuestionResultViewModel: ViewModelType {
         let error: Observable<Error> // 에러 처리
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
     // 화면 이동을 위한 Relay
     let navigateToBookDetail = PublishRelay<Book>()
     let navigateToQuestionHistory = PublishRelay<Void>()
     let navigateToRoot = PublishRelay<Void>()
+
+    // MARK: - Private
+
+    private let userQuestion: String
+
+    private let questionHistoryRepository: QuestionHistoryRepository
+    private let bookRepository: BookRepository
+    private let recommendationService: BookRecommendable
+
+    private let userQuestionRelay = BehaviorRelay<String>(value: "")
+    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
+    private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
+    private let errorRelay = PublishRelay<Error>()
+
+    // MARK: - Lifecycle
+
+    init(
+        userQuestion: String,
+        recommendationService: BookRecommendable,
+        bookRepository: BookRepository,
+        questionHistoryRepository: QuestionHistoryRepository
+    ) {
+        self.userQuestion = userQuestion
+        self.recommendationService = recommendationService
+        self.bookRepository = bookRepository
+        self.questionHistoryRepository = questionHistoryRepository
+    }
+
+    // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
@@ -82,19 +101,6 @@ final class QuestionResultViewModel: ViewModelType {
             error: errorRelay.asObservable()
         )
     }
-
-    // MARK: - Private
-
-    private let userQuestion: String
-
-    private let questionHistoryRepository: QuestionHistoryRepository
-    private let bookRepository: BookRepository
-    private let recommendationService: BookRecommendable
-
-    private let userQuestionRelay = BehaviorRelay<String>(value: "")
-    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
-    private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
-    private let errorRelay = PublishRelay<Error>()
 
     private func fetchBookInfoFromService(_ viewDidLoad: Observable<Void>)
         -> Observable<(String, BookMatchModuleOutput)> {

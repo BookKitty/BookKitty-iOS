@@ -13,26 +13,7 @@ import Then
 import UIKit
 
 final class BookCaptureViewController: BaseCameraViewController {
-    // MARK: - Lifecycle
-
-    // MARK: - Init
-
-    init(viewModel: BookCaptureViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        bindViewModel()
-    }
+    // MARK: - Properties
 
     // MARK: - Private
 
@@ -68,6 +49,29 @@ final class BookCaptureViewController: BaseCameraViewController {
 
     /// ✅ `lazy var`를 사용하여 **한 번만 생성**
     private lazy var customCaptureButton = CircleIconButton(iconId: "camera.fill")
+
+    // MARK: - Lifecycle
+
+    // MARK: - Init
+
+    init(viewModel: BookCaptureViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
+    }
+
+    // MARK: - Functions
 
     // MARK: - UI Setup
 

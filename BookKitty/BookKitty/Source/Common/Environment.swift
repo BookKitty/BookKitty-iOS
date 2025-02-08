@@ -8,6 +8,8 @@
 import Foundation
 
 struct Environment {
+    // MARK: - Computed Properties
+
     // MARK: - Internal
 
     var naverClientID: String {
@@ -25,6 +27,8 @@ struct Environment {
     var openaiAPIKey: String {
         getEnvironmentVariable("OPENAI_API_KEY")
     }
+
+    // MARK: - Functions
 
     // MARK: - Private
 

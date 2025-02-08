@@ -7,6 +7,8 @@ public enum BookMatchError: Error {
     case rateLimitExceeded
     case imageCalculationFailed(String)
 
+    // MARK: - Computed Properties
+
     // MARK: - Public
 
     public var description: String {

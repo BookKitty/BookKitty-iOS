@@ -14,6 +14,31 @@ import Then
 import UIKit
 
 final class QuestionHistoryViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let viewModel: QuestionHistoryViewModel
+
+    private let titleLabel = Headline1Label(weight: .extraBold).then {
+        $0.text = "QnA 히스토리"
+        $0.textColor = Colors.fontMain
+    }
+
+    private lazy var questionTableView: UITableView = {
+        let tableView = UITableView()
+        tableView.register(
+            QuestionHistoryCell.self,
+            forCellReuseIdentifier: QuestionHistoryCell.identifier
+        )
+        tableView.separatorStyle = .none
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 240
+        tableView.showsVerticalScrollIndicator = false
+
+        return tableView
+    }()
+
     // MARK: - Lifecycle
 
     init(viewModel: QuestionHistoryViewModel) {
@@ -25,6 +50,8 @@ final class QuestionHistoryViewController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Overridden Functions
 
     // MARK: - Internal
 
@@ -75,29 +102,6 @@ final class QuestionHistoryViewController: BaseViewController {
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingSmall)
         }
     }
-
-    // MARK: - Private
-
-    private let viewModel: QuestionHistoryViewModel
-
-    private let titleLabel = Headline1Label(weight: .extraBold).then {
-        $0.text = "QnA 히스토리"
-        $0.textColor = Colors.fontMain
-    }
-
-    private lazy var questionTableView: UITableView = {
-        let tableView = UITableView()
-        tableView.register(
-            QuestionHistoryCell.self,
-            forCellReuseIdentifier: QuestionHistoryCell.identifier
-        )
-        tableView.separatorStyle = .none
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 240
-        tableView.showsVerticalScrollIndicator = false
-
-        return tableView
-    }()
 }
 
 extension Reactive where Base: UIScrollView {

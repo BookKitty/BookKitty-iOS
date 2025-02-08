@@ -9,6 +9,8 @@ import Foundation
 
 /// 테스트를 위한 가짜 레포지토리
 final class MockBookRepository: BookRepository {
+    // MARK: - Properties
+
     let mockBookList = [
         Book(
             isbn: "9788950963262",
@@ -57,6 +59,8 @@ final class MockBookRepository: BookRepository {
             string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
         )
     )
+
+    // MARK: - Functions
 
     /// 아래 함수는 실제로 레포지토리에서 구현되지 않았습니다.
     /// fetchBookList 함수를 사용해 주세요.

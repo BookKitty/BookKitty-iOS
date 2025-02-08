@@ -18,22 +18,7 @@ import UIKit
 /// - 최대 글자 수 제한 (maximunCount)
 /// - 입력한 글자 수를 countLabel에 실시간 업데이트
 final class QuestionTextView: UIView {
-    // MARK: - Lifecycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        configureHierarchy()
-        configureLayout()
-        bindPlaceholder()
-        bindTextCount()
-        bindCountLabel()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -64,6 +49,25 @@ final class QuestionTextView: UIView {
     private let disposeBag = DisposeBag()
 
     private lazy var countLabel = CaptionLabel().then { $0.text = "0 / 100" }
+
+    // MARK: - Lifecycle
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        configureHierarchy()
+        configureLayout()
+        bindPlaceholder()
+        bindTextCount()
+        bindCountLabel()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Functions
 
     private func configureHierarchy() {
         [textView, countLabel].forEach { addSubview($0) }

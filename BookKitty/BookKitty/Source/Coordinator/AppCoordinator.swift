@@ -7,11 +7,7 @@
 import UIKit
 
 final class AppCoordinator: Coordinator {
-    // MARK: - Lifecycle
-
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -19,6 +15,14 @@ final class AppCoordinator: Coordinator {
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     let navigationController: UINavigationController
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+    }
+
+    // MARK: - Functions
 
     func start() { showCustomTabBarFlow() }
 }

@@ -14,26 +14,7 @@ import UIKit
 
 /// 플로팅 메뉴 - 여러 메뉴 아이템을 담는 컨테이너 뷰
 final class FloatingMenu: UIView {
-    // MARK: - Lifecycle
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        setupUI()
-        configureHierarchy()
-        configureLayout()
-        bindVisibility()
-    }
-
-    @available(*, unavailable)
-    required init(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -55,6 +36,29 @@ final class FloatingMenu: UIView {
         $0.axis = .vertical
         $0.distribution = .fillEqually
     }
+
+    // MARK: - Lifecycle
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        setupUI()
+        configureHierarchy()
+        configureLayout()
+        bindVisibility()
+    }
+
+    @available(*, unavailable)
+    required init(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
+    }
+
+    // MARK: - Functions
 
     private func setupUI() {
         backgroundColor = .white

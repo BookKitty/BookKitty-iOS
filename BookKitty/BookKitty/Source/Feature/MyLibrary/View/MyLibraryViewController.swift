@@ -15,6 +15,45 @@ import Then
 import UIKit
 
 final class MyLibraryViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let bookTappedRelay = PublishRelay<Book>()
+    private let reachedScrollEndRelay = PublishRelay<Void>()
+
+    private let viewModel: MyLibraryViewModel
+
+    private let myLibraryHeadlineLabel = Headline1Label(weight: .extraBold).then {
+        $0.text = "나의 책장"
+    }
+
+    private lazy var myLibraryCollectionView = UICollectionView(
+        frame: .zero,
+        collectionViewLayout: makeCompositionalLayout()
+    ).then {
+        $0.delegate = self
+        $0.register(
+            MyLibraryCollectionViewCell.self,
+            forCellWithReuseIdentifier: MyLibraryCollectionViewCell.reuseIdentifier
+        )
+    }
+
+    private let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionOfBook>(
+        configureCell: { _, collectionView, indexPath, item in
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: MyLibraryCollectionViewCell.reuseIdentifier,
+                for: indexPath
+            ) as? MyLibraryCollectionViewCell else {
+                return MyLibraryCollectionViewCell()
+            }
+
+            cell.configureCell(imageUrl: item.thumbnailUrl)
+
+            return cell
+        }
+    )
+
     // MARK: - Lifecycle
 
     init(viewModel: MyLibraryViewModel) {
@@ -26,6 +65,8 @@ final class MyLibraryViewController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Overridden Functions
 
     // MARK: - Internal
 
@@ -70,43 +111,6 @@ final class MyLibraryViewController: BaseViewController {
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
-
-    // MARK: - Private
-
-    private let bookTappedRelay = PublishRelay<Book>()
-    private let reachedScrollEndRelay = PublishRelay<Void>()
-
-    private let viewModel: MyLibraryViewModel
-
-    private let myLibraryHeadlineLabel = Headline1Label(weight: .extraBold).then {
-        $0.text = "나의 책장"
-    }
-
-    private lazy var myLibraryCollectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: makeCompositionalLayout()
-    ).then {
-        $0.delegate = self
-        $0.register(
-            MyLibraryCollectionViewCell.self,
-            forCellWithReuseIdentifier: MyLibraryCollectionViewCell.reuseIdentifier
-        )
-    }
-
-    private let dataSource = RxCollectionViewSectionedAnimatedDataSource<SectionOfBook>(
-        configureCell: { _, collectionView, indexPath, item in
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: MyLibraryCollectionViewCell.reuseIdentifier,
-                for: indexPath
-            ) as? MyLibraryCollectionViewCell else {
-                return MyLibraryCollectionViewCell()
-            }
-
-            cell.configureCell(imageUrl: item.thumbnailUrl)
-
-            return cell
-        }
-    )
 }
 
 extension MyLibraryViewController {

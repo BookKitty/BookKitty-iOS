@@ -4,6 +4,8 @@
 import XCTest
 
 final class BookMatchKitTests: XCTestCase {
+    // MARK: - Properties
+
     let questions = [
         "요즘 스트레스가 많은데, 마음의 안정을 찾을 수 있는 책 추천해주세요.",
         "SF와 판타지를 좋아하는데, 현실과 가상세계를 넘나드는 소설 없을까요?",
@@ -19,6 +21,8 @@ final class BookMatchKitTests: XCTestCase {
         "의욕이 없을 때 동기부여가 될 만한 책 없을까요?",
     ]
 
+    // MARK: - Overridden Functions
+
     override func setUp() {
         super.setUp()
     }
@@ -26,6 +30,8 @@ final class BookMatchKitTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
     }
+
+    // MARK: - Functions
 
     func test_RecommendForQuestion() async throws {
         var cnt = 0

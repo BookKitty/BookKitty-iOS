@@ -16,6 +16,76 @@ import Then
 import UIKit
 
 final class QuestionResultViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let bookSelectedRelay = PublishRelay<Book>()
+    private let submitButtonTappedRelay = PublishRelay<Void>()
+
+    private let scrollView = UIScrollView().then {
+        $0.showsVerticalScrollIndicator = false
+        $0.showsHorizontalScrollIndicator = false
+    }
+
+    private let contentView = UIView()
+
+    private let userQuestionHeadlineLabel = Headline3Label(weight: .extraBold).then {
+        $0.text = "당신의 질문"
+        $0.textColor = Colors.brandSub
+    }
+
+    private let userQuestionBodyLabel = UserQuestionView(questionText: "")
+
+    private let recommendedBooksHeadlineLabel = TwoLineLabel(
+        text1: "책냥이가 위 질문에 대해",
+        text2: "다음의 책을 추천합니다."
+    )
+
+    private let recommendationHeadlineLabel = Headline3Label(weight: .extraBold).then {
+        $0.text = "추천해요"
+        $0.textColor = Colors.brandSub
+    }
+
+    private let recommendationBodyLabel = BodyLabel(weight: .regular)
+
+    private let submitButton = RoundButton(title: "답변 확인을 완료합니다")
+
+    private let viewModel: QuestionResultViewModel
+
+    private lazy var recommendedBooksCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(
+            frame: .zero,
+            collectionViewLayout: makeCollectionViewLayout()
+        )
+        collectionView.backgroundColor = Colors.brandMain30
+        collectionView.register(
+            RecommendedBookCell.self,
+            forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
+        )
+        return collectionView
+    }()
+
+    private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
+        configureCell: { _, collectionView, indexPath, item in
+            guard let cell = collectionView.dequeueReusableCell(
+                withReuseIdentifier: RecommendedBookCell.reuseIdentifier,
+                for: indexPath
+            ) as? RecommendedBookCell else {
+                return RecommendedBookCell(frame: .zero)
+            }
+
+            cell.configureCell(
+                bookTitle: item.title,
+                bookAuthor: item.author,
+                imageUrl: item.thumbnailUrl?.absoluteString ?? "",
+                isOwned: item.isOwned
+            )
+
+            return cell
+        }
+    )
+
     // MARK: - Lifecycle
 
     init(viewModel: QuestionResultViewModel) {
@@ -27,6 +97,8 @@ final class QuestionResultViewController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Overridden Functions
 
     // MARK: - Internal
 
@@ -137,73 +209,7 @@ final class QuestionResultViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    // MARK: - Private
-
-    private let bookSelectedRelay = PublishRelay<Book>()
-    private let submitButtonTappedRelay = PublishRelay<Void>()
-
-    private let scrollView = UIScrollView().then {
-        $0.showsVerticalScrollIndicator = false
-        $0.showsHorizontalScrollIndicator = false
-    }
-
-    private let contentView = UIView()
-
-    private let userQuestionHeadlineLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "당신의 질문"
-        $0.textColor = Colors.brandSub
-    }
-
-    private let userQuestionBodyLabel = UserQuestionView(questionText: "")
-
-    private let recommendedBooksHeadlineLabel = TwoLineLabel(
-        text1: "책냥이가 위 질문에 대해",
-        text2: "다음의 책을 추천합니다."
-    )
-
-    private let recommendationHeadlineLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "추천해요"
-        $0.textColor = Colors.brandSub
-    }
-
-    private let recommendationBodyLabel = BodyLabel(weight: .regular)
-
-    private let submitButton = RoundButton(title: "답변 확인을 완료합니다")
-
-    private let viewModel: QuestionResultViewModel
-
-    private lazy var recommendedBooksCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(
-            frame: .zero,
-            collectionViewLayout: makeCollectionViewLayout()
-        )
-        collectionView.backgroundColor = Colors.brandMain30
-        collectionView.register(
-            RecommendedBookCell.self,
-            forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
-        )
-        return collectionView
-    }()
-
-    private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
-        configureCell: { _, collectionView, indexPath, item in
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: RecommendedBookCell.reuseIdentifier,
-                for: indexPath
-            ) as? RecommendedBookCell else {
-                return RecommendedBookCell(frame: .zero)
-            }
-
-            cell.configureCell(
-                bookTitle: item.title,
-                bookAuthor: item.author,
-                imageUrl: item.thumbnailUrl?.absoluteString ?? "",
-                isOwned: item.isOwned
-            )
-
-            return cell
-        }
-    )
+    // MARK: - Functions
 
     private func makeCollectionViewLayout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(

@@ -13,13 +13,7 @@ import RxSwift
 /// 질문 내역 화면을 위한 ViewModel
 /// 사용자의 질문 내역을 관리하고 표시하는 책임을 가짐
 final class QuestionHistoryViewModel: ViewModelType {
-    // MARK: - Lifecycle
-
-    /// 초기화 메서드
-    /// - Parameter questionHsitoryRepository: 질문 데이터를 가져오는 Repository
-    init(questionHistoryRepository: QuestionHistoryRepository) {
-        self.questionHistoryRepository = questionHistoryRepository
-    }
+    // MARK: - Nested Types
 
     // MARK: - Internal
 
@@ -35,11 +29,37 @@ final class QuestionHistoryViewModel: ViewModelType {
         let questions: Driver<[QuestionAnswer]> // 질문 목록을 방출하는 드라이버
     }
 
+    // MARK: - Properties
+
     /// 메모리 관리를 위한 DisposeBag
     let disposeBag = DisposeBag()
 
     /// 질문이 선택되었을 때 상세 화면으로 이동하기 위한 Relay
     let navigateToQuestionDetail = PublishRelay<QuestionAnswer>()
+
+    // MARK: - Private
+
+    private var offset = 0
+    private let limit = 10
+
+    /// 질문 데이터를 가져오는 Repository (의존성 주입)
+    private let questionHistoryRepository: QuestionHistoryRepository
+
+    /// API 요청 중인지 여부를 나타내는 플래그 (중복 호출 방지)
+    private var isLoading = false
+
+    /// 질문 목록을 저장하는 BehaviorRelay (초기값은 빈 배열)
+    private let fetchedQuestions = BehaviorRelay<[QuestionAnswer]>(value: [])
+
+    // MARK: - Lifecycle
+
+    /// 초기화 메서드
+    /// - Parameter questionHsitoryRepository: 질문 데이터를 가져오는 Repository
+    init(questionHistoryRepository: QuestionHistoryRepository) {
+        self.questionHistoryRepository = questionHistoryRepository
+    }
+
+    // MARK: - Functions
 
     /// ViewModel의 주요 로직을 처리하는 transform 함수
     /// - Parameter input: ViewController에서 전달하는 Input 구조체
@@ -82,18 +102,4 @@ final class QuestionHistoryViewModel: ViewModelType {
             questions: fetchedQuestions.asDriver() // 질문 목록을 드라이버 형태로 반환하여 UI에서 활용 가능하도록 설정
         )
     }
-
-    // MARK: - Private
-
-    private var offset = 0
-    private let limit = 10
-
-    /// 질문 데이터를 가져오는 Repository (의존성 주입)
-    private let questionHistoryRepository: QuestionHistoryRepository
-
-    /// API 요청 중인지 여부를 나타내는 플래그 (중복 호출 방지)
-    private var isLoading = false
-
-    /// 질문 목록을 저장하는 BehaviorRelay (초기값은 빈 배열)
-    private let fetchedQuestions = BehaviorRelay<[QuestionAnswer]>(value: [])
 }

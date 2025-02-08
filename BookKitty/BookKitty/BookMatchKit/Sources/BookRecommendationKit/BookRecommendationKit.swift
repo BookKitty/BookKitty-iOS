@@ -12,6 +12,15 @@ import UIKit
 /// 도서 매칭 및 추천 기능의 핵심 모듈입니다.
 /// 사용자의 요청을 처리하고, 도서 검색, 매칭, 추천 기능을 조율합니다.
 public final class BookRecommendationKit: BookRecommendable {
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let apiClient: APIClientProtocol
+    private let titleStrategy = LevenshteinStrategyWithNoParenthesis()
+    private let authorStrategy = LevenshteinStrategy()
+    private let configuration: BookMatchConfiguration
+
     // MARK: - Lifecycle
 
     public init(
@@ -30,6 +39,8 @@ public final class BookRecommendationKit: BookRecommendable {
 
         apiClient = DefaultAPIClient(configuration: config)
     }
+
+    // MARK: - Functions
 
     // MARK: - Public
 
@@ -176,13 +187,6 @@ public final class BookRecommendationKit: BookRecommendable {
             )
         }
     }
-
-    // MARK: - Private
-
-    private let apiClient: APIClientProtocol
-    private let titleStrategy = LevenshteinStrategyWithNoParenthesis()
-    private let authorStrategy = LevenshteinStrategy()
-    private let configuration: BookMatchConfiguration
 
     /// RawBook을 실제 BookItem으로 변환합니다.
     /// - Note:``recommendBooks(for:)``, ``recommendBooks(from:)`` 메서드에 사용됩니다.

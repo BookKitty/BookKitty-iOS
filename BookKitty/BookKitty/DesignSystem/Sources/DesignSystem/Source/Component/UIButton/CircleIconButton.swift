@@ -9,6 +9,12 @@ import SnapKit
 import UIKit
 
 public class CircleIconButton: UIButton {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var iconId: String
+
     // MARK: - Lifecycle
 
     // MARK: - Initializer
@@ -33,10 +39,6 @@ public class CircleIconButton: UIButton {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Internal
-
-    var iconId: String
 }
 
 // MARK: - Setup UI

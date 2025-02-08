@@ -9,6 +9,29 @@ import Foundation
 import RxDataSources
 
 struct Book: IdentifiableType, Hashable {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let isbn: String
+    let title: String
+    let author: String
+    let publisher: String
+    let thumbnailUrl: URL?
+    var isOwned: Bool
+    let bookInfoLink: String
+    let createdAt: Date
+    let updatedAt: Date
+    let description: String
+    let price: String
+    let pubDate: String
+
+    // MARK: - Computed Properties
+
+    var identity: String {
+        isbn
+    }
+
     // MARK: - Lifecycle
 
     init(
@@ -37,24 +60,5 @@ struct Book: IdentifiableType, Hashable {
         self.description = description
         self.price = price
         self.pubDate = pubDate
-    }
-
-    // MARK: - Internal
-
-    let isbn: String
-    let title: String
-    let author: String
-    let publisher: String
-    let thumbnailUrl: URL?
-    var isOwned: Bool
-    let bookInfoLink: String
-    let createdAt: Date
-    let updatedAt: Date
-    let description: String
-    let price: String
-    let pubDate: String
-
-    var identity: String {
-        isbn
     }
 }

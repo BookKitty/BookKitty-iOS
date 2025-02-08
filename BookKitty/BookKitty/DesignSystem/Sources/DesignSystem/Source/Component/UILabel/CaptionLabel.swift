@@ -9,6 +9,26 @@ import SnapKit
 import UIKit
 
 public class CaptionLabel: UILabel {
+    // MARK: - Overridden Properties
+
+    // MARK: - Public
+
+    override public var text: String? {
+        didSet { updateAttributes() }
+    }
+
+    override public var textColor: UIColor? {
+        didSet { updateAttributes() }
+    }
+
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var weight: FontWeight {
+        didSet { updateAttributes() }
+    }
+
     // MARK: - Lifecycle
 
     public init(weight: FontWeight = .regular) {
@@ -21,22 +41,6 @@ public class CaptionLabel: UILabel {
     @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Public
-
-    override public var text: String? {
-        didSet { updateAttributes() }
-    }
-
-    override public var textColor: UIColor? {
-        didSet { updateAttributes() }
-    }
-
-    // MARK: - Internal
-
-    var weight: FontWeight {
-        didSet { updateAttributes() }
     }
 }
 

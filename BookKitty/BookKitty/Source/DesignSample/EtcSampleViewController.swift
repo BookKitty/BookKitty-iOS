@@ -11,14 +11,7 @@ import Then
 import UIKit
 
 class EtcSampleViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -42,6 +35,15 @@ class EtcSampleViewController: BaseViewController {
     빈줄도 넣고 테스트
         빈줄도 넣고 테스트3
     """)
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
 }
 
 // MARK: - UI Configure

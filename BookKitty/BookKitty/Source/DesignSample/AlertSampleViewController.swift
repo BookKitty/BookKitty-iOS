@@ -11,14 +11,7 @@ import Then
 import UIKit
 
 class AlertSampleViewController: BaseViewController {
-    // MARK: - Lifecycle
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
+    // MARK: - Properties
 
     // MARK: - Internal
 
@@ -34,6 +27,15 @@ class AlertSampleViewController: BaseViewController {
 
     let scrollView = UIScrollView()
     let contentView = UIView()
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
 }
 
 // MARK: - UI Configure

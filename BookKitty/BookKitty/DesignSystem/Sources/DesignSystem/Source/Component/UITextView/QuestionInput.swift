@@ -10,23 +10,7 @@ import Then
 import UIKit
 
 public class QuestionInput: UIView, UITextViewDelegate {
-    // MARK: - Lifecycle
-
-    // MARK: - Initializer
-
-    public init(text: String = "") {
-        self.text = text
-        super.init(frame: .zero)
-
-        setupViews()
-        setupLayouts()
-        textView.delegate = self
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    // MARK: - Properties
 
     // MARK: - Public
 
@@ -55,6 +39,24 @@ public class QuestionInput: UIView, UITextViewDelegate {
 
     public var text: String? {
         didSet { updateAttributes() }
+    }
+
+    // MARK: - Lifecycle
+
+    // MARK: - Initializer
+
+    public init(text: String = "") {
+        self.text = text
+        super.init(frame: .zero)
+
+        setupViews()
+        setupLayouts()
+        textView.delegate = self
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

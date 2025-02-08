@@ -5,6 +5,13 @@ import Testing
 
 @Suite("Network Test", .serialized)
 final class NetworkTests {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let disposeBag = DisposeBag()
+    var sut: NetworkManager!
+
     // MARK: - Lifecycle
 
     deinit {
@@ -12,10 +19,7 @@ final class NetworkTests {
         MockURLProtocol.requestHandler = nil
     }
 
-    // MARK: - Internal
-
-    let disposeBag = DisposeBag()
-    var sut: NetworkManager!
+    // MARK: - Functions
 
     @Test
     func test_Request_성공_200() async {
