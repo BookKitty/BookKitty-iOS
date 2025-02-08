@@ -9,7 +9,7 @@ import RxCocoa
 import RxSwift
 
 final class BookCaptureViewModel: ViewModelType {
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let captureButtonTapped: Observable<Void>
@@ -54,7 +54,7 @@ final class BookCaptureViewModel: ViewModelType {
         capturedBooksRelay.accept(currentList)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let capturedBooksRelay = BehaviorRelay<[String]>(value: [])
     private let showTitleInputPopupRelay = PublishRelay<Void>()

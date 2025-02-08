@@ -8,7 +8,7 @@ import RxSwift
 import UIKit
 
 final class TabBarCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -16,7 +16,7 @@ final class TabBarCoordinator: Coordinator {
         tabBarController = TabBarController(viewModel: tabBarViewModel)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -59,7 +59,7 @@ final class TabBarCoordinator: Coordinator {
         navigationController.pushViewController(tabBarController, animated: true)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 }

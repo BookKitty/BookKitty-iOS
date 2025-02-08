@@ -6,7 +6,7 @@ import UIKit
 
 /// 네이버 책 검색 API와 OpenAI API를 사용하여 도서 검색 및 추천 기능을 제공하는 클라이언트입니다.
 public final class DefaultAPIClient: APIClientProtocol {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(
         configuration: APIConfiguration
@@ -14,7 +14,7 @@ public final class DefaultAPIClient: APIClientProtocol {
         self.configuration = configuration
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     /// `네이버 책검색 api`를 활용, 도서를 검색합니다.
     ///
@@ -256,11 +256,11 @@ public final class DefaultAPIClient: APIClientProtocol {
         }
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     let disposeBag = DisposeBag()
 
-    // MARK: Private
+    // MARK: - Private
 
     private let configuration: APIConfiguration
 

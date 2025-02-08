@@ -9,7 +9,7 @@ import Foundation
 import RxDataSources
 
 struct Book: IdentifiableType, Hashable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         isbn: String,
@@ -39,7 +39,7 @@ struct Book: IdentifiableType, Hashable {
         self.pubDate = pubDate
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     let isbn: String
     let title: String

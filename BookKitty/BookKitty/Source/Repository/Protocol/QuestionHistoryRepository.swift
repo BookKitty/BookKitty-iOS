@@ -17,7 +17,7 @@ protocol QuestionHistoryRepository {
 }
 
 struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         bookCoreDataManager: BookCoreDataManageable = BookCoreDataManager(),
@@ -30,7 +30,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         self.bookQALinkCoreDataManager = bookQALinkCoreDataManager
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     func fetchQuestions(offset: Int, limit: Int) -> RxSwift.Single<[QuestionAnswer]> {
         let qnaEntities = questionAnswerCoreDataManager.selectQuestionHistories(
@@ -90,7 +90,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let context = CoreDataStack.shared.context
     private let bookCoreDataManager: BookCoreDataManageable

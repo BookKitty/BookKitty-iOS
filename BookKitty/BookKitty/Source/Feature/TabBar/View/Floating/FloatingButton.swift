@@ -13,7 +13,7 @@ import Then
 import UIKit
 
 final class FloatingButton: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,7 +28,7 @@ final class FloatingButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 버튼 회전 상태 여부를 나타내는 `BehaviorRelay`
     /// - `true`이면 버튼이 45도 회전하고, `false`이면 원래 상태로 복귀
@@ -39,7 +39,7 @@ final class FloatingButton: UIButton {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 

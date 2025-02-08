@@ -3,7 +3,7 @@ import RxCocoa
 import RxSwift
 
 final class HomeViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         bookRepository: BookRepository
@@ -11,7 +11,7 @@ final class HomeViewModel: ViewModelType {
         self.bookRepository = bookRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
@@ -51,7 +51,7 @@ final class HomeViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookRepository: BookRepository
 

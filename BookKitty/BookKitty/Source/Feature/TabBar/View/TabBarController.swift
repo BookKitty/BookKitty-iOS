@@ -16,7 +16,7 @@ import UIKit
 /// - `TabBarView`와 `viewControllers`를 관리하며, 선택된 탭에 따라 뷰 컨트롤러 전환
 /// - 플로팅 메뉴(`FloatingMenu`)와 플로팅 버튼(`FloatingButton`)의 상태를 관리.
 final class TabBarController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: TabBarViewModel) {
         self.viewModel = viewModel
@@ -28,7 +28,7 @@ final class TabBarController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 관리할 뷰 컨트롤러 배열
     var viewControllers: [UIViewController] = []
@@ -104,7 +104,7 @@ final class TabBarController: BaseViewController {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let viewModel: TabBarViewModel
 

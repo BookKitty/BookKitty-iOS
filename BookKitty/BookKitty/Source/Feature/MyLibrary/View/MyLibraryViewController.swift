@@ -15,7 +15,7 @@ import Then
 import UIKit
 
 final class MyLibraryViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: MyLibraryViewModel) {
         self.viewModel = viewModel
@@ -27,7 +27,7 @@ final class MyLibraryViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func bind() {
         let input = MyLibraryViewModel.Input(
@@ -71,7 +71,7 @@ final class MyLibraryViewController: BaseViewController {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookTappedRelay = PublishRelay<Book>()
     private let reachedScrollEndRelay = PublishRelay<Void>()

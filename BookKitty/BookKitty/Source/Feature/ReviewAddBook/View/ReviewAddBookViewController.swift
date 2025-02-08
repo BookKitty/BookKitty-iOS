@@ -9,7 +9,7 @@ import Then
 import UIKit
 
 final class ReviewAddBookViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Init
 
@@ -23,7 +23,7 @@ final class ReviewAddBookViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +40,7 @@ final class ReviewAddBookViewController: BaseViewController {
         viewModel.appendBook(book)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // MARK: - Private Properties
 
@@ -198,7 +198,7 @@ final class ReviewAddBookViewController: BaseViewController {
 // MARK: - BookCell
 
 final class BookCell: UICollectionViewCell {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -211,7 +211,7 @@ final class BookCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     static let identifier = "BookCell"
 
@@ -226,7 +226,7 @@ final class BookCell: UICollectionViewCell {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill

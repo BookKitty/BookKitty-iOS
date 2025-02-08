@@ -14,7 +14,7 @@ import Then
 import UIKit
 
 final class QuestionHistoryViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: QuestionHistoryViewModel) {
         self.viewModel = viewModel
@@ -26,7 +26,7 @@ final class QuestionHistoryViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func bind() {
         let input = QuestionHistoryViewModel.Input(
@@ -76,7 +76,7 @@ final class QuestionHistoryViewController: BaseViewController {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let viewModel: QuestionHistoryViewModel
 

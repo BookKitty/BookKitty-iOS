@@ -10,13 +10,13 @@ import RxSwift
 
 /// 네트워크 기능을 수행하는 객체
 public final class NetworkManager: NetworkManageable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(configuration: URLSessionConfiguration = .default) {
         session = URLSession(configuration: configuration)
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     public static let shared = NetworkManager()
 
@@ -51,7 +51,7 @@ public final class NetworkManager: NetworkManageable {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let session: URLSession
 }

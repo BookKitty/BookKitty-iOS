@@ -14,7 +14,7 @@ import UIKit
 
 /// 플로팅 메뉴 - 여러 메뉴 아이템을 담는 컨테이너 뷰
 final class FloatingMenu: UIView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,7 +30,7 @@ final class FloatingMenu: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 메뉴의 가시성 상태를 나타내는 `BehaviorRelay`
     /// - `true` → 메뉴가 보임 (`alpha = 1.0`)
@@ -46,7 +46,7 @@ final class FloatingMenu: UIView {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 

@@ -13,7 +13,7 @@ import Testing
 
 @Suite(.serialized)
 struct RecommendationViewModelTests {
-    // MARK: Internal
+    // MARK: - Internal
 
     // 테스트: viewDidLoad에서 유저 질문이 올바르게 처리되는지 확인하는 테스트
     @Test
@@ -150,7 +150,7 @@ struct RecommendationViewModelTests {
         } catch {}
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // Mock 서비스 및 리포지토리 인스턴스
     private let recommendationService = MockRecommendationService()

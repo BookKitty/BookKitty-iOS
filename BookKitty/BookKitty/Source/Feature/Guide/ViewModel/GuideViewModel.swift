@@ -15,14 +15,14 @@ import RxSwift
 /// 2. Input을 Output으로 변환하는 방법
 /// 3. 에러 처리 방법
 final class GuideViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(addBookService: AddBookServiceable, bookRepository: BookRepository) {
         self.addBookService = addBookService
         self.bookRepository = bookRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// Input 구조체는 View로부터 ViewModel이 받을 수 있는 모든 입력을 정의합니다
     struct Input {
@@ -65,7 +65,7 @@ final class GuideViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let addBookService: AddBookServiceable
     private let bookRepository: BookRepository

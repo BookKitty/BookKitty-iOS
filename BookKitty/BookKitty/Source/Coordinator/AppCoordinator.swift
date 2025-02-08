@@ -7,13 +7,13 @@
 import UIKit
 
 final class AppCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?

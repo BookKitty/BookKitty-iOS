@@ -16,7 +16,7 @@ import Then
 import UIKit
 
 final class QuestionResultViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: QuestionResultViewModel) {
         self.viewModel = viewModel
@@ -28,7 +28,7 @@ final class QuestionResultViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func configureHierarchy() {
         view.addSubview(scrollView)
@@ -137,7 +137,7 @@ final class QuestionResultViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookSelectedRelay = PublishRelay<Book>()
     private let submitButtonTappedRelay = PublishRelay<Void>()

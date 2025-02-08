@@ -9,7 +9,7 @@ import SnapKit
 import UIKit
 
 public class OwnedTagLabel: UILabel {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(isOwned: Bool = true) {
         self.isOwned = isOwned
@@ -24,7 +24,7 @@ public class OwnedTagLabel: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var isOwned: Bool
 

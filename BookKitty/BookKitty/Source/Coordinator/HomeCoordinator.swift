@@ -13,7 +13,7 @@ protocol HomeCoordinator: Coordinator {
 }
 
 final class DefaultHomeCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -22,7 +22,7 @@ final class DefaultHomeCoordinator: Coordinator {
         homeViewController = HomeViewController(viewModel: homeViewModel)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
@@ -35,7 +35,7 @@ final class DefaultHomeCoordinator: Coordinator {
 
     func start() { showHomeScreen() }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 }

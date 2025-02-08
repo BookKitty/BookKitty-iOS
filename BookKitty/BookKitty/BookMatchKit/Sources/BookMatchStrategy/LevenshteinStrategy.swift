@@ -2,11 +2,11 @@ import BookMatchCore
 import RxSwift
 
 public struct LevenshteinStrategy: SimilarityCalculatable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init() {}
 
-    // MARK: Public
+    // MARK: - Public
 
     public typealias T = String
 

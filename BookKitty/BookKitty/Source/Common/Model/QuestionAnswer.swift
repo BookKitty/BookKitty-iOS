@@ -9,7 +9,7 @@ import Foundation
 
 /// 질문답변을 나타내는 모델
 struct QuestionAnswer: Hashable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         createdAt: Date = Date(),
@@ -25,7 +25,7 @@ struct QuestionAnswer: Hashable {
         self.recommendedBooks = recommendedBooks
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     let createdAt: Date
     let userQuestion: String

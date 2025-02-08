@@ -13,7 +13,7 @@ import Then
 import UIKit
 
 final class BookCaptureViewController: BaseCameraViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Init
 
@@ -27,7 +27,7 @@ final class BookCaptureViewController: BaseCameraViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +36,7 @@ final class BookCaptureViewController: BaseCameraViewController {
         bindViewModel()
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // MARK: - Private Properties
 

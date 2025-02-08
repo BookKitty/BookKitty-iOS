@@ -10,7 +10,7 @@ import Then
 import UIKit
 
 public class UserQuestionView: UIScrollView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(questionText: String) {
         self.questionText = questionText
@@ -26,13 +26,13 @@ public class UserQuestionView: UIScrollView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     public func setQuestionText(_ text: String) {
         bodyLabel.text = text
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var questionText: String
 

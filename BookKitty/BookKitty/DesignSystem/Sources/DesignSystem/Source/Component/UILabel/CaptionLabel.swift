@@ -9,7 +9,7 @@ import SnapKit
 import UIKit
 
 public class CaptionLabel: UILabel {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(weight: FontWeight = .regular) {
         self.weight = weight
@@ -23,7 +23,7 @@ public class CaptionLabel: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     override public var text: String? {
         didSet { updateAttributes() }
@@ -33,7 +33,7 @@ public class CaptionLabel: UILabel {
         didSet { updateAttributes() }
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var weight: FontWeight {
         didSet { updateAttributes() }

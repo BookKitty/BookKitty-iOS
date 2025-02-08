@@ -8,7 +8,7 @@ import DesignSystem
 import UIKit
 
 final class QuestionHistoryCell: UITableViewCell {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -21,7 +21,7 @@ final class QuestionHistoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     override public func layoutSubviews() {
         super.layoutSubviews()
@@ -29,7 +29,7 @@ final class QuestionHistoryCell: UITableViewCell {
         containerView.setBasicShadow(radius: Vars.radiusTiny)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     static let identifier = "QuestionHistoryCell"
 
@@ -62,7 +62,7 @@ final class QuestionHistoryCell: UITableViewCell {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let containerView = UIView().then {
         $0.backgroundColor = Colors.background1

@@ -10,7 +10,7 @@ import SnapKit
 import UIKit
 
 final class MyLibraryCollectionViewCell: UICollectionViewCell {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,7 +23,7 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     static let reuseIdentifier = "MyLibraryCollectionViewCell"
 
@@ -70,7 +70,7 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         imageLoadTask?.resume()
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private var imageLoadTask: URLSessionDataTask?
     private var currentImageUrl: URL?

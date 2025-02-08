@@ -12,7 +12,7 @@ import Testing
 
 @Suite()
 struct QuestionDetailViewModelTests {
-    // MARK: Internal
+    // MARK: - Internal
 
     @Test()
     func test_viewDidLoad_questionDate() async {
@@ -149,7 +149,7 @@ struct QuestionDetailViewModelTests {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private var deleteButtonTappedSubject = PublishSubject<Void>()
     private var bookSelectedSubject = PublishSubject<Book>()

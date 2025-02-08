@@ -15,7 +15,7 @@ public enum ManageBookMode {
 }
 
 public class ManageBookPopupView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(bookTitle: String = "책 제목", mode: ManageBookMode) {
         self.bookTitle = bookTitle
@@ -32,7 +32,7 @@ public class ManageBookPopupView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     public let bookTitle: String
     public let mode: ManageBookMode
@@ -47,7 +47,7 @@ public class ManageBookPopupView: UIView {
         $0.distribution = .fillEqually
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let iconImageView = UIImageView().then {
         $0.preferredSymbolConfiguration = .init(pointSize: Vars.viewSizeSmall, weight: .regular)

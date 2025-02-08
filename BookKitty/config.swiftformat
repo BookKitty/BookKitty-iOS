@@ -36,3 +36,4 @@
 --wrapcollections before-first
 --funcattributes prev-line
 --typeattributes prev-line
+--categorymark "MARK: - %c"

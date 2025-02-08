@@ -5,7 +5,7 @@ import Testing
 /// Container 클래스의 기능을 테스트하기 위한 테스트 스위트
 @Suite(.serialized)
 final class ContainerTests {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: 생명주기
 
@@ -14,13 +14,13 @@ final class ContainerTests {
         Container.removeAll()
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     // MARK: 내부 구현
 
     /// 컨테이너 기능을 테스트하기 위한 목업 서비스 클래스
     class TestService {
-        // MARK: Lifecycle
+        // MARK: - Lifecycle
 
         // MARK: 생명주기
 
@@ -30,7 +30,7 @@ final class ContainerTests {
             self.value = value
         }
 
-        // MARK: Internal
+        // MARK: - Internal
 
         // MARK: 내부 프로퍼티
 

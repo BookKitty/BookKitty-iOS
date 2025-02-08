@@ -13,7 +13,7 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct MyLibraryViewModelTests {
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 뷰가 로드될 때 책 목록이 방출되는지 테스트
     @Test("viewDidLoad -> Book 목록 방출")
@@ -90,7 +90,7 @@ struct MyLibraryViewModelTests {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let repository = MockBookRepository() // MockBookRepository 인스턴스 생성
 }

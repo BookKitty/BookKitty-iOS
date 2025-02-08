@@ -15,7 +15,7 @@ import Then
 import UIKit
 
 final class QuestionDetailViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: QuestionDetailViewModel) {
         self.viewModel = viewModel
@@ -27,7 +27,7 @@ final class QuestionDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -154,7 +154,7 @@ final class QuestionDetailViewController: BaseViewController {
         // content hugging, compression resistance priority도 괜찮은 것 같음
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookTappedRelay = PublishRelay<Book>()
 

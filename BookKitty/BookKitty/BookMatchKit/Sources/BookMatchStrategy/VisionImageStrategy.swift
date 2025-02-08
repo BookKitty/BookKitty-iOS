@@ -6,11 +6,11 @@ import Vision
 /// 도서 표지 이미지 간의 유사도를 계산하는 클래스입니다.
 /// Vision 프레임워크를 사용하여 이미지의 특징점을 추출하고 비교합니다.
 public class VisionImageStrategy: SimilarityCalculatable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init() {}
 
-    // MARK: Public
+    // MARK: - Public
 
     public typealias T = UIImage
 
@@ -43,7 +43,7 @@ public class VisionImageStrategy: SimilarityCalculatable {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
     private let context = CIContext()

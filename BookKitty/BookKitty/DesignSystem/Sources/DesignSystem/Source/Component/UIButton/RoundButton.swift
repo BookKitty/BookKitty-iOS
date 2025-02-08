@@ -9,7 +9,7 @@ import SnapKit
 import UIKit
 
 public class RoundButton: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -36,7 +36,7 @@ public class RoundButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var title: String
     var isSecondary: Bool

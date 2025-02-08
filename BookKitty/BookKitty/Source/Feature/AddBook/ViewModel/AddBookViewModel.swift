@@ -10,7 +10,7 @@ import RxCocoa
 import RxSwift
 
 final class AddBookViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -22,7 +22,7 @@ final class AddBookViewModel: ViewModelType {
             .disposed(by: disposeBag)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     // MARK: - Input & Output
 
@@ -71,7 +71,7 @@ final class AddBookViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // MARK: - Private Properties
 

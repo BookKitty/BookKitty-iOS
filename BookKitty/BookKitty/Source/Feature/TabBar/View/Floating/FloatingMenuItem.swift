@@ -11,7 +11,7 @@ import Then
 import UIKit
 
 final class FloatingMenuItem: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(with type: FloatingMenuItemType) {
         self.type = type
@@ -26,11 +26,11 @@ final class FloatingMenuItem: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     let type: FloatingMenuItemType
 
-    // MARK: Private
+    // MARK: - Private
 
     private let contentHStackView = UIStackView().then {
         $0.axis = .horizontal

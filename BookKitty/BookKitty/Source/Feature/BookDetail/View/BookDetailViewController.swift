@@ -13,7 +13,7 @@ import SnapKit
 import UIKit
 
 final class BookDetailViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: BookDetailViewModel) {
         self.viewModel = viewModel
@@ -25,7 +25,7 @@ final class BookDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,7 +98,7 @@ final class BookDetailViewController: BaseViewController {
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let viewModel: BookDetailViewModel
     private let leftBarButtonTapTrigger = PublishRelay<Void>()

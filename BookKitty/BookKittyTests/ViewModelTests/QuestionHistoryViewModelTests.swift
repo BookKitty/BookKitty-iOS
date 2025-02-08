@@ -20,7 +20,7 @@ import Testing
 
 @MainActor
 struct QuestionHistoryViewModelTests {
-    // MARK: Internal
+    // MARK: - Internal
 
     /// viewDidLoad 이벤트가 발생하면 질문 목록이 올바르게 방출되는지 테스트
     @Test("viewDidLoad -> 질문 목록 방출")
@@ -115,7 +115,7 @@ struct QuestionHistoryViewModelTests {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     /// Mock 데이터 저장소를 사용하여 테스트 수행
     private let repository = MockQuestionHistoryRepository()

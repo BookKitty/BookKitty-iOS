@@ -8,7 +8,7 @@
 import CoreData
 
 final class CoreDataStack {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     private init() {
         persistentContainer = NSPersistentContainer(name: "MyAppModel") // 모델 파일명
@@ -19,7 +19,7 @@ final class CoreDataStack {
         }
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     static let shared = CoreDataStack()
 

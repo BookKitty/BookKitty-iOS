@@ -11,7 +11,7 @@ import Then
 import UIKit
 
 final class BookDetailInfoView: UIStackView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,7 +26,7 @@ final class BookDetailInfoView: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -42,7 +42,7 @@ final class BookDetailInfoView: UIStackView {
         priceLabel.text = "가격 \(model.price)"
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let topSpacingView = UIView()
 

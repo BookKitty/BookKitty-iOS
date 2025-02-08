@@ -2,7 +2,7 @@ import Foundation
 import Network
 
 struct ImageDownloadEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: Initialization
 
@@ -10,7 +10,7 @@ struct ImageDownloadEndpoint: Endpoint {
         self.urlString = urlString
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = Data
 
@@ -32,7 +32,7 @@ struct ImageDownloadEndpoint: Endpoint {
 
     var data: Data? { nil }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let urlString: String
 }

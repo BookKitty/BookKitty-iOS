@@ -25,7 +25,7 @@ struct TestBookModel: Hashable {
 }
 
 final class BookDetailViewModel: ViewModelType {
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let viewDidLoad: Observable<Void>
@@ -68,7 +68,7 @@ final class BookDetailViewModel: ViewModelType {
         return Output(model: model)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let model = PublishRelay<TestBookModel>() // TODO: TestBookModel -> Book
 

@@ -9,7 +9,7 @@ import SnapKit
 import UIKit
 
 public class CircleIconButton: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -34,7 +34,7 @@ public class CircleIconButton: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var iconId: String
 }

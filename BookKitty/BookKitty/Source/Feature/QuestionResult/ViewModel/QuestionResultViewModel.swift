@@ -11,7 +11,7 @@ import RxCocoa
 import RxSwift
 
 final class QuestionResultViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         userQuestion: String,
@@ -25,7 +25,7 @@ final class QuestionResultViewModel: ViewModelType {
         self.questionHistoryRepository = questionHistoryRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
@@ -83,7 +83,7 @@ final class QuestionResultViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let userQuestion: String
 

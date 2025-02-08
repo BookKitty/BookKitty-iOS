@@ -13,13 +13,13 @@ import RxSwift
 /// 내 서재 화면을 위한 ViewModel
 /// 사용자의 책 목록을 관리하고 표시하는 책임을 가짐
 final class MyLibraryViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(bookRepository: BookRepository) {
         self.bookRepository = bookRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// ViewModel이 처리할 수 있는 입력 이벤트들을 정의
     struct Input {
@@ -91,7 +91,7 @@ final class MyLibraryViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookList = BehaviorRelay<[SectionOfBook]>(value: [])
 

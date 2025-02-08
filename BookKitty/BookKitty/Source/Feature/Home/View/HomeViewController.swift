@@ -15,7 +15,7 @@ import Then
 import UIKit
 
 class HomeViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -27,7 +27,7 @@ class HomeViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func configureHierarchy() {
         [titleLabel, recommendedBooksCollectionView, copyrightLabel].forEach { view.addSubview($0) }
@@ -80,7 +80,7 @@ class HomeViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookSelectedRelay = PublishRelay<Book>()
 

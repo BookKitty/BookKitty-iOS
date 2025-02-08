@@ -14,7 +14,7 @@ protocol AddBookCoordinator: Coordinator {
 }
 
 final class DefaultAddBookCoordinator: AddBookCoordinator {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Init
 
@@ -24,7 +24,7 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
         addBookViewController = AddBookViewController(viewModel: addBookViewModel)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -40,7 +40,7 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
         navigationController.pushViewController(addBookViewController, animated: true)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
     private let confirmButtonRelay =

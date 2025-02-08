@@ -2,7 +2,7 @@ import Foundation
 import Network
 
 struct NaverBooksEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Initialization
 
@@ -12,7 +12,7 @@ struct NaverBooksEndpoint: Endpoint {
         self.configuration = configuration
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = NaverBooksResponse
 

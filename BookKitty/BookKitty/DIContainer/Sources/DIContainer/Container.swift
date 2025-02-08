@@ -54,11 +54,11 @@ import Foundation
 /// Swift 6 concurrency 안정성에 대응하기 위해 @MainActor를 사용하였습니다.
 /// 이 부분은 추가적인 공부 이후 발전시켜나가겠습니다.
 public final class Container: @unchecked Sendable {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     private init() {}
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 서비스 타입과 구현을 등록하는 메서드
     /// - Parameters:
@@ -83,7 +83,7 @@ public final class Container: @unchecked Sendable {
         shared.removeAllServices()
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     /// 싱글톤 인스턴스
     private static let shared = Container()

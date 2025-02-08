@@ -11,14 +11,14 @@ import RxRelay
 import RxSwift
 
 final class QuestionDetailViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(questionAnswer: QuestionAnswer, questionHistoryRepository: QuestionHistoryRepository) {
         self.questionAnswer = questionAnswer
         self.questionHistoryRepository = questionHistoryRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let viewDidLoad: Observable<Void>
@@ -72,7 +72,7 @@ final class QuestionDetailViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let questionHistoryRepository: QuestionHistoryRepository
 

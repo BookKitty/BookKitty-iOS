@@ -15,7 +15,7 @@ import UIKit
 
 /// 사용자가 새로운 질문을 입력하고 제출할 수 있는 화면을 담당하는 ViewController
 final class NewQuestionViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(viewModel: NewQuestionViewModel) {
         self.viewModel = viewModel
@@ -27,7 +27,7 @@ final class NewQuestionViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -107,7 +107,7 @@ final class NewQuestionViewController: BaseViewController {
     @objc
     func dismissKeyboard() { view.endEditing(true) }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let viewModel: NewQuestionViewModel
 

@@ -10,7 +10,7 @@ import Then
 import UIKit
 
 public class QuestionInput: UIView, UITextViewDelegate {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -28,7 +28,7 @@ public class QuestionInput: UIView, UITextViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     public let maxCharacterLimit = 100
     public let placeholderText = "입력해주세요"

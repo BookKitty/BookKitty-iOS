@@ -11,7 +11,7 @@ import RxSwift
 import UIKit
 
 final class DimmingView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,14 +26,14 @@ final class DimmingView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 현재 `DimmingView`의 가시성을 나타내는 `BehaviorRelay`
     /// - `true` → 배경이 보임 (`alpha = 1.0`)
     /// - `false` → 배경이 사라짐 (`alpha = 0.0`)
     let isVisible = BehaviorRelay(value: false)
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 

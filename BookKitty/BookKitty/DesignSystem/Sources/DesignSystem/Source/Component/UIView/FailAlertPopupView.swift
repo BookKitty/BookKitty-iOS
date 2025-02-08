@@ -10,7 +10,7 @@ import Then
 import UIKit
 
 public class FailAlertPopupView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     public init(
         primaryMessage: String = "촬영에 실패하였습니다.",
@@ -32,7 +32,7 @@ public class FailAlertPopupView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Public
 
     public let primaryMessage: String
     public let secondaryMessage: String
@@ -40,7 +40,7 @@ public class FailAlertPopupView: UIView {
 
     public let confirmButton = RoundButton()
 
-    // MARK: Private
+    // MARK: - Private
 
     private let iconImageView = UIImageView().then {
         $0.image = UIImage(systemName: "exclamationmark.triangle.fill")

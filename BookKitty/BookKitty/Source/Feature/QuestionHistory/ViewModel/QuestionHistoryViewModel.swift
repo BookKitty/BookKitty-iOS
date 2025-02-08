@@ -13,7 +13,7 @@ import RxSwift
 /// 질문 내역 화면을 위한 ViewModel
 /// 사용자의 질문 내역을 관리하고 표시하는 책임을 가짐
 final class QuestionHistoryViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     /// 초기화 메서드
     /// - Parameter questionHsitoryRepository: 질문 데이터를 가져오는 Repository
@@ -21,7 +21,7 @@ final class QuestionHistoryViewModel: ViewModelType {
         self.questionHistoryRepository = questionHistoryRepository
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     /// ViewModel의 입력(Input) 구조체
     struct Input {
@@ -83,7 +83,7 @@ final class QuestionHistoryViewModel: ViewModelType {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private var offset = 0
     private let limit = 10

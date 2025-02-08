@@ -2,7 +2,7 @@ import Foundation
 import Network
 
 struct ChatGPTEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(
         model: String,
@@ -18,7 +18,7 @@ struct ChatGPTEndpoint: Endpoint {
         self.configuration = configuration
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = ChatGPTResponse
 
@@ -53,7 +53,7 @@ struct ChatGPTEndpoint: Endpoint {
         return try? JSONSerialization.data(withJSONObject: requestBody)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let model: String
     private let messages: [ChatMessage]

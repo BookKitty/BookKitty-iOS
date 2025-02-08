@@ -10,7 +10,7 @@ import RxCocoa
 import RxSwift
 
 final class ReviewAddBookViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     // MARK: - Init
 
@@ -19,7 +19,7 @@ final class ReviewAddBookViewModel: ViewModelType {
         addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let confirmButtonTapped: Observable<Void>
@@ -99,7 +99,7 @@ final class ReviewAddBookViewModel: ViewModelType {
         bookListRelay.accept(currentList)
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let bookListRelay = BehaviorRelay<[Book]>(value: [])
     private var addedBookTitles = Set<String>() // ✅ 중복 방지용 Set

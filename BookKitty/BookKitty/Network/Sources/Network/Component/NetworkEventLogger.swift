@@ -9,7 +9,7 @@ import Foundation
 import OSLog
 
 enum NetworkEventLogger {
-    // MARK: Internal
+    // MARK: - Internal
 
     /// 네트워크 요청이 완료되었을 때 호출되어 요청 정보를 로깅합니다.
     /// - Parameter request: 로깅할 URL 요청 객체
@@ -47,7 +47,7 @@ enum NetworkEventLogger {
         )
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // 로깅에 사용되는 Logger 인스턴스
 

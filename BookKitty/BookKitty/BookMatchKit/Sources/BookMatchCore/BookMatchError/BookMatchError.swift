@@ -7,7 +7,7 @@ public enum BookMatchError: Error {
     case rateLimitExceeded
     case imageCalculationFailed(String)
 
-    // MARK: Public
+    // MARK: - Public
 
     public var description: String {
         switch self {

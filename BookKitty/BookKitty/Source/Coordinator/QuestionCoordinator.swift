@@ -16,7 +16,7 @@ protocol QuestionCoordinator: Coordinator {
 ///
 /// `QuestionCoordinator`는 질문 기록, 질문 상세, 책 상세와 같은 화면 전환을 관리.
 final class DefaultQuestionCoordinator: QuestionCoordinator {
-    // MARK: Lifecycle
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -28,7 +28,7 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
     }
 
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -39,7 +39,7 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
 
     func start() { showQuestionHistoryScreen() }
 
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
 }
