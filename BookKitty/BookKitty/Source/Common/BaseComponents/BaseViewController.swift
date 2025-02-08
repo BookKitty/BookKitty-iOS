@@ -13,9 +13,7 @@ import UIKit
 /// BaseViewController는 모든 ViewController의 기본이 되는 클래스입니다.
 /// RxSwift를 사용하기 위한 disposeBag과 기본적인 UI 설정 메서드들을 포함하고 있습니다.
 class BaseViewController: UIViewController {
-    /// RxSwift의 메모리 관리를 위한 DisposeBag입니다.
-    let disposeBag = DisposeBag()
-    let viewDidLoadRelay = PublishRelay<Void>()
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         configureBackground()
@@ -25,6 +23,12 @@ class BaseViewController: UIViewController {
         bind()
         viewDidLoadRelay.accept(())
     }
+
+    // MARK: - Internal
+
+    /// RxSwift의 메모리 관리를 위한 DisposeBag입니다.
+    let disposeBag = DisposeBag()
+    let viewDidLoadRelay = PublishRelay<Void>()
 
     /// 뷰 컨트롤러의 배경색을 설정하는 메서드입니다.
     /// 기본값으로 systemBackground 색상이 설정됩니다. 추후 색상이 결정되면 변경할 예정입니다.

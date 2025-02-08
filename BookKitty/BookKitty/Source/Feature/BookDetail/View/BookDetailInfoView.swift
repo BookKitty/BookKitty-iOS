@@ -26,12 +26,12 @@ final class BookDetailInfoView: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func layoutSubviews() {
         super.layoutSubviews()
         configureLayout()
     }
+
+    // MARK: - Internal
 
     func setupData(with model: TestBookModel) {
         bookThumbnailImageView.setupImage(imageLink: model.imageLink)

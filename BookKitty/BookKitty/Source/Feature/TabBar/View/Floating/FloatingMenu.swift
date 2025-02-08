@@ -30,6 +30,11 @@ final class FloatingMenu: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
+    }
+
     // MARK: - Internal
 
     /// 메뉴의 가시성 상태를 나타내는 `BehaviorRelay`
@@ -39,11 +44,6 @@ final class FloatingMenu: UIView {
 
     let items: [FloatingMenuItem] = FloatingMenuItemType.allCases.map {
         FloatingMenuItem(with: $0)
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
     }
 
     // MARK: - Private

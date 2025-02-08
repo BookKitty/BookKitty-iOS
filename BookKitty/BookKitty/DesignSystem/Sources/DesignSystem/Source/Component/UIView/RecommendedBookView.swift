@@ -43,14 +43,14 @@ public class RecommendedBookView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Public
-
     override public func layoutSubviews() {
         super.layoutSubviews()
 
         setupLayouts()
         setupProperties()
     }
+
+    // MARK: - Public
 
     public func configureView(
         bookTitle: String,

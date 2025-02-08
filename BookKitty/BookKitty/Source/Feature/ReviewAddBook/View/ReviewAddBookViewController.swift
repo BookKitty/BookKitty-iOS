@@ -23,14 +23,14 @@ final class ReviewAddBookViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupConstraints()
         bindViewModel()
     }
+
+    // MARK: - Internal
 
     func appendBook(_ book: Book) {
         guard !addedBookTitles.contains(book.title) else {

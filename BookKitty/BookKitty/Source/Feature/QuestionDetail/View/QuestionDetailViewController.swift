@@ -27,12 +27,25 @@ final class QuestionDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = false
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        recommendedBooksCollectionView.layoutIfNeeded()
+        recommendedBooksCollectionView.snp.makeConstraints { make in
+            make.height
+                .equalTo(
+                    recommendedBooksCollectionView.collectionViewLayout
+                        .collectionViewContentSize.height
+                )
+        }
+        // content hugging, compression resistance priority도 괜찮은 것 같음
+    }
+
+    // MARK: - Internal
 
     override func bind() {
         let input = QuestionDetailViewModel.Input(
@@ -139,19 +152,6 @@ final class QuestionDetailViewController: BaseViewController {
             make.height.greaterThanOrEqualTo(400)
             make.bottom.equalTo(contentView)
         }
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        recommendedBooksCollectionView.layoutIfNeeded()
-        recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.height
-                .equalTo(
-                    recommendedBooksCollectionView.collectionViewLayout
-                        .collectionViewContentSize.height
-                )
-        }
-        // content hugging, compression resistance priority도 괜찮은 것 같음
     }
 
     // MARK: - Private

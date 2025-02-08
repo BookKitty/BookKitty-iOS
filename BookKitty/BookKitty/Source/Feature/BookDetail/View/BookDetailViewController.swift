@@ -25,8 +25,6 @@ final class BookDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -40,6 +38,8 @@ final class BookDetailViewController: BaseViewController {
 
         navigationController?.navigationBar.isHidden = false
     }
+
+    // MARK: - Internal
 
     override func bind() {
         let input = BookDetailViewModel.Input(

@@ -11,6 +11,17 @@ import Then
 import UIKit
 
 final class LabelSample1ViewController: BaseViewController {
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
+
+    // MARK: - Internal
+
     let h3Label = Headline3Label().then {
         $0.text = "기본 Headline 3"
     }
@@ -37,13 +48,6 @@ final class LabelSample1ViewController: BaseViewController {
     let extraBoldTitleLabel = TitleLabel(weight: .extraBold).then {
         $0.text = "ExtraBold(app 기준 Heavy) title, 브랜드 메인 색상"
         $0.textColor = Colors.brandMain
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupViews()
-        setupProperties()
-        setupLayouts()
     }
 }
 

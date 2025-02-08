@@ -26,16 +26,16 @@ final class GradientView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setupGradient()
+    }
+
     // MARK: - Internal
 
     /// CALayer대신 CAGradientLayer를 기본 레이어로 사용하도록 설정
     override static var layerClass: AnyClass {
         CAGradientLayer.self
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        setupGradient()
     }
 
     // MARK: - Private

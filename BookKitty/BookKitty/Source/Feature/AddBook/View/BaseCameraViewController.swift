@@ -14,26 +14,7 @@ import Then
 import UIKit
 
 class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
-    // MARK: - Open
-
-    /// ✅ `open var`로 선언하여 하위 클래스에서 변경 가능하도록 설정
-    open var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
-
-    // MARK: - Internal
-
-    var captureSession = AVCaptureSession()
-    var previewLayer: AVCaptureVideoPreviewLayer?
-    var captureOutput = AVCapturePhotoOutput()
-
-    private(set) var disposeBag = DisposeBag()
-
-    // MARK: - UI Elements
-
-    let cameraView = UIView().then {
-        $0.backgroundColor = .black
-        $0.layer.cornerRadius = 8
-        $0.clipsToBounds = true
-    }
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,6 +35,27 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         DispatchQueue.main.async {
             self.previewLayer?.frame = self.cameraView.bounds
         }
+    }
+
+    // MARK: - Open
+
+    /// ✅ `open var`로 선언하여 하위 클래스에서 변경 가능하도록 설정
+    open var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
+
+    // MARK: - Internal
+
+    var captureSession = AVCaptureSession()
+    var previewLayer: AVCaptureVideoPreviewLayer?
+    var captureOutput = AVCapturePhotoOutput()
+
+    private(set) var disposeBag = DisposeBag()
+
+    // MARK: - UI Elements
+
+    let cameraView = UIView().then {
+        $0.backgroundColor = .black
+        $0.layer.cornerRadius = 8
+        $0.clipsToBounds = true
     }
 
     // MARK: - DisposeBag 리셋

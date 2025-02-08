@@ -27,8 +27,6 @@ final class AddBookViewController: BaseCameraViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()

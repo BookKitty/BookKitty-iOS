@@ -27,8 +27,6 @@ final class NewQuestionViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -42,6 +40,8 @@ final class NewQuestionViewController: BaseViewController {
 
         navigationController?.navigationBar.isHidden = false
     }
+
+    // MARK: - Internal
 
     override func bind() {
         guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
