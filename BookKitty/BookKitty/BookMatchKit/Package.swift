@@ -34,7 +34,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
-        .package(path: "../Network"),
+        .package(path: "../NetworkKit"),
     ],
 
     targets: [
@@ -67,7 +67,7 @@ let package = Package(
                 "RxSwift",
                 "SwiftFormat",
                 "BookMatchCore",
-                .product(name: "Network", package: "Network"),
+                .product(name: "NetworkKit", package: "NetworkKit"),
             ]
         ),
         .testTarget(
