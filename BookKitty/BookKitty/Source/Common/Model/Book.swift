@@ -58,3 +58,9 @@ struct Book: IdentifiableType, Hashable {
         isbn
     }
 }
+
+extension Book {
+    static func == (lhs: Book, rhs: Book) -> Bool {
+        lhs.isbn == rhs.isbn
+    }
+}
