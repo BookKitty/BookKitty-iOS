@@ -1,11 +1,7 @@
 import BookMatchCore
 import RxSwift
-import UIKit
 
-public protocol APIClientProtocol {
-    func searchBooks(query: String, limit: Int) -> Single<[BookItem]>
-    func downloadImage(from urlString: String) -> Single<UIImage>
-    
+public protocol AiClientProtocol {
     func getBookRecommendation(question: String, ownedBooks: [OwnedBook])
     -> Single<AiRecommendationForQuestion>
     func getBookRecommendation(ownedBooks: [OwnedBook]) -> Single<AiRecommendationFromOwnedBooks>

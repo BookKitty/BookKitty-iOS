@@ -2,8 +2,6 @@ import Foundation
 import Network
 
 struct ChatGPTEndpoint: Endpoint {
-    // MARK: Lifecycle
-
     init(
         model: String,
         messages: [ChatMessage],
@@ -22,17 +20,11 @@ struct ChatGPTEndpoint: Endpoint {
 
     typealias Response = ChatGPTResponse
 
-    // MARK: Endpoint Protocol
+    var baseURL = "https://api.openai.com"
+    var path = "/v1/chat/completions"
+    var method = HTTPMethod.post
 
-    var baseURL: String {
-        configuration.openAIBaseURL
-    }
-
-    var path: String { "/v1/chat/completions" }
-
-    var method: HTTPMethod { .post }
-
-    var heaerFields: [String: String] {
+    var headerFields: [String: String] {
         [
             "Authorization": "Bearer \(configuration.openAIApiKey)",
             "Content-Type": "application/json",
