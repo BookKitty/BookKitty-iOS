@@ -12,10 +12,6 @@ import RxSwift
 final class AddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
-    // MARK: - Input & Output
-
     struct Input {
         let captureButtonTapped: Observable<Void>
         let manualAddButtonTapped: Observable<String>
@@ -34,15 +30,11 @@ final class AddBookViewModel: ViewModelType {
 
     // MARK: - Private
 
-    // MARK: - Private Properties
-
     private let bookListRelay = BehaviorRelay<[Book]>(value: [])
     private let navigateToReviewRelay = PublishRelay<[Book]>()
     private let addBookRelay = PublishRelay<String>()
 
     // MARK: - Lifecycle
-
-    // MARK: - Initializer
 
     init() {
         addBookRelay
@@ -54,24 +46,18 @@ final class AddBookViewModel: ViewModelType {
 
     // MARK: - Functions
 
-    // MARK: - Transform Function
-
     func transform(_ input: Input) -> Output {
-        // 📸 OCR 기반으로 책 제목 추가
         input.captureButtonTapped
-            .map { "촬영된 책 제목" }
+            .withLatestFrom(addBookRelay)
             .bind(to: addBookRelay)
             .disposed(by: disposeBag)
 
-        // 📝 사용자가 직접 입력한 책 제목 추가
         input.manualAddButtonTapped
             .bind(to: addBookRelay)
             .disposed(by: disposeBag)
 
-        // ✅ 제목 입력 팝업 표시 트리거
         let showPopup = input.manualAddButtonTapped.map { _ in }
 
-        // ✅ 책 목록을 가져와서 화면 전환 (비어있지 않은 경우만)
         input.confirmButtonTapped
             .withLatestFrom(bookListRelay)
             .filter { !$0.isEmpty }
@@ -84,8 +70,6 @@ final class AddBookViewModel: ViewModelType {
             showTitleInputPopup: showPopup
         )
     }
-
-    // MARK: - Private Methods
 
     private func addBook(title: String) {
         let newBook = Book(

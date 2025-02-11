@@ -11,8 +11,6 @@ import RxSwift
 final class BookCaptureViewModel: ViewModelType {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
     struct Input {
         let captureButtonTapped: Observable<Void>
         let manualAddButtonTapped: Observable<Void>
@@ -38,8 +36,9 @@ final class BookCaptureViewModel: ViewModelType {
 
     func transform(_ input: Input) -> Output {
         input.captureButtonTapped
-            .map { ["촬영된 책 제목 1", "촬영된 책 제목 2"] } // ✅ OCR 연동 가능
-            .bind(to: capturedBooksRelay)
+            .subscribe(onNext: { [weak self] in
+                // 캡처 버튼 탭 시 실제로는 아무 동작 안함 (이미 ViewController에서 처리)
+            })
             .disposed(by: disposeBag)
 
         input.manualAddButtonTapped
@@ -59,9 +58,9 @@ final class BookCaptureViewModel: ViewModelType {
         )
     }
 
-    func addCapturedBook(_ bookTitle: String) {
+    func addCapturedBooks(_ titles: [String]) {
         var currentList = capturedBooksRelay.value
-        currentList.append(bookTitle)
+        currentList.append(contentsOf: titles)
         capturedBooksRelay.accept(currentList)
     }
 }

@@ -11,10 +11,6 @@ import UIKit
 final class ReviewAddBookViewController: BaseViewController {
     // MARK: - Properties
 
-    // MARK: - Private
-
-    // MARK: - Private Properties
-
     private let viewModel: ReviewAddBookViewModel
     private let deleteBookSubject = PublishSubject<Int>()
     private let manualTitleSubject = PublishSubject<String>()
@@ -50,8 +46,6 @@ final class ReviewAddBookViewController: BaseViewController {
 
     // MARK: - Lifecycle
 
-    // MARK: - Init
-
     init(viewModel: ReviewAddBookViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -71,7 +65,7 @@ final class ReviewAddBookViewController: BaseViewController {
 
     // MARK: - Functions
 
-    // MARK: - Internal
+    // MARK: - OCR 결과 반영 (수정됨)
 
     func appendBook(_ book: Book) {
         guard !addedBookTitles.contains(book.title) else {
@@ -79,6 +73,22 @@ final class ReviewAddBookViewController: BaseViewController {
         }
         addedBookTitles.insert(book.title)
         viewModel.appendBook(book)
+    }
+
+    func appendOCRResult(_ recognizedText: String) {
+        guard !recognizedText.isEmpty else {
+            return
+        }
+
+        let book = Book(
+            isbn: "",
+            title: recognizedText,
+            author: "알 수 없음",
+            publisher: "알 수 없음",
+            thumbnailUrl: nil
+        )
+
+        appendBook(book)
     }
 
     // MARK: - UI Setup
@@ -204,19 +214,15 @@ final class ReviewAddBookViewController: BaseViewController {
 final class BookCell: UICollectionViewCell {
     // MARK: - Static Properties
 
-    // MARK: - Internal
-
     static let identifier = "BookCell"
 
     // MARK: - Properties
-
-    // MARK: - Private
 
     private let bookImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 4
         $0.clipsToBounds = true
-        $0.backgroundColor = UIColor.lightGray.withAlphaComponent(0.05) // ✅ 투명 회색 배경
+        $0.backgroundColor = UIColor.lightGray.withAlphaComponent(0.05)
     }
 
     private let titleLabel = UILabel().then {
@@ -224,7 +230,7 @@ final class BookCell: UICollectionViewCell {
         $0.textColor = .black
         $0.numberOfLines = 2
         $0.textAlignment = .left
-        $0.adjustsFontSizeToFitWidth = true // ✅ 글자 크기 자동 조정
+        $0.adjustsFontSizeToFitWidth = true
         $0.minimumScaleFactor = 0.9
     }
 
@@ -232,7 +238,7 @@ final class BookCell: UICollectionViewCell {
         $0.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         $0.textColor = .darkGray
         $0.textAlignment = .left
-        $0.adjustsFontSizeToFitWidth = true // ✅ 글자 크기 자동 조정
+        $0.adjustsFontSizeToFitWidth = true
         $0.minimumScaleFactor = 0.9
     }
 

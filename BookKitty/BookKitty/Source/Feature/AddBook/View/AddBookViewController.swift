@@ -5,50 +5,39 @@
 //  Created by 반성준 on 2/5/25.
 //
 
+import AVFoundation
+import BookMatchKit
 import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
 import UIKit
+import Vision
 
 final class AddBookViewController: BaseCameraViewController {
     // MARK: - Properties
 
-    // MARK: - Private
+    // MARK: - UI Components
 
-    // MARK: - Private Properties
-
-    private let viewModel: AddBookViewModel
-    private let manualTitleRelay = PublishRelay<String>()
-    private let confirmButtonRelay = PublishRelay<Void>()
-    private var addedBookTitles = Set<String>()
-
-    /// ✅ ReviewAddBookViewController 인스턴스 (재사용 목적)
-    private var reviewViewController: ReviewAddBookViewController?
-
-    /// ✅ "새로운 책 추가하기" 타이틀
-    private let titleLabel = UILabel().then {
+    fileprivate let titleLabel = UILabel().then {
         $0.text = "새로운 책 추가하기"
         $0.font = UIFont.systemFont(ofSize: 22, weight: .bold)
         $0.textAlignment = .center
     }
 
-    /// ✅ 402x402 크기의 카메라 화면 컨테이너
-    private let cameraContainerView = UIView().then {
+    fileprivate let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.layer.cornerRadius = 10
         $0.clipsToBounds = true
     }
 
-    /// ✅ 카메라 아래 투명한 노란 박스
-    private let yellowInfoView = UIView().then {
+    fileprivate let yellowInfoView = UIView().then {
         $0.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.4)
         $0.layer.cornerRadius = 10
     }
 
-    /// ✅ 안내 문구 (노란 박스 안에 배치)
-    private let infoLabel = UILabel().then {
+    fileprivate let infoLabel = UILabel().then {
         $0.text = "책의 정보를 파악할 수 있는 책 한 권의 겉면\n혹은 여러 권의 책이 꽂혀 있는 책장의 사진을 찍어주세요."
         $0.textAlignment = .center
         $0.numberOfLines = 2
@@ -56,13 +45,28 @@ final class AddBookViewController: BaseCameraViewController {
         $0.textColor = .black
     }
 
-    // MARK: - Lifecycle
+    private let viewModel: AddBookViewModel
+    private let manualTitleRelay = PublishRelay<String>()
+    private let confirmButtonRelay = PublishRelay<Void>()
+    private var addedBookTitles = Set<String>()
+    private let bookMatchKit = BookMatchKit(
+        naverClientId: "emT6GVaVUMCyF7CSqifr",
+        naverClientSecret: "eIjwLMH9ZS"
+    )
 
-    // MARK: - Init
+    /// ✅ ReviewAddBookViewController 인스턴스 (재사용 목적)
+    private var reviewViewController: ReviewAddBookViewController?
+
+    // MARK: - Lifecycle
 
     init(viewModel: AddBookViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
+
+        // ✅ OCR 결과를 자동으로 manualTitleRelay에 전달
+        ocrTextHandler = { [weak self] recognizedText in
+            self?.manualTitleRelay.accept(recognizedText)
+        }
     }
 
     @available(*, unavailable)
@@ -89,7 +93,7 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: - 네비게이션 바 설정
 
-    private func setupNavigationBar() {
+    fileprivate func setupNavigationBar() {
         navigationController?.navigationBar.isHidden = false
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -109,7 +113,7 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: - UI Setup
 
-    private func setupUI() {
+    fileprivate func setupUI() {
         view.backgroundColor = .white
 
         view.addSubview(titleLabel)
@@ -120,7 +124,7 @@ final class AddBookViewController: BaseCameraViewController {
         view.addSubview(captureButton)
     }
 
-    private func setupConstraints() {
+    fileprivate func setupConstraints() {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
             $0.centerX.equalToSuperview()
@@ -137,7 +141,7 @@ final class AddBookViewController: BaseCameraViewController {
         }
 
         yellowInfoView.snp.makeConstraints {
-            $0.top.equalTo(cameraContainerView.snp.bottom).offset(0)
+            $0.top.equalTo(cameraContainerView.snp.bottom)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(402)
             $0.height.equalTo(100)
@@ -157,7 +161,7 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: - ViewModel Binding
 
-    private func bindViewModel() {
+    fileprivate func bindViewModel() {
         let input = AddBookViewModel.Input(
             captureButtonTapped: captureButton.rx.tap.asObservable(),
             manualAddButtonTapped: manualTitleRelay.asObservable(),
@@ -181,9 +185,9 @@ final class AddBookViewController: BaseCameraViewController {
             .disposed(by: disposeBag)
     }
 
-    // MARK: - Navigation
+    // MARK: - 화면 이동
 
-    private func navigateToReviewScene(with book: Book) {
+    fileprivate func navigateToReviewScene(with book: Book) {
         guard !addedBookTitles.contains(book.title) else {
             return
         }
@@ -199,9 +203,9 @@ final class AddBookViewController: BaseCameraViewController {
         }
     }
 
-    // MARK: - Show Manual Title Input
+    // MARK: - 수동 입력 추가
 
-    private func showManualTitleInput() {
+    fileprivate func showManualTitleInput() {
         let alert = UIAlertController(
             title: "책 제목 입력",
             message: "책 제목을 입력해주세요.",
@@ -221,10 +225,10 @@ final class AddBookViewController: BaseCameraViewController {
                 self?.navigateToReviewScene(with: book)
             }
         }
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
 
         alert.addAction(addAction)
-        alert.addAction(cancelAction)
+        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
+
         present(alert, animated: true)
     }
 

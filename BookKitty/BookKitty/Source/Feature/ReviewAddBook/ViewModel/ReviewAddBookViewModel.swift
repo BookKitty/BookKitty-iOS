@@ -12,8 +12,6 @@ import RxSwift
 final class ReviewAddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
     struct Input {
         let confirmButtonTapped: Observable<Void>
         let addBookWithTitleTapped: Observable<String>
@@ -22,14 +20,13 @@ final class ReviewAddBookViewModel: ViewModelType {
 
     struct Output {
         let navigateToBookList: Observable<Void>
-        let bookList: BehaviorRelay<[Book]>
+        let bookList: Observable<[Book]>
     }
 
     // MARK: - Properties
 
     let disposeBag = DisposeBag()
 
-    /// ✅ 네비게이션 이벤트
     let navigateToBookListRelay = PublishRelay<Void>()
 
     // MARK: - Private
@@ -39,8 +36,6 @@ final class ReviewAddBookViewModel: ViewModelType {
 
     // MARK: - Lifecycle
 
-    // MARK: - Init
-
     init(initialBookList: [Book] = []) {
         bookListRelay.accept(initialBookList)
         addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
@@ -49,18 +44,21 @@ final class ReviewAddBookViewModel: ViewModelType {
     // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
+        // ✅ 확인 버튼 탭 시 화면 전환
         input.confirmButtonTapped
             .bind(to: navigateToBookListRelay)
             .disposed(by: disposeBag)
 
+        // ✅ 책 제목 추가
         input.addBookWithTitleTapped
             .subscribe(onNext: { [weak self] title in
                 self?.appendBook(with: title)
             })
             .disposed(by: disposeBag)
 
+        // ✅ 책 삭제
         input.deleteBookTapped
-            .withLatestFrom(bookListRelay) { index, bookList -> [Book] in
+            .withLatestFrom(bookListRelay) { index, bookList in
                 var newList = bookList
                 if index < newList.count {
                     let removedTitle = newList[index].title
@@ -74,12 +72,26 @@ final class ReviewAddBookViewModel: ViewModelType {
 
         return Output(
             navigateToBookList: navigateToBookListRelay.asObservable(),
-            bookList: bookListRelay
+            bookList: bookListRelay.asObservable()
         )
     }
 
-    /// ✅ 새로운 책 추가 메서드
-    func appendBook(with title: String) {
+    /// ✅ 새로운 책 추가 (Book 객체로)
+    func appendBook(_ book: Book) {
+        guard !addedBookTitles.contains(book.title) else {
+            return
+        } // ✅ 중복 방지
+        addedBookTitles.insert(book.title)
+
+        var currentList = bookListRelay.value
+        currentList.append(book)
+        bookListRelay.accept(currentList)
+    }
+
+    // MARK: - Private Methods
+
+    /// ✅ 새로운 책 추가 (제목으로)
+    private func appendBook(with title: String) {
         guard !addedBookTitles.contains(title) else {
             return
         } // ✅ 중복 방지
@@ -95,18 +107,6 @@ final class ReviewAddBookViewModel: ViewModelType {
 
         var currentList = bookListRelay.value
         currentList.append(newBook)
-        bookListRelay.accept(currentList)
-    }
-
-    /// ✅ `Book` 객체를 직접 추가하는 오버로드 메서드
-    func appendBook(_ book: Book) {
-        guard !addedBookTitles.contains(book.title) else {
-            return
-        } // ✅ 중복 방지
-        addedBookTitles.insert(book.title)
-
-        var currentList = bookListRelay.value
-        currentList.append(book)
         bookListRelay.accept(currentList)
     }
 }

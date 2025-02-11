@@ -11,13 +11,10 @@ import RxSwift
 import SnapKit
 import Then
 import UIKit
+import Vision
 
 final class BookCaptureViewController: BaseCameraViewController {
     // MARK: - Properties
-
-    // MARK: - Private
-
-    // MARK: - Private Properties
 
     private let viewModel: BookCaptureViewModel
     private let enteredTitle = PublishSubject<String>()
@@ -46,13 +43,9 @@ final class BookCaptureViewController: BaseCameraViewController {
     }
 
     private let confirmButton = RoundButton(title: "확인")
-
-    /// ✅ `lazy var`를 사용하여 **한 번만 생성**
     private lazy var customCaptureButton = CircleIconButton(iconId: "camera.fill")
 
     // MARK: - Lifecycle
-
-    // MARK: - Init
 
     init(viewModel: BookCaptureViewModel) {
         self.viewModel = viewModel
@@ -71,9 +64,16 @@ final class BookCaptureViewController: BaseCameraViewController {
         bindViewModel()
     }
 
-    // MARK: - Functions
+    // MARK: - Overridden Functions
 
-    // MARK: - UI Setup
+    override func handleCapturedImage(_ image: UIImage) {
+        recognizeText(from: image) { [weak self] recognizedText in
+            let bookTitles = recognizedText.components(separatedBy: "\n").filter { !$0.isEmpty }
+            self?.viewModel.addCapturedBooks(bookTitles)
+        }
+    }
+
+    // MARK: - Functions
 
     private func setupUI() {
         view.backgroundColor = .white
@@ -119,8 +119,6 @@ final class BookCaptureViewController: BaseCameraViewController {
         }
     }
 
-    // MARK: - ViewModel Binding
-
     private func bindViewModel() {
         let input = BookCaptureViewModel.Input(
             captureButtonTapped: customCaptureButton.rx.tap.asObservable(),
@@ -135,7 +133,7 @@ final class BookCaptureViewController: BaseCameraViewController {
             .bind { [weak self] bookList in
                 self?.navigateToReview(bookList: bookList)
             }
-            .disposed(by: disposeBag) // ✅ 불필요한 옵셔널 언래핑 제거
+            .disposed(by: disposeBag)
 
         output.showTitleInputPopup
             .bind { [weak self] in
@@ -149,6 +147,31 @@ final class BookCaptureViewController: BaseCameraViewController {
             })
             .disposed(by: disposeBag)
     }
+
+    private func recognizeText(from image: UIImage, completion: @escaping (String) -> Void) {
+        guard let cgImage = image.cgImage else {
+            return
+        }
+
+        let request = VNRecognizeTextRequest { request, _ in
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                return
+            }
+
+            let recognizedText = observations
+                .compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: "\n")
+
+            DispatchQueue.main.async {
+                completion(recognizedText)
+            }
+        }
+
+        let handler = VNImageRequestHandler(cgImage: cgImage)
+        try? handler.perform([request])
+    }
+
+    // MARK: - 화면 이동
 
     private func navigateToReview(bookList: [String]) {
         let books = bookList.map { title in
@@ -165,6 +188,8 @@ final class BookCaptureViewController: BaseCameraViewController {
         let reviewViewController = ReviewAddBookViewController(viewModel: reviewViewModel)
         navigationController?.pushViewController(reviewViewController, animated: true)
     }
+
+    // MARK: - 수동 입력 추가
 
     private func showTitleInputPopup() {
         let alert = UIAlertController(
