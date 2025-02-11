@@ -14,11 +14,11 @@ struct ChatGPTEndpoint: Endpoint {
     var path = "/v1/chat/completions"
     var method = HTTPMethod.post
 
-    let model: String
-    let temperature: Double
-    let maxTokens: Int
-    let messages: [ChatMessage]
-    let configuration: APIConfiguration
+    private let model: String
+    private let temperature: Double
+    private let maxTokens: Int
+    private let messages: [ChatMessage]
+    private let configuration: APIConfiguration
 
     // MARK: - Computed Properties
 
