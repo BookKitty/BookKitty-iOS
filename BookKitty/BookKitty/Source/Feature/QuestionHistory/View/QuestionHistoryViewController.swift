@@ -57,7 +57,7 @@ final class QuestionHistoryViewController: BaseViewController {
 
     override func bind() {
         let input = QuestionHistoryViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
+            viewWillAppear: viewWillAppearRelay.asObservable(),
             questionSelected: questionTableView.rx.modelSelected(QuestionAnswer.self)
                 .asObservable(),
             reachedScrollEnd: questionTableView.rx.reachedBottom()

@@ -19,7 +19,7 @@ final class QuestionHistoryViewModel: ViewModelType {
 
     /// ViewModel의 입력(Input) 구조체
     struct Input {
-        let viewDidLoad: Observable<Void> // 뷰가 로드될 때 트리거되는 옵저버블
+        let viewWillAppear: Observable<Void> // 뷰가 나타날 때 트리거되는 옵저버블
         let questionSelected: Observable<QuestionAnswer> // 질문이 선택될 때 트리거되는 옵저버블
         let reachedScrollEnd: Observable<Void> // 스크롤이 끝에 도달했을 때 트리거되는 옵저버블
     }
@@ -49,7 +49,8 @@ final class QuestionHistoryViewModel: ViewModelType {
     private var isLoading = false
 
     /// 질문 목록을 저장하는 BehaviorRelay (초기값은 빈 배열)
-    private let fetchedQuestions = BehaviorRelay<[QuestionAnswer]>(value: [])
+    private let fetchedQuestionsRelay = BehaviorRelay<[QuestionAnswer]>(value: [])
+    private var questions: [QuestionAnswer] = []
 
     // MARK: - Lifecycle
 
@@ -65,21 +66,28 @@ final class QuestionHistoryViewModel: ViewModelType {
     /// - Parameter input: ViewController에서 전달하는 Input 구조체
     /// - Returns: Output 구조체
     func transform(_ input: Input) -> Output {
+        // TODO: 3번이나 fetch가 불림. 해결 필요
         // 선택된 질문을 네비게이션 릴레이에 바인딩하여 상세 화면으로 이동할 수 있도록 설정
         input.questionSelected
             .bind(to: navigateToQuestionDetail)
             .disposed(by: disposeBag)
 
-        // 뷰가 로드될 때 질문 데이터를 가져와서 fetchedQuestions에 저장
-        input.viewDidLoad
+        // 뷰가 새로 나타날 때 데이터 새로 로드
+        input.viewWillAppear
             .withUnretained(self)
             .flatMapLatest { owner, _ in
-                owner.questionHistoryRepository.fetchQuestions(
+                owner.questions.removeAll()
+                owner.offset = 0
+                return owner.questionHistoryRepository.fetchQuestions(
                     offset: owner.offset,
                     limit: owner.limit
                 )
             }
-            .bind(to: fetchedQuestions)
+            .map { fetchedQuestions in
+                self.questions.append(contentsOf: fetchedQuestions)
+                return self.questions
+            }
+            .bind(to: fetchedQuestionsRelay)
             .disposed(by: disposeBag)
 
         // 스크롤이 끝에 도달했을 때 추가 질문을 로드 (isLoading이 false일 때만 실행)
@@ -95,11 +103,15 @@ final class QuestionHistoryViewModel: ViewModelType {
                 )
             }
             .do(onCompleted: { [weak self] in self?.isLoading = false }) // API 호출이 끝나면 로딩 상태 해제
-            .bind(to: fetchedQuestions)
+            .map { fetchedQuestions in
+                self.questions.append(contentsOf: fetchedQuestions)
+                return self.questions
+            }
+            .bind(to: fetchedQuestionsRelay)
             .disposed(by: disposeBag)
 
         return Output(
-            questions: fetchedQuestions.asDriver() // 질문 목록을 드라이버 형태로 반환하여 UI에서 활용 가능하도록 설정
+            questions: fetchedQuestionsRelay.asDriver() // 질문 목록을 드라이버 형태로 반환하여 UI에서 활용 가능하도록 설정
         )
     }
 }
