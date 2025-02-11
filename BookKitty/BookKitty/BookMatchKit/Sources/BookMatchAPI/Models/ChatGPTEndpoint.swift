@@ -1,5 +1,5 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct ChatGPTEndpoint: Endpoint {
     // MARK: - Nested Types

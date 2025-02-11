@@ -1,6 +1,6 @@
 import BookMatchCore
 import Foundation
-import Network
+import NetworkKit
 import RxSwift
 import UIKit
 

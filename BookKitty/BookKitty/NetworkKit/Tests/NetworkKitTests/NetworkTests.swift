@@ -1,5 +1,5 @@
 import Foundation
-@testable import Network
+@testable import NetworkKit
 import RxSwift
 import Testing
 

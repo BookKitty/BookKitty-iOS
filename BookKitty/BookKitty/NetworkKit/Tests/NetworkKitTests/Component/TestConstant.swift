@@ -6,7 +6,7 @@
 //
 
 import Foundation
-@testable import Network
+@testable import NetworkKit
 
 enum TestConstant {
     static let url = URL(string: "https://example.com")!
