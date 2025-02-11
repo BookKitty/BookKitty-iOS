@@ -30,7 +30,7 @@ class HomeViewController: BaseViewController {
     private let viewModel: HomeViewModel
 
     private let copyrightLabel = CaptionLabel().then {
-        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
+        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전성규"
         $0.textColor = Colors.fontSub1
         $0.textAlignment = .center
     }

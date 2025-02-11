@@ -120,11 +120,13 @@ final class QuestionResultViewModel: ViewModelType {
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
                         // TODO: 에러 받아서 처리하기
-                        let output = await self.recommendationService.recommendBooks(
+                        self.recommendationService.recommendBooks(
                             for: self.userQuestion,
                             from: ownedBooks
                         )
-                        observer.onNext((self.userQuestion, output)) // 결과 방출
+                        .subscribe(onSuccess: { result in
+                            observer.onNext((self.userQuestion, result))
+                        }) // 결과 방출
                     }
                     return Disposables.create {
                         task.cancel() // 작업 취소
