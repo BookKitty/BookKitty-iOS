@@ -20,7 +20,7 @@ public protocol Endpoint: Requestable, Responseable {
     var method: HTTPMethod { get }
 
     /// HTTP 요청 헤더
-    var heaerFields: [String: String] { get }
+    var headerFields: [String: String] { get }
 
     /// URL 쿼리 파라미터 배열
     var queryItems: [URLQueryItem] { get }
@@ -46,7 +46,7 @@ extension Endpoint {
 
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
-        request.allHTTPHeaderFields = heaerFields
+        request.allHTTPHeaderFields = headerFields
         request.timeoutInterval = timeoutInterval
         request.httpBody = data
 

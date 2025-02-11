@@ -27,7 +27,7 @@ struct TestEndpoint: Endpoint {
 
     var method = Network.HTTPMethod.get
 
-    var heaerFields: [String: String] = [:]
+    var headerFields: [String: String] = [:]
 
     var timeoutInterval: TimeInterval = 30
 

@@ -18,6 +18,7 @@ final class QuestionDetailViewModel: ViewModelType {
     struct Input {
         let viewDidLoad: Observable<Void>
         let deleteButtonTapped: Observable<Void>
+        let backButtonTapped: Observable<Void>
         let bookTapped: Observable<Book>
     }
 
@@ -76,6 +77,10 @@ final class QuestionDetailViewModel: ViewModelType {
                     .deleteQuestionAnswer(uuid: self.questionAnswer.id)
                 self.dismissViewController.accept(())
             }
+            .disposed(by: disposeBag)
+
+        input.backButtonTapped
+            .bind(to: dismissViewController)
             .disposed(by: disposeBag)
 
         input.bookTapped

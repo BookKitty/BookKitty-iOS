@@ -4,11 +4,13 @@ import NetworkKit
 struct ImageDownloadEndpoint: Endpoint {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
     typealias Response = Data
 
     // MARK: - Properties
+
+    var path = ""
+
+    var method = HTTPMethod.get
 
     // MARK: - Private
 
@@ -18,15 +20,13 @@ struct ImageDownloadEndpoint: Endpoint {
 
     // MARK: Endpoint Protocol
 
+    /// Cannot use instance member 'urlString' within property initializer; property initializers
+    /// run before 'self' is available
     var baseURL: String {
         urlString
     }
 
-    var path: String { "" }
-
-    var method: HTTPMethod { .get }
-
-    var heaerFields: [String: String] { [:] }
+    var headerFields: [String: String] { [:] }
 
     var queryItems: [URLQueryItem] { [] }
 
@@ -35,8 +35,6 @@ struct ImageDownloadEndpoint: Endpoint {
     var data: Data? { nil }
 
     // MARK: - Lifecycle
-
-    // MARK: Initialization
 
     init(urlString: String) {
         self.urlString = urlString
