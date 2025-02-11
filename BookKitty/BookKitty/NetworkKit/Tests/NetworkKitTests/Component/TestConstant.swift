@@ -6,7 +6,7 @@
 //
 
 import Foundation
-@testable import Network
+@testable import NetworkKit
 
 enum TestConstant {
     static let url = URL(string: "https://example.com")!
@@ -19,7 +19,11 @@ struct TestCodableType: Codable, Equatable {
 }
 
 struct TestEndpoint: Endpoint {
+    // MARK: - Nested Types
+
     typealias Response = TestCodableType
+
+    // MARK: - Properties
 
     var method = Network.HTTPMethod.get
 

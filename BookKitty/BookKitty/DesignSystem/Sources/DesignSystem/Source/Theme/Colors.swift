@@ -27,6 +27,8 @@ public enum SystemColorRamps: String {
 }
 
 public enum Colors {
+    // MARK: - Static Computed Properties
+
     // MARK: - Background Color
 
     public static var background0: UIColor { UIColor.designSystemColor(name: "Background0") }
@@ -67,6 +69,8 @@ public enum Colors {
     public static var statusGreen: UIColor { UIColor.designSystemColor(name: "StatusGreen") }
     public static var statusRed: UIColor { UIColor.designSystemColor(name: "StatusRed") }
     public static var statusYellow: UIColor { UIColor.designSystemColor(name: "StatusYellow") }
+
+    // MARK: - Static Functions
 
     // MARK: - System Color
 

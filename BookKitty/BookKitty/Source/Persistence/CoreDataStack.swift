@@ -8,7 +8,21 @@
 import CoreData
 
 final class CoreDataStack {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Internal
+
+    static let shared = CoreDataStack()
+
+    // MARK: - Properties
+
+    var persistentContainer: NSPersistentContainer
+
+    // MARK: - Computed Properties
+
+    var context: NSManagedObjectContext { persistentContainer.viewContext }
+
+    // MARK: - Lifecycle
 
     private init() {
         persistentContainer = NSPersistentContainer(name: "MyAppModel") // 모델 파일명
@@ -19,13 +33,7 @@ final class CoreDataStack {
         }
     }
 
-    // MARK: Internal
-
-    static let shared = CoreDataStack()
-
-    var persistentContainer: NSPersistentContainer
-
-    var context: NSManagedObjectContext { persistentContainer.viewContext }
+    // MARK: - Functions
 
     func save() {
         guard context.hasChanges else {

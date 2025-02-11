@@ -10,22 +10,9 @@ import Then
 import UIKit
 
 public class TitleInputPopupView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    public init() {
-        super.init(frame: .zero)
-
-        setupViews()
-        setupProperties()
-        setupLayouts()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Public
+    // MARK: - Public
 
     public let cancelButton = RoundButton(title: "취소", isSecondary: true)
     public let confirmButton = RoundButton()
@@ -39,7 +26,7 @@ public class TitleInputPopupView: UIView {
 
     public let bookTitleInput = CustomInput()
 
-    // MARK: Private
+    // MARK: - Private
 
     private let iconImageView = UIImageView().then {
         $0.preferredSymbolConfiguration = .init(pointSize: Vars.viewSizeSmall, weight: .regular)
@@ -51,6 +38,21 @@ public class TitleInputPopupView: UIView {
     private let messageLabel = BodyLabel(weight: .semiBold).then {
         $0.textAlignment = .center
         $0.text = "책 제목으로 직접 추가하기"
+    }
+
+    // MARK: - Lifecycle
+
+    public init() {
+        super.init(frame: .zero)
+
+        setupViews()
+        setupProperties()
+        setupLayouts()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
 

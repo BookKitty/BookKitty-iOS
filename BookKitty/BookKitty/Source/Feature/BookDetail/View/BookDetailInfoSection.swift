@@ -9,7 +9,17 @@ import DesignSystem
 import UIKit
 
 final class BookDetailInfoSection: UIStackView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let inforView = BookDetailInfoView()
+
+    // MARK: - Private
+
+    private let titleLabel = TitleLabel(weight: .extraBold).then { $0.text = "책 정보" }
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,13 +33,7 @@ final class BookDetailInfoSection: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    let inforView = BookDetailInfoView()
-
-    // MARK: Private
-
-    private let titleLabel = TitleLabel(weight: .extraBold).then { $0.text = "책 정보" }
+    // MARK: - Functions
 
     private func configureUI() {
         axis = .vertical

@@ -10,15 +10,25 @@ import RxSwift
 
 /// 네트워크 기능을 수행하는 객체
 public final class NetworkManager: NetworkManageable {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Public
+
+    public static let shared = NetworkManager()
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let session: URLSession
+
+    // MARK: - Lifecycle
 
     init(configuration: URLSessionConfiguration = .default) {
         session = URLSession(configuration: configuration)
     }
 
-    // MARK: Public
-
-    public static let shared = NetworkManager()
+    // MARK: - Functions
 
     public func request<T: Endpoint>(_ endpoint: T) -> Single<T.Response?> {
         Single.create { observer in
@@ -50,10 +60,6 @@ public final class NetworkManager: NetworkManageable {
             return Disposables.create()
         }
     }
-
-    // MARK: Private
-
-    private let session: URLSession
 }
 
 // MARK: - Private

@@ -9,7 +9,13 @@ import SnapKit
 import UIKit
 
 public class TextButton: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var title: String
+
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -32,10 +38,6 @@ public class TextButton: UIButton {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Internal
-
-    var title: String
 }
 
 // MARK: - Setup UI

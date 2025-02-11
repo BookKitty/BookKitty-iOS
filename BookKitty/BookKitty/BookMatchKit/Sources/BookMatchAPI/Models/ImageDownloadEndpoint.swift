@@ -1,18 +1,20 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct ImageDownloadEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    // MARK: Initialization
-
-    init(urlString: String) {
-        self.urlString = urlString
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = Data
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let urlString: String
+
+    // MARK: - Computed Properties
 
     // MARK: Endpoint Protocol
 
@@ -32,7 +34,11 @@ struct ImageDownloadEndpoint: Endpoint {
 
     var data: Data? { nil }
 
-    // MARK: Private
+    // MARK: - Lifecycle
 
-    private let urlString: String
+    // MARK: Initialization
+
+    init(urlString: String) {
+        self.urlString = urlString
+    }
 }

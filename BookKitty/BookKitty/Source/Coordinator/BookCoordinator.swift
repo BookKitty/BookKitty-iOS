@@ -1,10 +1,9 @@
 //
-//  BookCoordinator.swift
-//  BookKitty
+// BookCoordinator.swift
+// BookKitty
 //
-//  Created by 전성규 on 1/27/25.
+// Created by 전성규 on 1/27/25.
 //
-
 import RxSwift
 import UIKit
 
@@ -12,7 +11,22 @@ import UIKit
 ///
 /// `BookCoordinator`는 책 목록과 책 상세 화면 간의 흐름을 관리
 final class BookCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    weak var finishDelegate: CoordinatorFinishDelegate?
+    var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
+    var navigationController: UINavigationController
+    var myLibraryViewController: MyLibraryViewController
+    var myLibraryViewModel: MyLibraryViewModel
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -20,21 +34,9 @@ final class BookCoordinator: Coordinator {
         myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
     }
 
-    // MARK: Internal
-
-    var parentCoordinator: Coordinator?
-    var childCoordinators: [Coordinator] = []
-
-    var navigationController: UINavigationController
-    var myLibraryViewController: MyLibraryViewController
-
-    var myLibraryViewModel: MyLibraryViewModel
+    // MARK: - Functions
 
     func start() { showMyLibraryScene() }
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
 }
 
 extension BookCoordinator {
@@ -58,7 +60,6 @@ extension BookCoordinator {
     private func showBookDetailScreen() {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
-
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
 }

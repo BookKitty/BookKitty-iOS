@@ -10,7 +10,16 @@ import Then
 import UIKit
 
 public class RecommendedBookView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let tagLabel: OwnedTagLabel
+    let bookImageView: HeightFixedImageView
+    let bookTitleLabel: BodyLabel
+    let bookAuthorLabel: CaptionLabel
+
+    // MARK: - Lifecycle
 
     public init(
         bookTitle: String,
@@ -43,14 +52,16 @@ public class RecommendedBookView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
-
     override public func layoutSubviews() {
         super.layoutSubviews()
 
         setupLayouts()
         setupProperties()
     }
+
+    // MARK: - Functions
+
+    // MARK: - Public
 
     public func configureView(
         bookTitle: String,
@@ -63,13 +74,6 @@ public class RecommendedBookView: UIView {
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = bookAuthor
     }
-
-    // MARK: Internal
-
-    let tagLabel: OwnedTagLabel
-    let bookImageView: HeightFixedImageView
-    let bookTitleLabel: BodyLabel
-    let bookAuthorLabel: CaptionLabel
 }
 
 // MARK: - UI Configure

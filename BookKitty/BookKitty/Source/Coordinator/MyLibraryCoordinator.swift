@@ -1,10 +1,9 @@
 //
-//  MyLibraryCoordinator.swift
-//  BookKitty
+// MyLibraryCoordinator.swift
+// BookKitty
 //
-//  Created by 전성규 on 1/27/25.
+// Created by 전성규 on 1/27/25.
 //
-
 import RxSwift
 import UIKit
 
@@ -12,30 +11,33 @@ import UIKit
 ///
 /// `MyLibraryCoordinator`는 책 목록과 책 상세 화면 간의 흐름을 관리
 final class MyLibraryCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    weak var finishDelegate: CoordinatorFinishDelegate?
+    var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
+    var navigationController: UINavigationController
+    var myLibraryViewController: MyLibraryViewController
+    var myLibraryViewModel: MyLibraryViewModel
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
         let repository = MockBookRepository()
-        bookListViewModel = MyLibraryViewModel(bookRepository: repository)
-        bookListViewController = MyLibraryViewController(viewModel: bookListViewModel)
+        myLibraryViewModel = MyLibraryViewModel(bookRepository: repository)
+        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
     }
 
-    // MARK: Internal
-
-    var parentCoordinator: Coordinator?
-    var childCoordinators: [Coordinator] = []
-
-    var navigationController: UINavigationController
-    var bookListViewController: MyLibraryViewController
-
-    var bookListViewModel: MyLibraryViewModel
+    // MARK: - Functions
 
     func start() { showMyLibraryScreen() }
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
 }
 
 extension MyLibraryCoordinator {
@@ -44,10 +46,6 @@ extension MyLibraryCoordinator {
     /// 책 목록 화면을 생성하고 ViewModel과 ViewController를 연결
     /// 사용자가 책을 선택하면 책 상세 화면으로 이동
     private func showMyLibraryScreen() {
-        let bookRepository = MockBookRepository()
-        let myLibraryViewModel = MyLibraryViewModel(bookRepository: bookRepository)
-        let myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
-
         // 책 상세 화면으로 이동 이벤트 처리
         myLibraryViewModel.navigateToBookDetail
             .withUnretained(self)
@@ -55,7 +53,6 @@ extension MyLibraryCoordinator {
                 coordinator.showBookDetailScreen(with: book)
             })
             .disposed(by: disposeBag)
-
         navigationController.pushViewController(myLibraryViewController, animated: true)
     }
 
@@ -67,7 +64,12 @@ extension MyLibraryCoordinator {
     private func showBookDetailScreen(with _: Book) {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
-
+        bookDetailViewModel.navigateBackRelay
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
 }

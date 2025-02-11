@@ -9,7 +9,27 @@ import SnapKit
 import UIKit
 
 public class Headline3Label: UILabel {
-    // MARK: Lifecycle
+    // MARK: - Overridden Properties
+
+    // MARK: - Public
+
+    override public var text: String? {
+        didSet { updateAttributes() }
+    }
+
+    override public var textColor: UIColor? {
+        didSet { updateAttributes() }
+    }
+
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    var weight: FontWeight {
+        didSet { updateAttributes() }
+    }
+
+    // MARK: - Lifecycle
 
     public init(weight: FontWeight = .regular) {
         self.weight = weight
@@ -21,22 +41,6 @@ public class Headline3Label: UILabel {
     @available(*, unavailable)
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Public
-
-    override public var text: String? {
-        didSet { updateAttributes() }
-    }
-
-    override public var textColor: UIColor? {
-        didSet { updateAttributes() }
-    }
-
-    // MARK: Internal
-
-    var weight: FontWeight {
-        didSet { updateAttributes() }
     }
 }
 

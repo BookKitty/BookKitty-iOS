@@ -1,24 +1,20 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct NaverBooksEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    // MARK: - Initialization
-
-    init(query: String, limit: Int, configuration: APIConfiguration) {
-        self.query = query
-        self.limit = limit
-        self.configuration = configuration
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = NaverBooksResponse
+
+    // MARK: - Properties
 
     let query: String
     let limit: Int
     let configuration: APIConfiguration
+
+    // MARK: - Computed Properties
 
     // MARK: - Endpoint Protocol
 
@@ -46,4 +42,14 @@ struct NaverBooksEndpoint: Endpoint {
     var timeoutInterval: TimeInterval { 30.0 } // 기본 30초 타임아웃
 
     var data: Data? { nil } // GET 요청이므로 body 데이터 없음
+
+    // MARK: - Lifecycle
+
+    // MARK: - Initialization
+
+    init(query: String, limit: Int, configuration: APIConfiguration) {
+        self.query = query
+        self.limit = limit
+        self.configuration = configuration
+    }
 }

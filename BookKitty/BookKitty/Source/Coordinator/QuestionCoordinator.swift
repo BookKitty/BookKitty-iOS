@@ -1,10 +1,9 @@
 //
-//  QuestionCoordinator.swift
-//  BookKitty
+// QuestionCoordinator.swift
+// BookKitty
 //
-//  Created by 전성규 on 1/26/25.
+// Created by 전성규 on 1/26/25.
 //
-
 import RxRelay
 import RxSwift
 import UIKit
@@ -17,7 +16,22 @@ protocol QuestionCoordinator: Coordinator {
 ///
 /// `QuestionCoordinator`는 질문 기록, 질문 상세, 책 상세와 같은 화면 전환을 관리.
 final class DefaultQuestionCoordinator: QuestionCoordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    weak var finishDelegate: CoordinatorFinishDelegate?
+    var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
+    var navigationController: UINavigationController
+    var questionHistoryViewController: QuestionHistoryViewController
+    var questionHistoryViewModel: QuestionHistoryViewModel
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
@@ -29,21 +43,9 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
     }
 
-    // MARK: Internal
-
-    var parentCoordinator: Coordinator?
-    var childCoordinators: [Coordinator] = []
-
-    var navigationController: UINavigationController
-    var questionHistoryViewController: QuestionHistoryViewController
-
-    var questionHistoryViewModel: QuestionHistoryViewModel
+    // MARK: - Functions
 
     func start() { showQuestionHistoryScreen() }
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
 }
 
 extension DefaultQuestionCoordinator {
@@ -51,9 +53,6 @@ extension DefaultQuestionCoordinator {
     ///
     /// 질문 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionHistoryScreen() {
-        let questionHistoryViewModel =
-            QuestionHistoryViewModel(questionHistoryRepository: MockQuestionHistoryRepository())
-
         // 질문 상세 화면으로의 이동 이벤트 처리
         questionHistoryViewModel.navigateToQuestionDetail
             .withUnretained(self)
@@ -74,14 +73,12 @@ extension DefaultQuestionCoordinator {
         )
         let questionDetailViewController =
             QuestionDetailViewController(viewModel: questionDetailViewModel)
-
         // 책 상세 화면으로의 이동 이벤트 처리
         questionDetailViewModel.navigateToBookDetail
             .withUnretained(self)
             .subscribe(onNext: { coordinator, book in
                 coordinator.showBookDetailScreen(book)
             }).disposed(by: disposeBag)
-
         questionDetailViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(questionDetailViewController, animated: true)
     }
@@ -92,12 +89,16 @@ extension DefaultQuestionCoordinator {
     private func showBookDetailScreen(_: Book) {
         let bookDetailViewModel = BookDetailViewModel()
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
-
+        bookDetailViewModel.navigateBackRelay
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
-
     // TODO: 추후 커스텀 nav 구현 시 필요
-//    private func dismissBookDetailScreen() {
-//        navigationController.dismiss(animated: true)
-//    }
+    //  private func dismissBookDetailScreen() {
+//    navigationController.dismiss(animated: true)
+    //  }
 }

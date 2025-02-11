@@ -13,38 +13,9 @@ import Then
 import UIKit
 
 final class AddBookViewController: BaseCameraViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    // MARK: - Init
-
-    init(viewModel: AddBookViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Internal
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupNavigationBar()
-        setupUI()
-        setupConstraints()
-        bindViewModel()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
-        }
-    }
-
-    // MARK: Private
+    // MARK: - Private
 
     // MARK: - Private Properties
 
@@ -84,6 +55,37 @@ final class AddBookViewController: BaseCameraViewController {
         $0.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         $0.textColor = .black
     }
+
+    // MARK: - Lifecycle
+
+    // MARK: - Init
+
+    init(viewModel: AddBookViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupNavigationBar()
+        setupUI()
+        setupConstraints()
+        bindViewModel()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        DispatchQueue.main.async {
+            self.previewLayer?.frame = self.cameraView.bounds
+        }
+    }
+
+    // MARK: - Functions
 
     // MARK: - 네비게이션 바 설정
 

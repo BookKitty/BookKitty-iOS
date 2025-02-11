@@ -11,38 +11,9 @@ import Then
 import UIKit
 
 final class BookDetailInfoView: UIStackView {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        configureUI()
-        configureHierarchy()
-        configureLayout()
-    }
-
-    @available(*, unavailable)
-    required init(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Internal
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        configureLayout()
-    }
-
-    func setupData(with model: TestBookModel) {
-        bookThumbnailImageView.setupImage(imageLink: model.imageLink)
-        titleLabel.text = model.title
-        authorLabel.text = model.author
-        pubDateLabel.text = model.pubdate
-        isbnLabel.text = "ISBN: \(model.isbn)"
-        priceLabel.text = "가격 \(model.price)"
-    }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let topSpacingView = UIView()
 
@@ -84,6 +55,39 @@ final class BookDetailInfoView: UIStackView {
 
     private let trailingSpacingView = UIView()
     private let bottomSpacingView = UIView()
+
+    // MARK: - Lifecycle
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        configureUI()
+        configureHierarchy()
+        configureLayout()
+    }
+
+    @available(*, unavailable)
+    required init(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        configureLayout()
+    }
+
+    // MARK: - Functions
+
+    // MARK: - Internal
+
+    func setupData(with model: TestBookModel) {
+        bookThumbnailImageView.setupImage(imageLink: model.imageLink)
+        titleLabel.text = model.title
+        authorLabel.text = model.author
+        pubDateLabel.text = model.pubdate
+        isbnLabel.text = "ISBN: \(model.isbn)"
+        priceLabel.text = "가격 \(model.price)"
+    }
 
     private func configureUI() {
         axis = .vertical

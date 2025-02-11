@@ -12,7 +12,41 @@ import Testing
 
 @Suite()
 struct QuestionDetailViewModelTests {
-    // MARK: Internal
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private var deleteButtonTappedSubject = PublishSubject<Void>()
+    private var bookSelectedSubject = PublishSubject<Book>()
+
+    private let questionHistoryRepostiroy = MockQuestionHistoryRepository()
+
+    private let testQuestionAnswer = QuestionAnswer(
+        createdAt: Date(),
+        userQuestion: "유저 질문",
+        gptAnswer: "지피티 응답",
+        recommendedBooks: [
+            Book(
+                isbn: "102031923",
+                title: "책제목",
+                author: "저자",
+                publisher: "출판사",
+                thumbnailUrl: nil
+            ),
+        ]
+    )
+
+    private let testBook = Book(
+        isbn: "102031923",
+        title: "책제목",
+        author: "저자",
+        publisher: "출판사",
+        thumbnailUrl: nil
+    )
+
+    // MARK: - Functions
+
+    // MARK: - Internal
 
     @Test()
     func test_viewDidLoad_questionDate() async {
@@ -148,34 +182,4 @@ struct QuestionDetailViewModelTests {
             break
         }
     }
-
-    // MARK: Private
-
-    private var deleteButtonTappedSubject = PublishSubject<Void>()
-    private var bookSelectedSubject = PublishSubject<Book>()
-
-    private let questionHistoryRepostiroy = MockQuestionHistoryRepository()
-
-    private let testQuestionAnswer = QuestionAnswer(
-        createdAt: Date(),
-        userQuestion: "유저 질문",
-        gptAnswer: "지피티 응답",
-        recommendedBooks: [
-            Book(
-                isbn: "102031923",
-                title: "책제목",
-                author: "저자",
-                publisher: "출판사",
-                thumbnailUrl: nil
-            ),
-        ]
-    )
-
-    private let testBook = Book(
-        isbn: "102031923",
-        title: "책제목",
-        author: "저자",
-        publisher: "출판사",
-        thumbnailUrl: nil
-    )
 }

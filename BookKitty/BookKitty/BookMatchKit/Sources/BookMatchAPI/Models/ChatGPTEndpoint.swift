@@ -1,26 +1,24 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct ChatGPTEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    init(
-        model: String,
-        messages: [ChatMessage],
-        temperature: Double,
-        maxTokens: Int,
-        configuration: APIConfiguration
-    ) {
-        self.model = model
-        self.messages = messages
-        self.temperature = temperature
-        self.maxTokens = maxTokens
-        self.configuration = configuration
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = ChatGPTResponse
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let model: String
+    private let messages: [ChatMessage]
+    private let temperature: Double
+    private let maxTokens: Int
+    private let configuration: APIConfiguration
+
+    // MARK: - Computed Properties
 
     // MARK: Endpoint Protocol
 
@@ -53,11 +51,19 @@ struct ChatGPTEndpoint: Endpoint {
         return try? JSONSerialization.data(withJSONObject: requestBody)
     }
 
-    // MARK: Private
+    // MARK: - Lifecycle
 
-    private let model: String
-    private let messages: [ChatMessage]
-    private let temperature: Double
-    private let maxTokens: Int
-    private let configuration: APIConfiguration
+    init(
+        model: String,
+        messages: [ChatMessage],
+        temperature: Double,
+        maxTokens: Int,
+        configuration: APIConfiguration
+    ) {
+        self.model = model
+        self.messages = messages
+        self.temperature = temperature
+        self.maxTokens = maxTokens
+        self.configuration = configuration
+    }
 }

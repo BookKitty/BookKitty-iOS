@@ -11,6 +11,10 @@ import Then
 import UIKit
 
 class ImageSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let scrollView = UIScrollView()
     let contentView = UIView()
 
@@ -52,6 +56,8 @@ class ImageSampleViewController: BaseViewController {
         """,
         height: .small
     )
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
