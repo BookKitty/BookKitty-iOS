@@ -29,9 +29,11 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         request.sortDescriptors = [sortDescriptor]
 
         do {
-            return try context.fetch(request)
+            let fetchResult = try context.fetch(request)
+            BookKittyLogger.log("질문 목록 가져오기 성공")
+            return fetchResult
         } catch {
-            print("질문 목록 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -48,12 +50,13 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         do {
             if let entity = try context.fetch(request).first {
                 if entity.id == uuid {
+                    BookKittyLogger.log("질문답변 데이터 가져오기 성공")
                     return entity
                 }
             }
             return nil
         } catch {
-            print("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -75,9 +78,10 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
             }
 
             try context.save()
+            BookKittyLogger.log("질문답변 삭제 성공")
             return true
         } catch {
-            print("삭제 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 삭제 실패: \(error.localizedDescription)")
             return false
         }
     }

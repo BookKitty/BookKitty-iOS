@@ -13,21 +13,23 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
     /// - Parameter context: 코어데이터 컨텍스트
     /// - Returns: 가장 최근에 생성된 BookQuestionAnswerLinkEntity
     func selectRecentRecommendedBooks(context: NSManagedObjectContext)
-    -> [BookQuestionAnswerLinkEntity] {
+        -> [BookQuestionAnswerLinkEntity] {
         let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
-        BookQuestionAnswerLinkEntity.fetchRequest()
-        
+            BookQuestionAnswerLinkEntity.fetchRequest()
+
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         fetchRequest.fetchLimit = 5
-        
+
         do {
-            return try context.fetch(fetchRequest)
+            let fetchresult = try context.fetch(fetchRequest)
+            BookKittyLogger.log("최근 추천책 조회 성공")
+            return fetchresult
         } catch {
-            print("최근 추천책 조회 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("최근 추천책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
-    
+
     /// 새로운 `BookQuestionAnswerLinkEntity` 객체를 생성하지만 저장하지 않기
     /// - Parameters:
     ///   - bookEntity: 연결할 `BookEntity` 객체
@@ -43,7 +45,8 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
-        
+
+        BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
         return linkEntity
     }
 }

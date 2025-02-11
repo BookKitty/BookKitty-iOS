@@ -45,9 +45,10 @@ final class BookCoreDataManager: BookCoreDataManageable {
         do {
             _ = modelToEntity(model: model, context: context)
             try context.save()
+            BookKittyLogger.log("책 저장 성공")
             return true
         } catch {
-            print("저장 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("책 저장 실패: \(error.localizedDescription)")
             return false
         }
     }
@@ -76,12 +77,13 @@ final class BookCoreDataManager: BookCoreDataManageable {
         do {
             if let bookEntity = try context.fetch(request).first {
                 if bookEntity.isbn == isbn {
+                    BookKittyLogger.log("책 데이터 가져오기 성공: \(bookEntity)")
                     return bookEntity
                 }
             }
             return nil
         } catch {
-            print("책 데이터 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("책 데이터 가져오기 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -107,9 +109,11 @@ final class BookCoreDataManager: BookCoreDataManageable {
         request.sortDescriptors = [sortDescriptor]
 
         do {
-            return try context.fetch(request)
+            let fetchedEntity = try context.fetch(request)
+            BookKittyLogger.log("책장 책 가져오기 성공")
+            return fetchedEntity
         } catch {
-            print("책장 책 목록 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("책장 책 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -127,9 +131,11 @@ final class BookCoreDataManager: BookCoreDataManageable {
         request.predicate = NSPredicate(format: "isbn IN %@", isbnList)
 
         do {
-            return try context.fetch(request)
+            let fetchedEntity = try context.fetch(request)
+            BookKittyLogger.log("ISBN 목록으로 책 데이터 가져오기 성공")
+            return fetchedEntity
         } catch {
-            print("ISBN 목록으로 책 데이터 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("ISBN 목록으로 책 데이터 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
