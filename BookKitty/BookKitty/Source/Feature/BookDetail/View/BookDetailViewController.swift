@@ -18,11 +18,11 @@ final class BookDetailViewController: BaseViewController {
     // MARK: - Private
 
     private let viewModel: BookDetailViewModel
-    private let leftBarButtonTapTrigger = PublishRelay<Void>()
-    private let rightBarButtonTabTrigger = PublishRelay<Void>()
+
     private let popupViewConfirmButtonTapTrigger = PublishRelay<Void>()
 
     private let dimmingView = DimmingView()
+    private let navigationBar = CustomNavigationBar()
     private let scrollView = UIScrollView().then { $0.alwaysBounceVertical = true }
     private let contentStackView = UIStackView().then {
         $0.axis = .vertical
@@ -48,15 +48,7 @@ final class BookDetailViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        bindLeftBarButton()
-        bindRightBarButton()
-        bindPopupView()
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        navigationController?.navigationBar.isHidden = false
+        bindNavigationBar()
     }
 
     // MARK: - Overridden Functions
@@ -66,7 +58,7 @@ final class BookDetailViewController: BaseViewController {
     override func bind() {
         let input = BookDetailViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            leftBarButtonTapTrigger: leftBarButtonTapTrigger.asObservable(),
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
             popupViewConfirmButtonTapTrigger: popupViewConfirmButtonTapTrigger.asObservable()
         )
 
@@ -78,23 +70,35 @@ final class BookDetailViewController: BaseViewController {
             .bind(onNext: { owner, bookDetail in
                 owner.introSection.setupData(with: bookDetail.description)
                 owner.infoSection.inforView.setupData(with: bookDetail)
-                owner.configureRightBarButton(with: bookDetail.isOwned)
 
                 let mode: ManageBookMode = bookDetail.isOwned ? .delete : .add
                 owner.popupView = ManageBookPopupView(bookTitle: bookDetail.title, mode: mode)
+
+                if mode == .delete {
+                    owner.navigationBar.setupRightBarButton(with: .delete)
+                } else {
+                    owner.navigationBar.setupRightBarButton(with: .add)
+                }
             }).disposed(by: disposeBag)
     }
 
     override func configureHierarchy() {
-        [scrollView, dimmingView].forEach { view.addSubview($0) }
+        [navigationBar, scrollView, dimmingView].forEach { view.addSubview($0) }
         scrollView.addSubview(contentStackView)
         [infoSection, introSection].forEach { contentStackView.addArrangedSubview($0) }
     }
 
     override func configureLayout() {
-        scrollView.snp.makeConstraints {
-            $0.verticalEdges.equalTo(view.safeAreaLayoutGuide)
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(Vars.viewSizeReg)
+        }
+
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         contentStackView.snp.makeConstraints {
@@ -122,39 +126,8 @@ final class BookDetailViewController: BaseViewController {
 
     // MARK: - Functions
 
-    private func configureRightBarButton(with isOwned: Bool) {
-        if isOwned {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "삭제")
-        } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "추가")
-        }
-
-        navigationItem.rightBarButtonItem?.tintColor = Colors.brandSub
-    }
-
-    private func bindRightBarButton() {
-        guard let rightBarButton = navigationItem.rightBarButtonItem else {
-            return
-        }
-
-        rightBarButton.rx.tap
-            .bind(to: rightBarButtonTabTrigger)
-            .disposed(by: disposeBag)
-    }
-
-    private func bindLeftBarButton() {
-        guard let leftBarButton = navigationItem.leftBarButtonItem?.customView as? UIButton
-        else {
-            return
-        }
-
-        leftBarButton.rx.tap
-            .bind(to: leftBarButtonTapTrigger)
-            .disposed(by: disposeBag)
-    }
-
-    private func bindPopupView() {
-        rightBarButtonTabTrigger
+    private func bindNavigationBar() {
+        navigationBar.rightButtonTapped
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { owner, _ in

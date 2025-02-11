@@ -79,6 +79,13 @@ extension DefaultQuestionCoordinator {
             .subscribe(onNext: { coordinator, book in
                 coordinator.showBookDetailScreen(with: book)
             }).disposed(by: disposeBag)
+
+        questionDetailViewModel.dismissViewController
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
+
         questionDetailViewController.hidesBottomBarWhenPushed = true
         navigationController.pushViewController(questionDetailViewController, animated: true)
     }

@@ -24,6 +24,10 @@ final class QuestionDetailViewController: BaseViewController {
     private let viewModel: QuestionDetailViewModel
     private let deleteButtonTappedRelay = PublishRelay<Void>()
 
+    private let navigationBar = CustomNavigationBar().then {
+        $0.setupRightBarButton(with: .delete)
+    }
+
     private let scrollView = UIScrollView().then {
         $0.isScrollEnabled = true
         $0.showsVerticalScrollIndicator = false
@@ -92,11 +96,6 @@ final class QuestionDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
-    }
-
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         recommendedBooksCollectionView.layoutIfNeeded()
@@ -117,7 +116,8 @@ final class QuestionDetailViewController: BaseViewController {
     override func bind() {
         let input = QuestionDetailViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            deleteButtonTapped: deleteButtonTappedRelay.asObservable(),
+            deleteButtonTapped: navigationBar.rightButtonTapped.asObservable(),
+            backButtonTapped: navigationBar.backButtonTapped.asObservable(),
             bookTapped: bookTappedRelay.asObservable()
         )
 
@@ -166,7 +166,7 @@ final class QuestionDetailViewController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        view.addSubview(scrollView)
+        [navigationBar, scrollView].forEach { view.addSubview($0) }
         scrollView.addSubview(contentView)
         [
             dateCaptionLabel,
@@ -179,8 +179,15 @@ final class QuestionDetailViewController: BaseViewController {
     }
 
     override func configureLayout() {
+        navigationBar.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(Vars.viewSizeReg)
+        }
+
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.horizontalEdges.bottom.equalToSuperview()
         }
 
         contentView.snp.makeConstraints { make in
