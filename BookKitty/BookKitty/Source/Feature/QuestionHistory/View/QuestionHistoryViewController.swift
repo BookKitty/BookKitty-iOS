@@ -107,6 +107,13 @@ final class QuestionHistoryViewController: BaseViewController {
 extension Reactive where Base: UIScrollView {
     fileprivate func reachedBottom() -> Observable<Void> {
         contentOffset
+            .skip(1)
+            .filter { [weak base] _ in
+                guard let base else {
+                    return false
+                }
+                return base.contentSize.height > base.bounds.height
+            }
             .map { [weak base] offset in
                 guard let base else {
                     return false
