@@ -80,7 +80,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             context: context
         )
 
-        let linkEntities = bookEntities.map {
+        let _ = bookEntities.map {
             bookQALinkCoreDataManager.createNewLinkWithoutSave(
                 bookEntity: $0,
                 questionAnswerEntity: questionEntity,

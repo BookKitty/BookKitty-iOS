@@ -5,7 +5,7 @@
 //  Created by 권승용 on 1/31/25.
 //
 
-import BookRecommendationKit
+import BookMatchCore
 import Foundation
 import RxCocoa
 import RxSwift
@@ -169,7 +169,7 @@ final class QuestionResultViewModel: ViewModelType {
             id: UUID(),
             recommendedBooks: recommendedBooks
         )
-        questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
+        _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         return [SectionOfBook(items: recommendedBooks)]
     }
