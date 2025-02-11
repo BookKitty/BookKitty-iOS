@@ -154,7 +154,10 @@ final class QuestionResultViewModel: ViewModelType {
                 title: $0.title,
                 author: $0.author,
                 publisher: $0.publisher,
-                thumbnailUrl: URL(string: $0.image)
+                thumbnailUrl: URL(string: $0.image),
+                description: $0.description,
+                price: $0.discount ?? "",
+                pubDate: $0.pubdate ?? ""
             )
         }
 
