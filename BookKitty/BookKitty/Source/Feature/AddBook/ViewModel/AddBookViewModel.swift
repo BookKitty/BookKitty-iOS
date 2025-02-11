@@ -48,7 +48,7 @@ final class AddBookViewModel: ViewModelType {
 
     func transform(_ input: Input) -> Output {
         input.captureButtonTapped
-            .withLatestFrom(addBookRelay)
+            .map { "촬영된 책 제목" } // 실제 OCR 결과를 반영하도록 수정 필요
             .bind(to: addBookRelay)
             .disposed(by: disposeBag)
 

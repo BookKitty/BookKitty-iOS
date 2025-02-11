@@ -137,20 +137,23 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
     }
 
     private func setupCamera() {
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else {
+                return
+            }
             guard let captureDevice = AVCaptureDevice.default(for: .video) else {
                 return
             }
             do {
                 let input = try AVCaptureDeviceInput(device: captureDevice)
-                self.captureSession.beginConfiguration()
-                if self.captureSession.canAddInput(input) {
-                    self.captureSession.addInput(input)
+                captureSession.beginConfiguration()
+                if captureSession.canAddInput(input) {
+                    captureSession.addInput(input)
                 }
-                if self.captureSession.canAddOutput(self.captureOutput) {
-                    self.captureSession.addOutput(self.captureOutput)
+                if captureSession.canAddOutput(captureOutput) {
+                    captureSession.addOutput(captureOutput)
                 }
-                self.captureSession.commitConfiguration()
+                captureSession.commitConfiguration()
 
                 DispatchQueue.main.async {
                     self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
@@ -158,8 +161,11 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                     self.previewLayer?.frame = self.cameraView.bounds
                     self.cameraView.layer.insertSublayer(self.previewLayer!, at: 0)
 
-                    if !self.captureSession.isRunning {
-                        self.captureSession.startRunning()
+                    // 백그라운드에서 AVCaptureSession 시작
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        if !self.captureSession.isRunning {
+                            self.captureSession.startRunning()
+                        }
                     }
                 }
             } catch {
@@ -189,9 +195,18 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         }
     }
 
-    private func detectBookElements(in image: UIImage) { // 🔹 추가된 부분
+    private func detectBookElements(in image: UIImage) {
+        // CoreML 모델이 업데이트 가능한지 확인
+        if let mlModel = MyObjectDetector5_1().model as? MLModel,
+           mlModel.modelDescription.isUpdatable {
+            print("✅ 이 모델은 업데이트 가능합니다.")
+        } else {
+            print("⚠️ 이 모델은 업데이트가 불가능합니다.")
+        }
+
+        // CoreML 모델 로드
         guard let model = try? VNCoreMLModel(for: MyObjectDetector5_1().model) else {
-            print("⚠️ 모델 로드 실패")
+            print("⚠️ CoreML 모델 로드 실패: 모델이 업데이트 가능한지 확인 필요")
             return
         }
 
@@ -232,7 +247,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         }
     }
 
-    private func performOCR(on image: UIImage, completion: @escaping (String) -> Void) { // 🔹 추가된 부분
+    private func performOCR(on image: UIImage, completion: @escaping (String) -> Void) {
         guard let cgImage = image.cgImage else {
             completion("")
             return
