@@ -7,30 +7,19 @@
 
 import CoreData
 
-/// BookQuestionAnswerLink 엔티티를 관리하는 코어 데이터 매니저 기능을 추상화하는 프로토콜
-protocol BookQALinkCoreDataManageable {
-    func selectRecentRecommendedBooks(context: NSManagedObjectContext)
-        -> [BookQuestionAnswerLinkEntity]
-    func createNewLinkWithoutSave(
-        bookEntity: BookEntity,
-        questionAnswerEntity: QuestionAnswerEntity,
-        context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity
-}
-
 /// BookQuestionAnswerLink 엔티티를 관리하는 객체
 final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
     /// 최근 추천받은 책을 가져오기
     /// - Parameter context: 코어데이터 컨텍스트
     /// - Returns: 가장 최근에 생성된 BookQuestionAnswerLinkEntity
     func selectRecentRecommendedBooks(context: NSManagedObjectContext)
-        -> [BookQuestionAnswerLinkEntity] {
+    -> [BookQuestionAnswerLinkEntity] {
         let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
-            BookQuestionAnswerLinkEntity.fetchRequest()
-
+        BookQuestionAnswerLinkEntity.fetchRequest()
+        
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         fetchRequest.fetchLimit = 5
-
+        
         do {
             return try context.fetch(fetchRequest)
         } catch {
@@ -38,13 +27,13 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
             return []
         }
     }
-
-    /// <#Description#>
+    
+    /// 새로운 `BookQuestionAnswerLinkEntity` 객체를 생성하지만 저장하지 않기
     /// - Parameters:
-    ///   - bookEntity: <#bookEntity description#>
-    ///   - questionAnswerEntity: <#questionAnswerEntity description#>
-    ///   - context: <#context description#>
-    /// - Returns: <#description#>
+    ///   - bookEntity: 연결할 `BookEntity` 객체
+    ///   - questionAnswerEntity: 연결할 `QuestionAnswerEntity` 객체
+    ///   - context: `NSManagedObjectContext` 객체, 새 엔터티를 생성하는 데 사용됨
+    /// - Returns: 생성된 `BookQuestionAnswerLinkEntity` 객체 (저장되지 않음)
     func createNewLinkWithoutSave(
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
@@ -54,7 +43,7 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
-
+        
         return linkEntity
     }
 }

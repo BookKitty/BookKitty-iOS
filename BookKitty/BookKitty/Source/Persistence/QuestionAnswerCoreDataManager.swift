@@ -7,14 +7,6 @@
 
 import CoreData
 
-/// QuestionAnswer 엔티티를 관리하는 코어 데이터 매니저 기능을 추상화하는 프로토콜
-protocol QuestionAnswerCoreDataManageable {
-    func selectQuestionHistories(offset: Int, limit: Int, context: NSManagedObjectContext)
-        -> [QuestionAnswerEntity]
-    func selectById(by uuid: UUID, context: NSManagedObjectContext) -> QuestionAnswerEntity?
-    func deleteQuestionAnswer(by id: UUID, context: NSManagedObjectContext) -> Bool
-}
-
 /// QuestionAnswer 엔티티를 관리하는 객체
 final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
     /// 이전 질문 목록 가져오기
