@@ -72,7 +72,7 @@ final class BookDetailViewController: BaseViewController {
 
         let output = viewModel.transform(input)
 
-        output.model
+        output.bookDetail
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .bind(onNext: { owner, model in
@@ -196,5 +196,17 @@ final class BookDetailViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    BookDetailViewController(viewModel: BookDetailViewModel())
+    BookDetailViewController(
+        viewModel: BookDetailViewModel(
+            bookDetail: Book(
+                isbn: "9788950963262",
+                title: "침묵의 기술",
+                author: "조제프 앙투안 투생 디누아르",
+                publisher: "아르테(arte)",
+                thumbnailUrl: URL(
+                    string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
+                )
+            )
+        )
+    )
 }
