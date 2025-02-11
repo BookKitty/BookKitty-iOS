@@ -87,7 +87,11 @@ extension DefaultQuestionCoordinator {
     ///
     /// 책 상세 화면을 생성하고, ViewModel과 ViewController를 연결
     private func showBookDetailScreen(with book: Book) {
-        let bookDetailViewModel = BookDetailViewModel(bookDetail: book)
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
         bookDetailViewModel.navigateBackRelay
             .observe(on: MainScheduler.instance)

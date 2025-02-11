@@ -35,11 +35,13 @@ final class BookDetailViewModel: ViewModelType {
     // MARK: - Private
 
     private let bookDetailRelay = PublishRelay<Book>() // TODO: TestBookModel -> Book
+    private let bookRepository: BookRepository
 
     // MARK: - Lifecycle
 
-    init(bookDetail: Book) {
+    init(bookDetail: Book, bookRepository: BookRepository) {
         self.bookDetail = bookDetail
+        self.bookRepository = bookRepository
     }
 
     // MARK: - Functions
@@ -56,7 +58,19 @@ final class BookDetailViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.popupViewConfirmButtonTapTrigger
-            .bind(to: navigateBackRelay) // add, remove
+            .withUnretained(self)
+            .do(onNext: { _ in
+                let bookDetail = self.bookDetail
+                switch bookDetail.isOwned {
+                // TODO: 오류 처리
+                case true:
+                    _ = self.bookRepository.exceptBookFromShelf(isbn: bookDetail.isbn)
+                case false:
+                    _ = self.bookRepository.addBookToShelf(isbn: bookDetail.isbn)
+                }
+            })
+            .map { _ in }
+            .bind(to: navigateBackRelay)
             .disposed(by: disposeBag)
 
         return Output(bookDetail: bookDetailRelay)

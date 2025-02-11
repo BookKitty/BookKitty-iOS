@@ -71,7 +71,11 @@ extension DefaultHomeCoordinator {
     /// 탭바를 숨기고 화면을 네비게이션 스택에 추가
     /// - Parameter book: 책 상세 화면에서 표시할 Book 정보가 담긴 구조체
     private func showBookDetailScreen(with book: Book) {
-        let bookDetailViewModel = BookDetailViewModel(bookDetail: book)
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
         navigationController.pushViewController(bookDetailViewController, animated: true)

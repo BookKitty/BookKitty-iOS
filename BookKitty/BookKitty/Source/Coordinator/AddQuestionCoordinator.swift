@@ -99,7 +99,11 @@ extension AddQuestionCoordinator {
     /// 책 상세 화면을 표시하는 메서드
     /// - Parameter isbn: 선택한 책의 ISBN 번호
     private func showBookDetailScene(with book: Book) {
-        let bookDetailViewModel = BookDetailViewModel(bookDetail: book)
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
         bookDetailViewModel.navigateBackRelay
             .observe(on: MainScheduler.instance)

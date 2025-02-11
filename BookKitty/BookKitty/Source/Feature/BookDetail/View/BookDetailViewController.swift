@@ -75,13 +75,13 @@ final class BookDetailViewController: BaseViewController {
         output.bookDetail
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { owner, model in
-                owner.introSection.setupData(with: model.description)
-                owner.infoSection.inforView.setupData(with: model)
-                owner.configureRightBarButton(with: model.isOwned)
+            .bind(onNext: { owner, bookDetail in
+                owner.introSection.setupData(with: bookDetail.description)
+                owner.infoSection.inforView.setupData(with: bookDetail)
+                owner.configureRightBarButton(with: bookDetail.isOwned)
 
-                let mode: ManageBookMode = model.isOwned ? .delete : .add
-                owner.popupView = ManageBookPopupView(bookTitle: model.title, mode: mode)
+                let mode: ManageBookMode = bookDetail.isOwned ? .delete : .add
+                owner.popupView = ManageBookPopupView(bookTitle: bookDetail.title, mode: mode)
             }).disposed(by: disposeBag)
     }
 
@@ -206,7 +206,8 @@ final class BookDetailViewController: BaseViewController {
                 thumbnailUrl: URL(
                     string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
                 )
-            )
+            ),
+            bookRepository: MockBookRepository()
         )
     )
 }
