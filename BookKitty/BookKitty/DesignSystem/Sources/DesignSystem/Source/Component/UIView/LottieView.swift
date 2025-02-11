@@ -11,7 +11,14 @@ import SwiftUI
 import UIKit
 
 public class LottieView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: Internal
+
+    let imageLink: String
+    let animationView = LottieAnimationView()
+
+    // MARK: - Lifecycle
 
     public init(imageLink: String = "https://cdn.lottielab.com/l/6XZaTv8W8WJzxC.json") {
         self.imageLink = imageLink
@@ -21,11 +28,6 @@ public class LottieView: UIView {
         setupProperties()
     }
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     // MARK: Public
 
     override public func layoutSubviews() {
@@ -33,10 +35,10 @@ public class LottieView: UIView {
         setupLayouts()
     }
 
-    // MARK: Internal
-
-    let imageLink: String
-    let animationView = LottieAnimationView()
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 // MARK: - Setup UI

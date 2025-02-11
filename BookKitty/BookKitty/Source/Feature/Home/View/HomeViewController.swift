@@ -19,14 +19,15 @@ class HomeViewController: BaseViewController {
 
     // MARK: - Private
 
+    private let verticalScrollView = UIScrollView()
+    private let contentView = UIView()
+
+    private let lottieView =
+        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
+
     private let bookSelectedRelay = PublishRelay<Book>()
 
     private let viewModel: HomeViewModel
-
-    private let titleLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "책냥이가 아래 책들을 추천합니다."
-        $0.textColor = Colors.fontMain
-    }
 
     private let copyrightLabel = CaptionLabel().then {
         $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
@@ -153,55 +154,6 @@ class HomeViewController: BaseViewController {
     }
 
     // MARK: - Functions
-
-    private let verticalScrollView = UIScrollView()
-    private let contentView = UIView()
-
-    private let lottieView =
-        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
-
-    private let bookSelectedRelay = PublishRelay<Book>()
-
-    private let viewModel: HomeViewModel
-
-    private let copyrightLabel = CaptionLabel().then {
-        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
-        $0.textColor = Colors.fontSub1
-        $0.textAlignment = .center
-    }
-
-    private lazy var recommendedBooksCollectionView: UICollectionView = {
-        let collectionView = UICollectionView(
-            frame: .zero,
-            collectionViewLayout: makeCollectionViewLayout()
-        )
-        collectionView.backgroundColor = Colors.brandSub30
-        collectionView.register(
-            RecommendedBookCell.self,
-            forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
-        )
-        return collectionView
-    }()
-
-    private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
-        configureCell: { _, collectionView, indexPath, item in
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: RecommendedBookCell.reuseIdentifier,
-                for: indexPath
-            ) as? RecommendedBookCell else {
-                return RecommendedBookCell(frame: .zero)
-            }
-
-            cell.configureCell(
-                bookTitle: item.title,
-                bookAuthor: item.author,
-                imageUrl: item.thumbnailUrl?.absoluteString ?? "",
-                isOwned: item.isOwned
-            )
-
-            return cell
-        }
-    )
 
     private func makeCollectionViewLayout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(
