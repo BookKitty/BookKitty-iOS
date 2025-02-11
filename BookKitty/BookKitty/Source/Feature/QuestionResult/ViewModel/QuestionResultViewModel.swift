@@ -15,7 +15,7 @@ final class QuestionResultViewModel: ViewModelType {
 
     init(
         userQuestion: String,
-        recommendationService: BookRecommendationKit,
+        recommendationService: BookRecommendable,
         bookRepository: BookRepository,
         questionHistoryRepository: QuestionHistoryRepository
     ) {
