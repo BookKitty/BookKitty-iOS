@@ -30,7 +30,7 @@ final class BookCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
+        myLibraryViewModel = MyLibraryViewModel(bookRepository: LocalBookRepository())
         myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
     }
 
@@ -58,7 +58,7 @@ extension BookCoordinator {
     ///
     /// 책 상세 화면을 생성하고 ViewModel과 ViewController를 연결
     private func showBookDetailScreen(with book: Book) {
-        let bookRepository = MockBookRepository()
+        let bookRepository = LocalBookRepository()
         let bookDetailViewModel = BookDetailViewModel(
             bookDetail: book,
             bookRepository: bookRepository
