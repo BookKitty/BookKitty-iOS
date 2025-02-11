@@ -151,11 +151,8 @@
 				E5FC698B2D52414B002875FD /* SnapKit */,
 				60F1CE8B2D53715B00E3F881 /* BookMatchKit */,
 				60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */,
-<<<<<<< HEAD
 				E93048652D559553008E9467 /* RxCocoa */,
-=======
 				60F33F2C2D58CD8C0060D7AE /* NetworkKit */,
->>>>>>> origin/develop
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
