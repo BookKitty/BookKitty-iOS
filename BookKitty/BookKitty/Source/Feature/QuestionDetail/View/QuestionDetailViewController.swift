@@ -15,151 +15,18 @@ import Then
 import UIKit
 
 final class QuestionDetailViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(viewModel: QuestionDetailViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Internal
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
-    }
-
-    override func bind() {
-        let input = QuestionDetailViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
-            deleteButtonTapped: deleteButtonTappedRelay.asObservable(),
-            bookTapped: bookTappedRelay.asObservable()
-        )
-
-        let output = viewModel.transform(input)
-
-        output.questionDate
-            .drive(onNext: { [weak self] date in
-                self?.dateCaptionLabel.text = date
-                self?.userQuestionHeadlineLabel.text = "\(date), 당신의 질문"
-            })
-            .disposed(by: disposeBag)
-
-        output.userQuestion
-            .drive(onNext: { [weak self] userQuestion in
-                self?.userQuestionBodyLabel.setQuestionText(userQuestion)
-            })
-            .disposed(by: disposeBag)
-
-        output.recommendationReason
-            .drive(onNext: { [weak self] reason in
-                self?.recommendationReasonBodyLabel.text = reason
-            })
-            .disposed(by: disposeBag)
-
-        output.recommendedBooks
-            .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-
-        recommendedBooksCollectionView.rx.itemSelected
-            .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
-                let books = sectionOfBooks[0].items
-                return books[indexPath.item]
-            }
-            .bind(to: bookTappedRelay)
-            .disposed(by: disposeBag)
-    }
-
-    override func configureNavItem() {
-        let rightBarButtonItem = UIBarButtonItem(
-            title: "삭제",
-            style: .plain,
-            target: self,
-            action: #selector(deleteButtonTapped)
-        )
-        navigationItem.setRightBarButton(rightBarButtonItem, animated: true)
-    }
-
-    override func configureHierarchy() {
-        view.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        [
-            dateCaptionLabel,
-            userQuestionHeadlineLabel,
-            userQuestionBodyLabel,
-            recommendationReasonHeadlineLabel,
-            recommendationReasonBodyLabel,
-            recommendedBooksCollectionView,
-        ].forEach { contentView.addSubview($0) }
-    }
-
-    override func configureLayout() {
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-
-        contentView.snp.makeConstraints { make in
-            make.width.equalToSuperview() // edge가 아닌 width를 맞추는게 뽀인뜨
-            make.verticalEdges.equalToSuperview()
-        }
-
-        dateCaptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(contentView.safeAreaLayoutGuide.snp.top).offset(Vars.spacing24)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        userQuestionHeadlineLabel.snp.makeConstraints { make in
-            make.top.equalTo(dateCaptionLabel.snp.bottom).offset(Vars.spacing4)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        userQuestionBodyLabel.snp.makeConstraints { make in
-            make.top.equalTo(userQuestionHeadlineLabel.snp.bottom).offset(Vars.spacing12)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        recommendationReasonHeadlineLabel.snp.makeConstraints { make in
-            make.top.equalTo(userQuestionBodyLabel.snp.bottom).offset(Vars.spacing48)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        recommendationReasonBodyLabel.snp.makeConstraints { make in
-            make.top.equalTo(recommendationReasonHeadlineLabel.snp.bottom).offset(Vars.spacing8)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(recommendationReasonBodyLabel.snp.bottom).offset(Vars.spacing72)
-            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide)
-            make.height.greaterThanOrEqualTo(400)
-            make.bottom.equalTo(contentView)
-        }
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        recommendedBooksCollectionView.layoutIfNeeded()
-        recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.height
-                .equalTo(
-                    recommendedBooksCollectionView.collectionViewLayout
-                        .collectionViewContentSize.height
-                )
-        }
-        // content hugging, compression resistance priority도 괜찮은 것 같음
-    }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let bookTappedRelay = PublishRelay<Book>()
 
     private let viewModel: QuestionDetailViewModel
     private let deleteButtonTappedRelay = PublishRelay<Void>()
+
+    private let navigationBar = CustomNavigationBar().then {
+        $0.setupRightBarButton(with: .delete)
+    }
 
     private let scrollView = UIScrollView().then {
         $0.isScrollEnabled = true
@@ -216,6 +83,152 @@ final class QuestionDetailViewController: BaseViewController {
             return cell
         }
     )
+
+    // MARK: - Lifecycle
+
+    init(viewModel: QuestionDetailViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        recommendedBooksCollectionView.layoutIfNeeded()
+        recommendedBooksCollectionView.snp.makeConstraints { make in
+            make.height
+                .equalTo(
+                    recommendedBooksCollectionView.collectionViewLayout
+                        .collectionViewContentSize.height
+                )
+        }
+        // content hugging, compression resistance priority도 괜찮은 것 같음
+    }
+
+    // MARK: - Overridden Functions
+
+    // MARK: - Internal
+
+    override func bind() {
+        let input = QuestionDetailViewModel.Input(
+            viewDidLoad: viewDidLoadRelay.asObservable(),
+            deleteButtonTapped: navigationBar.rightButtonTapped.asObservable(),
+            backButtonTapped: navigationBar.backButtonTapped.asObservable(),
+            bookTapped: bookTappedRelay.asObservable()
+        )
+
+        let output = viewModel.transform(input)
+
+        output.questionDate
+            .drive(onNext: { [weak self] date in
+                self?.dateCaptionLabel.text = date
+                self?.userQuestionHeadlineLabel.text = "\(date), 당신의 질문"
+            })
+            .disposed(by: disposeBag)
+
+        output.userQuestion
+            .drive(onNext: { [weak self] userQuestion in
+                self?.userQuestionBodyLabel.setQuestionText(userQuestion)
+            })
+            .disposed(by: disposeBag)
+
+        output.recommendationReason
+            .drive(onNext: { [weak self] reason in
+                self?.recommendationReasonBodyLabel.text = reason
+            })
+            .disposed(by: disposeBag)
+
+        output.recommendedBooks
+            .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+
+        recommendedBooksCollectionView.rx.itemSelected
+            .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
+                let books = sectionOfBooks[0].items
+                return books[indexPath.item]
+            }
+            .bind(to: bookTappedRelay)
+            .disposed(by: disposeBag)
+    }
+
+    override func configureNavItem() {
+        let rightBarButtonItem = UIBarButtonItem(
+            title: "삭제",
+            style: .plain,
+            target: self,
+            action: #selector(deleteButtonTapped)
+        )
+        navigationItem.setRightBarButton(rightBarButtonItem, animated: true)
+    }
+
+    override func configureHierarchy() {
+        [navigationBar, scrollView].forEach { view.addSubview($0) }
+        scrollView.addSubview(contentView)
+        [
+            dateCaptionLabel,
+            userQuestionHeadlineLabel,
+            userQuestionBodyLabel,
+            recommendationReasonHeadlineLabel,
+            recommendationReasonBodyLabel,
+            recommendedBooksCollectionView,
+        ].forEach { contentView.addSubview($0) }
+    }
+
+    override func configureLayout() {
+        navigationBar.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(Vars.viewSizeReg)
+        }
+
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.horizontalEdges.bottom.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.width.equalToSuperview() // edge가 아닌 width를 맞추는게 뽀인뜨
+            make.verticalEdges.equalToSuperview()
+        }
+
+        dateCaptionLabel.snp.makeConstraints { make in
+            make.top.equalTo(contentView.safeAreaLayoutGuide.snp.top).offset(Vars.spacing24)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
+        }
+
+        userQuestionHeadlineLabel.snp.makeConstraints { make in
+            make.top.equalTo(dateCaptionLabel.snp.bottom).offset(Vars.spacing4)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
+        }
+
+        userQuestionBodyLabel.snp.makeConstraints { make in
+            make.top.equalTo(userQuestionHeadlineLabel.snp.bottom).offset(Vars.spacing12)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
+        }
+
+        recommendationReasonHeadlineLabel.snp.makeConstraints { make in
+            make.top.equalTo(userQuestionBodyLabel.snp.bottom).offset(Vars.spacing48)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
+        }
+
+        recommendationReasonBodyLabel.snp.makeConstraints { make in
+            make.top.equalTo(recommendationReasonHeadlineLabel.snp.bottom).offset(Vars.spacing8)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
+        }
+
+        recommendedBooksCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(recommendationReasonBodyLabel.snp.bottom).offset(Vars.spacing72)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide)
+            make.height.greaterThanOrEqualTo(400)
+            make.bottom.equalTo(contentView)
+        }
+    }
+
+    // MARK: - Functions
 
     @objc
     private func deleteButtonTapped() {

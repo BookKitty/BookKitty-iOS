@@ -8,7 +8,43 @@ import DesignSystem
 import UIKit
 
 final class QuestionHistoryCell: UITableViewCell {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Internal
+
+    static let identifier = "QuestionHistoryCell"
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let containerView = UIView().then {
+        $0.backgroundColor = Colors.background1
+        $0.layer.cornerRadius = Vars.radiusMini
+    }
+
+    private let dateLabel = CaptionLabel(weight: .regular).then {
+        $0.textColor = Colors.fontSub1
+    }
+
+    private let questionLabel = BodyLabel(weight: .extraBold)
+
+    private let answerLabel = BodyLabel(weight: .regular)
+
+    private let recommendedBooksStackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.spacing = 12
+        $0.distribution = .fill
+        $0.alignment = .leading
+    }
+
+    // MARK: - Lifecycle
+
+    override public func layoutSubviews() {
+        super.layoutSubviews()
+
+        containerView.setBasicShadow(radius: Vars.radiusTiny)
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -21,17 +57,7 @@ final class QuestionHistoryCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
-
-    override public func layoutSubviews() {
-        super.layoutSubviews()
-
-        containerView.setBasicShadow(radius: Vars.radiusTiny)
-    }
-
-    // MARK: Internal
-
-    static let identifier = "QuestionHistoryCell"
+    // MARK: - Functions
 
     func configure(with questionAnswer: QuestionAnswer) {
         let isOverlapNeeded = questionAnswer.recommendedBooks.count > 3
@@ -60,28 +86,6 @@ final class QuestionHistoryCell: UITableViewCell {
 
             recommendedBooksStackView.addArrangedSubview(imageView)
         }
-    }
-
-    // MARK: Private
-
-    private let containerView = UIView().then {
-        $0.backgroundColor = Colors.background1
-        $0.layer.cornerRadius = Vars.radiusMini
-    }
-
-    private let dateLabel = CaptionLabel(weight: .regular).then {
-        $0.textColor = Colors.fontSub1
-    }
-
-    private let questionLabel = BodyLabel(weight: .extraBold)
-
-    private let answerLabel = BodyLabel(weight: .regular)
-
-    private let recommendedBooksStackView = UIStackView().then {
-        $0.axis = .horizontal
-        $0.spacing = 12
-        $0.distribution = .fill
-        $0.alignment = .leading
     }
 
     private func setupViews() {

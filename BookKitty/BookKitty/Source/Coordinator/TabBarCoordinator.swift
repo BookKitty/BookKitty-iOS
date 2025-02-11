@@ -8,15 +8,9 @@ import RxSwift
 import UIKit
 
 final class TabBarCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        tabBarViewModel = TabBarViewModel()
-        tabBarController = TabBarController(viewModel: tabBarViewModel)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -24,6 +18,20 @@ final class TabBarCoordinator: Coordinator {
     var navigationController: UINavigationController
     var tabBarController: TabBarController
     var tabBarViewModel: TabBarViewModel
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        tabBarViewModel = TabBarViewModel()
+        tabBarController = TabBarController(viewModel: tabBarViewModel)
+    }
+
+    // MARK: - Functions
 
     func start() {
         // Tab에 해당하는 Coordinator 생성
@@ -58,10 +66,6 @@ final class TabBarCoordinator: Coordinator {
             }).disposed(by: disposeBag)
         navigationController.pushViewController(tabBarController, animated: true)
     }
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
 }
 
 extension TabBarCoordinator {

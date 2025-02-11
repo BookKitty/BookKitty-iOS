@@ -14,7 +14,15 @@ public enum BookImageFixedWidth {
 }
 
 public class WidthFixedImageView: UIImageView, ImageLoadableView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public var imageUrl: String
+    public var fixedWidth: CGFloat
+    public var onImageLoaded: (() -> Void)?
+
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -43,12 +51,6 @@ public class WidthFixedImageView: UIImageView, ImageLoadableView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Public
-
-    public var imageUrl: String
-    public var fixedWidth: CGFloat
-    public var onImageLoaded: (() -> Void)?
 }
 
 // MARK: - Setup UI

@@ -11,6 +11,10 @@ import Then
 import UIKit
 
 class EtcSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let scrollView = UIScrollView()
     let contentView = UIView()
 
@@ -31,6 +35,8 @@ class EtcSampleViewController: BaseViewController {
     빈줄도 넣고 테스트
         빈줄도 넣고 테스트3
     """)
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()

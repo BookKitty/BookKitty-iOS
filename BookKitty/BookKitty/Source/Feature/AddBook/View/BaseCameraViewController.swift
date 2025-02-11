@@ -14,12 +14,14 @@ import Then
 import UIKit
 
 class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
-    // MARK: Open
+    // MARK: - Properties
+
+    // MARK: - Open
 
     /// ✅ `open var`로 선언하여 하위 클래스에서 변경 가능하도록 설정
     open var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
 
-    // MARK: Internal
+    // MARK: - Internal
 
     var captureSession = AVCaptureSession()
     var previewLayer: AVCaptureVideoPreviewLayer?
@@ -34,6 +36,8 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         $0.layer.cornerRadius = 8
         $0.clipsToBounds = true
     }
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +59,8 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
             self.previewLayer?.frame = self.cameraView.bounds
         }
     }
+
+    // MARK: - Functions
 
     // MARK: - DisposeBag 리셋
 
@@ -87,7 +93,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         // 하위 클래스에서 구현할 예정
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     // MARK: - Camera Permission Check
 

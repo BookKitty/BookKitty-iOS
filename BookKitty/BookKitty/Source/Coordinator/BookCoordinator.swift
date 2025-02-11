@@ -11,15 +11,9 @@ import UIKit
 ///
 /// `BookCoordinator`는 책 목록과 책 상세 화면 간의 흐름을 관리
 final class BookCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
-        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -28,11 +22,21 @@ final class BookCoordinator: Coordinator {
     var myLibraryViewController: MyLibraryViewController
     var myLibraryViewModel: MyLibraryViewModel
 
-    func start() { showMyLibraryScene() }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        myLibraryViewModel = MyLibraryViewModel(bookRepository: MockBookRepository())
+        myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showMyLibraryScene() }
 }
 
 extension BookCoordinator {
@@ -45,16 +49,20 @@ extension BookCoordinator {
         myLibraryViewModel
             .navigateToBookDetail
             .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-                owner.showBookDetailScreen()
+            .subscribe(onNext: { owner, book in
+                owner.showBookDetailScreen(with: book)
             }).disposed(by: disposeBag)
     }
 
     /// 책 상세 화면 표시
     ///
     /// 책 상세 화면을 생성하고 ViewModel과 ViewController를 연결
-    private func showBookDetailScreen() {
-        let bookDetailViewModel = BookDetailViewModel()
+    private func showBookDetailScreen(with book: Book) {
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }

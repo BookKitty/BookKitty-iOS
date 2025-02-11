@@ -9,6 +9,8 @@ import Foundation
 
 /// 원하는 DateFormat으로 변경해주는 구조체
 struct DateFormatHandler {
+    // MARK: - Static Properties
+
     static let dateFormatter: DateFormatter = {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy년 M월 d일"
@@ -16,6 +18,8 @@ struct DateFormatHandler {
         dateFormatter.timeZone = .current
         return dateFormatter
     }()
+
+    // MARK: - Functions
 
     func dateString(from date: Date) -> String {
         DateFormatHandler.dateFormatter.string(from: date)

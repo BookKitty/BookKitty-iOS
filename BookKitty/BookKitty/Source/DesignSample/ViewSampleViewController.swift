@@ -18,8 +18,14 @@ import Then
 import UIKit
 
 class ViewSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let verticalScrollView = UIScrollView()
     let contentView = UIView()
+    let lottieView =
+        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
 
     let horizontalScrollView = UIScrollView()
     let horizontalStackView = UIStackView().then {
@@ -43,6 +49,8 @@ class ViewSampleViewController: BaseViewController {
         isOwned: false
     )
 
+    // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupViews()
@@ -60,6 +68,7 @@ extension ViewSampleViewController {
 
         [
             horizontalScrollView,
+            lottieView,
         ].forEach { contentView.addSubview($0) }
 
         horizontalScrollView.addSubview(horizontalStackView)
@@ -102,6 +111,11 @@ extension ViewSampleViewController {
 
         horizontalStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(Vars.paddingReg)
+        }
+
+        lottieView.snp.makeConstraints { make in
+            make.top.equalTo(horizontalScrollView.snp.bottom).offset(Vars.spacing48)
+            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
         }
     }
 }

@@ -12,7 +12,13 @@ import UIKit
 /// 커스텀 탭 바 버튼
 /// - `TabBarItemType`을 기반으로 UI를 설정하고, 탭 이벤트를 Rx로 제공
 final class TabBarItem: UIButton {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let type: TabBarItemType
+
+    // MARK: - Lifecycle
 
     init(with type: TabBarItemType) {
         self.type = type
@@ -26,11 +32,9 @@ final class TabBarItem: UIButton {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Functions
 
-    let type: TabBarItemType
-
-    // MARK: Private
+    // MARK: - Private
 
     private func setupButtonConfiguration() {
         var configuration = UIButton.Configuration.plain()

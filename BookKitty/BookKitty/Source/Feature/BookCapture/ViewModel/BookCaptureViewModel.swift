@@ -9,7 +9,9 @@ import RxCocoa
 import RxSwift
 
 final class BookCaptureViewModel: ViewModelType {
-    // MARK: Internal
+    // MARK: - Nested Types
+
+    // MARK: - Internal
 
     struct Input {
         let captureButtonTapped: Observable<Void>
@@ -23,7 +25,16 @@ final class BookCaptureViewModel: ViewModelType {
         let showTitleInputPopup: Observable<Void>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
+
+    // MARK: - Private
+
+    private let capturedBooksRelay = BehaviorRelay<[String]>(value: [])
+    private let showTitleInputPopupRelay = PublishRelay<Void>()
+
+    // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
         input.captureButtonTapped
@@ -53,9 +64,4 @@ final class BookCaptureViewModel: ViewModelType {
         currentList.append(bookTitle)
         capturedBooksRelay.accept(currentList)
     }
-
-    // MARK: Private
-
-    private let capturedBooksRelay = BehaviorRelay<[String]>(value: [])
-    private let showTitleInputPopupRelay = PublishRelay<Void>()
 }

@@ -10,19 +10,9 @@ import RxCocoa
 import RxSwift
 
 final class AddBookViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    // MARK: - Initializer
-
-    init() {
-        addBookRelay
-            .subscribe(onNext: { [weak self] title in
-                self?.addBook(title: title)
-            })
-            .disposed(by: disposeBag)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     // MARK: - Input & Output
 
@@ -38,7 +28,31 @@ final class AddBookViewModel: ViewModelType {
         let showTitleInputPopup: Observable<Void>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
+
+    // MARK: - Private
+
+    // MARK: - Private Properties
+
+    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
+    private let navigateToReviewRelay = PublishRelay<[Book]>()
+    private let addBookRelay = PublishRelay<String>()
+
+    // MARK: - Lifecycle
+
+    // MARK: - Initializer
+
+    init() {
+        addBookRelay
+            .subscribe(onNext: { [weak self] title in
+                self?.addBook(title: title)
+            })
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Functions
 
     // MARK: - Transform Function
 
@@ -70,14 +84,6 @@ final class AddBookViewModel: ViewModelType {
             showTitleInputPopup: showPopup
         )
     }
-
-    // MARK: Private
-
-    // MARK: - Private Properties
-
-    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
-    private let navigateToReviewRelay = PublishRelay<[Book]>()
-    private let addBookRelay = PublishRelay<String>()
 
     // MARK: - Private Methods
 

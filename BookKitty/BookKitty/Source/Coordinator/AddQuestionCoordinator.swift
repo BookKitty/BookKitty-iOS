@@ -11,15 +11,9 @@ import UIKit
 
 /// 사용자가 새 질문을 추가하는 플로우를 관리하는 Coordinator
 final class AddQuestionCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        newQuestionViewModel = NewQuestionViewModel()
-        newQuestionViewController = NewQuestionViewController(viewModel: newQuestionViewModel)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -28,11 +22,21 @@ final class AddQuestionCoordinator: Coordinator {
     var newQuestionViewController: NewQuestionViewController
     var newQuestionViewModel: NewQuestionViewModel
 
-    func start() { showNewQuestionScene() }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        newQuestionViewModel = NewQuestionViewModel()
+        newQuestionViewController = NewQuestionViewController(viewModel: newQuestionViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showNewQuestionScene() }
 }
 
 extension AddQuestionCoordinator {
@@ -78,7 +82,7 @@ extension AddQuestionCoordinator {
         questionResultViewModel.navigateToBookDetail
             .withUnretained(self)
             .bind(onNext: { owner, book in
-                owner.showBookDetailScene(with: book.isbn)
+                owner.showBookDetailScene(with: book)
             }).disposed(by: disposeBag)
         questionResultViewModel.navigateToQuestionHistory
             .withUnretained(self)
@@ -94,9 +98,12 @@ extension AddQuestionCoordinator {
 
     /// 책 상세 화면을 표시하는 메서드
     /// - Parameter isbn: 선택한 책의 ISBN 번호
-    private func showBookDetailScene(with isbn: String) {
-        let bookDetailViewModel = BookDetailViewModel()
-        bookDetailViewModel.isbnRelay.accept(isbn)
+    private func showBookDetailScene(with book: Book) {
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
         bookDetailViewModel.navigateBackRelay
             .observe(on: MainScheduler.instance)

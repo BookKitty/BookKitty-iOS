@@ -15,7 +15,19 @@ import UIKit
 
 /// 사용자가 새로운 질문을 입력하고 제출할 수 있는 화면을 담당하는 ViewController
 final class NewQuestionViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let viewModel: NewQuestionViewModel
+
+    private let navigationBar = CustomNavigationBar()
+    private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
+    private let questionInputView = QuestionTextView()
+    private let captionLabel = CaptionLabel().then { $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게 적어주세요." }
+    private let submitButton = RoundButton(title: "질문하기").then { $0.changeToDisabled() }
+
+    // MARK: - Lifecycle
 
     init(viewModel: NewQuestionViewModel) {
         self.viewModel = viewModel
@@ -27,8 +39,6 @@ final class NewQuestionViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -37,22 +47,15 @@ final class NewQuestionViewController: BaseViewController {
         setupTabGesture()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    // MARK: - Overridden Functions
 
-        navigationController?.navigationBar.isHidden = false
-    }
+    // MARK: - Internal
 
     override func bind() {
-        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
-        else {
-            return
-        }
-
         let input = NewQuestionViewModel.Input(
             submitButtonTapped: submitButton.rx.tap
                 .withLatestFrom(questionInputView.textView.rx.text.orEmpty).asObservable(),
-            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable()
         )
 
         _ = viewModel.transform(input)
@@ -61,12 +64,19 @@ final class NewQuestionViewController: BaseViewController {
     override func configureBackground() { view.backgroundColor = Colors.background0 }
 
     override func configureHierarchy() {
-        [titleLabel, questionInputView, captionLabel, submitButton].forEach { view.addSubview($0) }
+        [navigationBar, titleLabel, questionInputView, captionLabel, submitButton]
+            .forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(Vars.viewSizeReg)
+        }
+
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingReg)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.paddingReg)
             $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
         }
 
@@ -88,33 +98,26 @@ final class NewQuestionViewController: BaseViewController {
         }
     }
 
-    override func configureNavItem() {
-        var config = UIButton.Configuration.plain()
-        config.title = "돌아가기"
-        config.image = UIImage(systemName: "chevron.left")
-        config.imagePlacement = .leading
-        config.imagePadding = 5
-        config.contentInsets = .zero
+//    override func configureNavItem() {
+//        var config = UIButton.Configuration.plain()
+//        config.title = "돌아가기"
+//        config.image = UIImage(systemName: "chevron.left")
+//        config.imagePlacement = .leading
+//        config.imagePadding = 5
+//        config.contentInsets = .zero
+//
+//        let backButton = UIButton(configuration: config)
+//        backButton.tintColor = Colors.brandSub
+//
+//        let backBarButtonItem = UIBarButtonItem(customView: backButton)
+//
+//        navigationItem.leftBarButtonItem = backBarButtonItem
+//    }
 
-        let backButton = UIButton(configuration: config)
-        backButton.tintColor = Colors.brandSub
-
-        let backBarButtonItem = UIBarButtonItem(customView: backButton)
-
-        navigationItem.leftBarButtonItem = backBarButtonItem
-    }
+    // MARK: - Functions
 
     @objc
     func dismissKeyboard() { view.endEditing(true) }
-
-    // MARK: Private
-
-    private let viewModel: NewQuestionViewModel
-
-    private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
-    private let questionInputView = QuestionTextView()
-    private let captionLabel = CaptionLabel().then { $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게 적어주세요." }
-    private let submitButton = RoundButton(title: "질문하기").then { $0.changeToDisabled() }
 
     /// questionInputView의 currentConut를 통해 입력 상태를 감지하여 submitButton 활성화를 관리하는 메서드
     ///

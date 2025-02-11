@@ -1,30 +1,32 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct ChatGPTEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    init(
-        model: String,
-        messages: [ChatMessage],
-        temperature: Double,
-        maxTokens: Int,
-        configuration: APIConfiguration
-    ) {
-        self.model = model
-        self.messages = messages
-        self.temperature = temperature
-        self.maxTokens = maxTokens
-        self.configuration = configuration
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     typealias Response = ChatGPTResponse
 
+<<<<<<< HEAD:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/Endpoints/ChatGPTEndpoint.swift
     var baseURL = "https://api.openai.com"
     var path = "/v1/chat/completions"
     var method = HTTPMethod.post
+=======
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let model: String
+    private let messages: [ChatMessage]
+    private let temperature: Double
+    private let maxTokens: Int
+    private let configuration: APIConfiguration
+
+    // MARK: - Computed Properties
+
+    // MARK: Endpoint Protocol
+>>>>>>> develop:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/ChatGPTEndpoint.swift
 
     var headerFields: [String: String] {
         [
@@ -47,11 +49,19 @@ struct ChatGPTEndpoint: Endpoint {
         return try? JSONSerialization.data(withJSONObject: requestBody)
     }
 
-    // MARK: Private
+    // MARK: - Lifecycle
 
-    private let model: String
-    private let messages: [ChatMessage]
-    private let temperature: Double
-    private let maxTokens: Int
-    private let configuration: APIConfiguration
+    init(
+        model: String,
+        messages: [ChatMessage],
+        temperature: Double,
+        maxTokens: Int,
+        configuration: APIConfiguration
+    ) {
+        self.model = model
+        self.messages = messages
+        self.temperature = temperature
+        self.maxTokens = maxTokens
+        self.configuration = configuration
+    }
 }

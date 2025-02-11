@@ -13,7 +13,15 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct MyLibraryViewModelTests {
-    // MARK: Internal
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let repository = MockBookRepository() // MockBookRepository 인스턴스 생성
+
+    // MARK: - Functions
+
+    // MARK: - Internal
 
     /// 뷰가 로드될 때 책 목록이 방출되는지 테스트
     @Test("viewDidLoad -> Book 목록 방출")
@@ -89,10 +97,6 @@ struct MyLibraryViewModelTests {
             break
         }
     }
-
-    // MARK: Private
-
-    private let repository = MockBookRepository() // MockBookRepository 인스턴스 생성
 }
 
 /// 테스트에서 발생할 수 있는 오류를 정의하는 열거형

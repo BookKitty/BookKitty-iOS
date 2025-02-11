@@ -1,16 +1,26 @@
 import Foundation
-import Network
+import NetworkKit
 
 struct ImageDownloadEndpoint: Endpoint {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
+<<<<<<< HEAD:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/Endpoints/ImageDownloadEndpoint.swift
     init(urlString: String) {
         self.urlString = urlString
     }
-
-    // MARK: Internal
+=======
+    // MARK: - Internal
 
     typealias Response = Data
+>>>>>>> develop:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/ImageDownloadEndpoint.swift
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let urlString: String
+
+    // MARK: - Computed Properties
 
     var path = ""
 
@@ -32,7 +42,11 @@ struct ImageDownloadEndpoint: Endpoint {
 
     var data: Data? { nil }
 
-    // MARK: Private
+    // MARK: - Lifecycle
 
-    private let urlString: String
+    // MARK: Initialization
+
+    init(urlString: String) {
+        self.urlString = urlString
+    }
 }

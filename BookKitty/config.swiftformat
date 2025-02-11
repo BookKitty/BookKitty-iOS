@@ -36,3 +36,7 @@
 --wrapcollections before-first
 --funcattributes prev-line
 --typeattributes prev-line
+--categorymark "MARK: - %c"
+--lifecycle viewDidLoad,viewWillAppear,viewIsAppearing,viewDidAppear,viewWillDisappear,viewDidDisappear,prepareForReuse,viewWillLayoutSubviews,viewDidLayoutSubviews,layoutSubviews,draw
+--organizationmode type
+

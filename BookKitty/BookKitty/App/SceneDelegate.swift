@@ -8,8 +8,12 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    // MARK: - Properties
+
     var window: UIWindow?
     var appCoordinator: AppCoordinator?
+
+    // MARK: - Functions
 
     func scene(
         _ scene: UIScene,

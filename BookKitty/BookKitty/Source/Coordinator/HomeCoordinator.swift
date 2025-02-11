@@ -13,16 +13,9 @@ protocol HomeCoordinator: Coordinator {
 }
 
 final class DefaultHomeCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        let repository = MockBookRepository()
-        homeViewModel = HomeViewModel(bookRepository: repository)
-        homeViewController = HomeViewController(viewModel: homeViewModel)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
@@ -33,11 +26,22 @@ final class DefaultHomeCoordinator: Coordinator {
     var homeViewModel: HomeViewModel
     var finishDelegate: (any CoordinatorFinishDelegate)?
 
-    func start() { showHomeScreen() }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        let repository = MockBookRepository()
+        homeViewModel = HomeViewModel(bookRepository: repository)
+        homeViewController = HomeViewController(viewModel: homeViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showHomeScreen() }
 }
 
 extension DefaultHomeCoordinator {
@@ -66,8 +70,12 @@ extension DefaultHomeCoordinator {
     /// 책 상세 화면을 생성하고 ViewModel과 ViewController를 연결
     /// 탭바를 숨기고 화면을 네비게이션 스택에 추가
     /// - Parameter book: 책 상세 화면에서 표시할 Book 정보가 담긴 구조체
-    private func showBookDetailScreen(with _: Book) {
-        let bookDetailViewModel = BookDetailViewModel()
+    private func showBookDetailScreen(with book: Book) {
+        let bookRepository = MockBookRepository()
+        let bookDetailViewModel = BookDetailViewModel(
+            bookDetail: book,
+            bookRepository: bookRepository
+        )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
 
         navigationController.pushViewController(bookDetailViewController, animated: true)

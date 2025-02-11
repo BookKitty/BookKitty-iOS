@@ -2,13 +2,17 @@ import BookMatchCore
 import RxSwift
 
 public struct LevenshteinStrategyWithNoParenthesis: SimilarityCalculatable {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
+
+    // MARK: - Public
+
+    public typealias T = String
+
+    // MARK: - Lifecycle
 
     public init() {}
 
-    // MARK: Public
-
-    public typealias T = String
+    // MARK: - Functions
 
     public func calculateSimilarity(_ str1: String, _ str2: String) -> Single<Double> {
         Single.create { single in
@@ -64,7 +68,7 @@ public struct LevenshteinStrategyWithNoParenthesis: SimilarityCalculatable {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     private func removeParenthesesContent(from text: String) -> String {
         var result = ""

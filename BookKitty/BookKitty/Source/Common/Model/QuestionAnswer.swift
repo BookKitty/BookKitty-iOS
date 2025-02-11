@@ -9,7 +9,17 @@ import Foundation
 
 /// 질문답변을 나타내는 모델
 struct QuestionAnswer: Hashable {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let createdAt: Date
+    let userQuestion: String
+    let gptAnswer: String
+    let id: UUID
+    let recommendedBooks: [Book]
+
+    // MARK: - Lifecycle
 
     init(
         createdAt: Date = Date(),
@@ -24,12 +34,4 @@ struct QuestionAnswer: Hashable {
         self.id = id
         self.recommendedBooks = recommendedBooks
     }
-
-    // MARK: Internal
-
-    let createdAt: Date
-    let userQuestion: String
-    let gptAnswer: String
-    let id: UUID
-    let recommendedBooks: [Book]
 }

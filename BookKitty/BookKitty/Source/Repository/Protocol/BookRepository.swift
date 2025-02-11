@@ -23,7 +23,15 @@ protocol BookRepository {
 }
 
 struct LocalBookRepository: BookRepository {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let context = CoreDataStack.shared.context
+    private let bookCoreDataManager: BookCoreDataManageable
+    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
+
+    // MARK: - Lifecycle
 
     init(
         bookCoreDataManager: BookCoreDataManageable = BookCoreDataManager(),
@@ -33,7 +41,9 @@ struct LocalBookRepository: BookRepository {
         self.bookQALinkCoreDataManager = bookQALinkCoreDataManager
     }
 
-    // MARK: Internal
+    // MARK: - Functions
+
+    // MARK: - Internal
 
     /// 페이지네이션이 적용된 책장 책 목록 가져오기
     /// 소유한 책만 가져옵니다.
@@ -143,10 +153,4 @@ struct LocalBookRepository: BookRepository {
             return false
         }
     }
-
-    // MARK: Private
-
-    private let context = CoreDataStack.shared.context
-    private let bookCoreDataManager: BookCoreDataManageable
-    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
 }

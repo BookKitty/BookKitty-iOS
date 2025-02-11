@@ -11,18 +11,14 @@ import RxRelay
 import RxSwift
 
 final class QuestionDetailViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    init(questionAnswer: QuestionAnswer, questionHistoryRepository: QuestionHistoryRepository) {
-        self.questionAnswer = questionAnswer
-        self.questionHistoryRepository = questionHistoryRepository
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let viewDidLoad: Observable<Void>
         let deleteButtonTapped: Observable<Void>
+        let backButtonTapped: Observable<Void>
         let bookTapped: Observable<Book>
     }
 
@@ -33,9 +29,31 @@ final class QuestionDetailViewModel: ViewModelType {
         let recommendedBooks: Driver<[SectionOfBook]>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
     let navigateToBookDetail = PublishRelay<Book>()
     let dismissViewController = PublishRelay<Void>()
+
+    // MARK: - Private
+
+    private let questionHistoryRepository: QuestionHistoryRepository
+
+    private let questionAnswer: QuestionAnswer
+
+    private let questionDateRelay = BehaviorRelay<String>(value: "")
+    private let userQuestionRelay = BehaviorRelay<String>(value: "")
+    private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
+    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
+
+    // MARK: - Lifecycle
+
+    init(questionAnswer: QuestionAnswer, questionHistoryRepository: QuestionHistoryRepository) {
+        self.questionAnswer = questionAnswer
+        self.questionHistoryRepository = questionHistoryRepository
+    }
+
+    // MARK: - Functions
 
     // 뒤로가기도 코디네이터에서 navigation 하는지?
 
@@ -60,6 +78,10 @@ final class QuestionDetailViewModel: ViewModelType {
             }
             .disposed(by: disposeBag)
 
+        input.backButtonTapped
+            .bind(to: dismissViewController)
+            .disposed(by: disposeBag)
+
         input.bookTapped
             .bind(to: navigateToBookDetail)
             .disposed(by: disposeBag)
@@ -71,15 +93,4 @@ final class QuestionDetailViewModel: ViewModelType {
             recommendedBooks: recommendedBooksRelay.asDriver()
         )
     }
-
-    // MARK: Private
-
-    private let questionHistoryRepository: QuestionHistoryRepository
-
-    private let questionAnswer: QuestionAnswer
-
-    private let questionDateRelay = BehaviorRelay<String>(value: "")
-    private let userQuestionRelay = BehaviorRelay<String>(value: "")
-    private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
-    private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
 }

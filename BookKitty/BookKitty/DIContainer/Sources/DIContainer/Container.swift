@@ -54,11 +54,28 @@ import Foundation
 /// Swift 6 concurrency 안정성에 대응하기 위해 @MainActor를 사용하였습니다.
 /// 이 부분은 추가적인 공부 이후 발전시켜나가겠습니다.
 public final class Container: @unchecked Sendable {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Private
+
+    /// 싱글톤 인스턴스
+    private static let shared = Container()
+
+    // MARK: - Properties
+
+    /// 스레드 안전성을 위한 락 객체
+    private let lock = NSLock()
+
+    /// 서비스 타입과 구현을 저장하는 딕셔너리
+    private var services: [String: Any] = [:]
+
+    // MARK: - Lifecycle
 
     private init() {}
 
-    // MARK: Internal
+    // MARK: - Static Functions
+
+    // MARK: - Internal
 
     /// 서비스 타입과 구현을 등록하는 메서드
     /// - Parameters:
@@ -83,16 +100,7 @@ public final class Container: @unchecked Sendable {
         shared.removeAllServices()
     }
 
-    // MARK: Private
-
-    /// 싱글톤 인스턴스
-    private static let shared = Container()
-
-    /// 스레드 안전성을 위한 락 객체
-    private let lock = NSLock()
-
-    /// 서비스 타입과 구현을 저장하는 딕셔너리
-    private var services: [String: Any] = [:]
+    // MARK: - Functions
 
     /// 스레드 안전한 작업 수행을 위한 동기화 메서드
     /// - Parameter operation: 수행할 작업

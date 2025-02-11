@@ -10,7 +10,35 @@ import Then
 import UIKit
 
 public class FailAlertPopupView: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public let primaryMessage: String
+    public let secondaryMessage: String
+    public let buttonTitle: String
+
+    public let confirmButton = RoundButton()
+
+    // MARK: - Private
+
+    private let iconImageView = UIImageView().then {
+        $0.image = UIImage(systemName: "exclamationmark.triangle.fill")
+        $0.tintColor = Colors.statusRed
+        $0.preferredSymbolConfiguration = .init(pointSize: Vars.viewSizeSmall, weight: .regular)
+        $0.backgroundColor = .clear
+    }
+
+    private let primaryMessageLabel = BodyLabel().then {
+        $0.textAlignment = .center
+        $0.textColor = Colors.statusRed
+    }
+
+    private let secondaryMessageLabel = BodyLabel().then {
+        $0.textAlignment = .center
+    }
+
+    // MARK: - Lifecycle
 
     public init(
         primaryMessage: String = "촬영에 실패하였습니다.",
@@ -30,32 +58,6 @@ public class FailAlertPopupView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: Public
-
-    public let primaryMessage: String
-    public let secondaryMessage: String
-    public let buttonTitle: String
-
-    public let confirmButton = RoundButton()
-
-    // MARK: Private
-
-    private let iconImageView = UIImageView().then {
-        $0.image = UIImage(systemName: "exclamationmark.triangle.fill")
-        $0.tintColor = Colors.statusRed
-        $0.preferredSymbolConfiguration = .init(pointSize: Vars.viewSizeSmall, weight: .regular)
-        $0.backgroundColor = .clear
-    }
-
-    private let primaryMessageLabel = BodyLabel().then {
-        $0.textAlignment = .center
-        $0.textColor = Colors.statusRed
-    }
-
-    private let secondaryMessageLabel = BodyLabel().then {
-        $0.textAlignment = .center
     }
 }
 

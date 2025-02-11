@@ -13,7 +13,27 @@ import SnapKit
 import UIKit
 
 final class BookDetailViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let viewModel: BookDetailViewModel
+
+    private let popupViewConfirmButtonTapTrigger = PublishRelay<Void>()
+
+    private let dimmingView = DimmingView()
+    private let navigationBar = CustomNavigationBar()
+    private let scrollView = UIScrollView().then { $0.alwaysBounceVertical = true }
+    private let contentStackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.spacing = Vars.spacing48
+    }
+
+    private let infoSection = BookDetailInfoSection()
+    private let introSection = BookDetailIntroSection()
+    private var popupView: ManageBookPopupView?
+
+    // MARK: - Lifecycle
 
     init(viewModel: BookDetailViewModel) {
         self.viewModel = viewModel
@@ -25,54 +45,60 @@ final class BookDetailViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        bindLeftBarButton()
-        bindRightBarButton()
-        bindPopupView()
+        bindNavigationBar()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    // MARK: - Overridden Functions
 
-        navigationController?.navigationBar.isHidden = false
-    }
+    // MARK: - Internal
 
     override func bind() {
         let input = BookDetailViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
-            leftBarButtonTapTrigger: leftBarButtonTapTrigger.asObservable(),
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
             popupViewConfirmButtonTapTrigger: popupViewConfirmButtonTapTrigger.asObservable()
         )
 
         let output = viewModel.transform(input)
 
-        output.model
+        output.bookDetail
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
-            .bind(onNext: { owner, model in
-                owner.introSection.setupData(with: model.description)
-                owner.infoSection.inforView.setupData(with: model)
-                owner.configureRightBarButton(with: model.isOwned)
+            .bind(onNext: { owner, bookDetail in
+                owner.introSection.setupData(with: bookDetail.description)
+                owner.infoSection.inforView.setupData(with: bookDetail)
 
-                let mode: ManageBookMode = model.isOwned ? .delete : .add
-                owner.popupView = ManageBookPopupView(bookTitle: model.title, mode: mode)
+                let mode: ManageBookMode = bookDetail.isOwned ? .delete : .add
+                owner.popupView = ManageBookPopupView(bookTitle: bookDetail.title, mode: mode)
+
+                if mode == .delete {
+                    owner.navigationBar.setupRightBarButton(with: .delete)
+                } else {
+                    owner.navigationBar.setupRightBarButton(with: .add)
+                }
             }).disposed(by: disposeBag)
     }
 
     override func configureHierarchy() {
-        [scrollView, dimmingView].forEach { view.addSubview($0) }
+        [navigationBar, scrollView, dimmingView].forEach { view.addSubview($0) }
         scrollView.addSubview(contentStackView)
         [infoSection, introSection].forEach { contentStackView.addArrangedSubview($0) }
     }
 
     override func configureLayout() {
-        scrollView.snp.makeConstraints {
-            $0.verticalEdges.equalTo(view.safeAreaLayoutGuide)
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(Vars.viewSizeReg)
+        }
+
+        scrollView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.horizontalEdges.equalToSuperview()
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         contentStackView.snp.makeConstraints {
@@ -98,57 +124,10 @@ final class BookDetailViewController: BaseViewController {
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
 
-    // MARK: Private
+    // MARK: - Functions
 
-    private let viewModel: BookDetailViewModel
-    private let leftBarButtonTapTrigger = PublishRelay<Void>()
-    private let rightBarButtonTabTrigger = PublishRelay<Void>()
-    private let popupViewConfirmButtonTapTrigger = PublishRelay<Void>()
-
-    private let dimmingView = DimmingView()
-    private let scrollView = UIScrollView().then { $0.alwaysBounceVertical = true }
-    private let contentStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = Vars.spacing48
-    }
-
-    private let infoSection = BookDetailInfoSection()
-    private let introSection = BookDetailIntroSection()
-    private var popupView: ManageBookPopupView?
-
-    private func configureRightBarButton(with isOwned: Bool) {
-        if isOwned {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "삭제")
-        } else {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(title: "추가")
-        }
-
-        navigationItem.rightBarButtonItem?.tintColor = Colors.brandSub
-    }
-
-    private func bindRightBarButton() {
-        guard let rightBarButton = navigationItem.rightBarButtonItem else {
-            return
-        }
-
-        rightBarButton.rx.tap
-            .bind(to: rightBarButtonTabTrigger)
-            .disposed(by: disposeBag)
-    }
-
-    private func bindLeftBarButton() {
-        guard let leftBarButton = navigationItem.leftBarButtonItem?.customView as? UIButton
-        else {
-            return
-        }
-
-        leftBarButton.rx.tap
-            .bind(to: leftBarButtonTapTrigger)
-            .disposed(by: disposeBag)
-    }
-
-    private func bindPopupView() {
-        rightBarButtonTabTrigger
+    private func bindNavigationBar() {
+        navigationBar.rightButtonTapped
             .observe(on: MainScheduler.instance)
             .withUnretained(self)
             .bind(onNext: { owner, _ in
@@ -190,5 +169,18 @@ final class BookDetailViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    BookDetailViewController(viewModel: BookDetailViewModel())
+    BookDetailViewController(
+        viewModel: BookDetailViewModel(
+            bookDetail: Book(
+                isbn: "9788950963262",
+                title: "침묵의 기술",
+                author: "조제프 앙투안 투생 디누아르",
+                publisher: "아르테(arte)",
+                thumbnailUrl: URL(
+                    string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
+                )
+            ),
+            bookRepository: MockBookRepository()
+        )
+    )
 }

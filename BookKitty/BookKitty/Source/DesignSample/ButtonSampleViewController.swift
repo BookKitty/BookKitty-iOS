@@ -11,6 +11,10 @@ import Then
 import UIKit
 
 class ButtonSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let confirmButton = RoundButton()
     let cancelButton = RoundButton(title: "취소, 너비 지정 없음", isSecondary: true)
     let customButton = RoundButton(title: "색상 바꾼 버튼").then {
@@ -30,6 +34,8 @@ class ButtonSampleViewController: BaseViewController {
 
     let textButton1 = TextButton()
     let textButton2 = TextButton(title: "+ 책 추가하기")
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()

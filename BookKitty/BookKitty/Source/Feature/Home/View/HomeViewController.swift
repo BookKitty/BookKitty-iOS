@@ -15,81 +15,19 @@ import Then
 import UIKit
 
 class HomeViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(viewModel: HomeViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
+    // MARK: - Private
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private let verticalScrollView = UIScrollView()
+    private let contentView = UIView()
 
-    // MARK: Internal
-
-    override func configureHierarchy() {
-        [titleLabel, recommendedBooksCollectionView, copyrightLabel].forEach { view.addSubview($0) }
-    }
-
-    override func configureLayout() {
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(Vars.spacing48)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-
-        recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing24)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
-            make.height.greaterThanOrEqualTo(448)
-        }
-
-        copyrightLabel.snp.makeConstraints { make in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-Vars.spacing16)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing24)
-        }
-    }
-
-    override func bind() {
-        let input = HomeViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
-            bookSelected: bookSelectedRelay.asObservable()
-        )
-
-        let output = viewModel.transform(input)
-
-        output.recommendedBooks
-            .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-
-        output.error
-            .withUnretained(self)
-            .subscribe(onNext: { error in
-                print("Error occurred : \(error)")
-            })
-            .disposed(by: disposeBag)
-
-        recommendedBooksCollectionView.rx.itemSelected
-            .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
-                let books = sectionOfBooks[0].items
-                print("gek")
-                return books[indexPath.item]
-            }
-            .bind(to: bookSelectedRelay)
-            .disposed(by: disposeBag)
-    }
-
-    // MARK: Private
+    private let lottieView =
+        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
 
     private let bookSelectedRelay = PublishRelay<Book>()
 
     private let viewModel: HomeViewModel
-
-    private let titleLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "책냥이가 아래 책들을 추천합니다."
-        $0.textColor = Colors.fontMain
-    }
 
     private let copyrightLabel = CaptionLabel().then {
         $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
@@ -129,6 +67,93 @@ class HomeViewController: BaseViewController {
             return cell
         }
     )
+
+    // MARK: - Lifecycle
+
+    init(viewModel: HomeViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Overridden Functions
+
+    // MARK: - Internal
+
+    override func configureHierarchy() {
+        view.addSubview(verticalScrollView)
+        verticalScrollView.addSubview(contentView)
+
+        [
+            lottieView,
+            recommendedBooksCollectionView,
+            copyrightLabel,
+        ].forEach { contentView.addSubview($0) }
+    }
+
+    override func configureLayout() {
+        verticalScrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
+        lottieView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(640)
+        }
+
+        recommendedBooksCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(lottieView.snp.bottom)
+            make.horizontalEdges.equalToSuperview()
+            make.height.greaterThanOrEqualTo(448)
+        }
+
+        copyrightLabel.snp.makeConstraints { make in
+            make.top.equalTo(recommendedBooksCollectionView.snp.bottom).offset(Vars.spacing72)
+            make.bottom.equalToSuperview().inset(Vars.spacing72)
+            make.horizontalEdges.equalToSuperview().inset(Vars.paddingLarge)
+        }
+    }
+
+    override func bind() {
+        let input = HomeViewModel.Input(
+            viewDidLoad: viewDidLoadRelay.asObservable(),
+            bookSelected: bookSelectedRelay.asObservable()
+        )
+
+        let output = viewModel.transform(input)
+
+        output.recommendedBooks
+            .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+
+        output.error
+            .withUnretained(self)
+            .subscribe(onNext: { error in
+                print("Error occurred : \(error)")
+            })
+            .disposed(by: disposeBag)
+
+        recommendedBooksCollectionView.rx.itemSelected
+            .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
+                let books = sectionOfBooks[0].items
+                print("gek")
+                return books[indexPath.item]
+            }
+            .bind(to: bookSelectedRelay)
+            .disposed(by: disposeBag)
+    }
+
+    // MARK: - Functions
 
     private func makeCollectionViewLayout() -> UICollectionViewCompositionalLayout {
         let itemSize = NSCollectionLayoutSize(

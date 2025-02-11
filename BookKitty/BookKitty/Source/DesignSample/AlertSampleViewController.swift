@@ -11,6 +11,10 @@ import Then
 import UIKit
 
 class AlertSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let failAlert1 = FailAlertPopupView()
     let failAlert2 = FailAlertPopupView(
         primaryMessage: "주요 메시지",
@@ -23,6 +27,8 @@ class AlertSampleViewController: BaseViewController {
 
     let scrollView = UIScrollView()
     let contentView = UIView()
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()

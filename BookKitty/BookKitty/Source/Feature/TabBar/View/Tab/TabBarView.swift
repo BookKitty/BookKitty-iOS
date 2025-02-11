@@ -14,7 +14,23 @@ import UIKit
 /// 커스텀 탭 바 뷰
 /// - `TabBarItem`을 **수평**으로 배치하고, 선택된 인덱스를 Rx로 전달
 final class TabBarView: UIStackView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    /// 선택된 탭의 인덱스를 방출하는 Relay
+    let selectedIndex = BehaviorRelay(value: 0)
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    private let indicator = UIView().then {
+        $0.backgroundColor = Colors.brandMain
+        $0.layer.cornerRadius = Vars.radiusReg
+    }
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -29,19 +45,7 @@ final class TabBarView: UIStackView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    /// 선택된 탭의 인덱스를 방출하는 Relay
-    let selectedIndex = BehaviorRelay(value: 0)
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
-
-    private let indicator = UIView().then {
-        $0.backgroundColor = Colors.brandMain
-        $0.layer.cornerRadius = Vars.radiusReg
-    }
+    // MARK: - Functions
 
     private func bindSelectedIndex() {
         selectedIndex
