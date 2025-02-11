@@ -2,6 +2,8 @@ import Foundation
 import Network
 
 struct NaverBooksEndpoint: Endpoint {
+    // MARK: Lifecycle
+
     init(query: String, limit: Int, configuration: APIConfiguration) {
         self.query = query
         self.limit = limit
@@ -34,7 +36,9 @@ struct NaverBooksEndpoint: Endpoint {
     var timeoutInterval: TimeInterval { 30.0 } // 기본 30초 타임아웃
 
     var data: Data? { nil }
-    
+
+    // MARK: Private
+
     private let query: String
     private let limit: Int
     private let configuration: APIConfiguration

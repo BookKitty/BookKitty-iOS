@@ -6,8 +6,7 @@ import UIKit
 
 /// 네이버 책 검색 API와 OpenAI API를 사용하여 도서 검색 및 추천 기능을 제공하는 클라이언트입니다.
 public final class DefaultAPIClient: APIClientProtocol {
-    private let configuration: APIConfiguration
-    private let disposeBag = DisposeBag()
+    // MARK: Lifecycle
 
     public init(
         configuration: APIConfiguration
@@ -40,7 +39,7 @@ public final class DefaultAPIClient: APIClientProtocol {
                 guard let response else {
                     throw BookMatchError.invalidResponse
                 }
-                
+
                 return response.items.map { $0.toBookItem() }
             }
             .catch { error in
@@ -49,7 +48,7 @@ public final class DefaultAPIClient: APIClientProtocol {
                         BookMatchError.networkError(networkError.localizedDescription)
                     )
                 }
-                
+
                 return .error(error)
             }
     }
@@ -89,12 +88,6 @@ public final class DefaultAPIClient: APIClientProtocol {
             }
     }
 
-    // MARK: Internal
-    // MARK: Private
-
-}
-
-extension DefaultAPIClient: APIClientProtocol {
     /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 도서 추천 이유`를 요청 및 반환받습니다.
     ///
     ///  - Parameters:
@@ -113,7 +106,7 @@ extension DefaultAPIClient: APIClientProtocol {
                 content: "질문: \(question)\n해당 질문에 대해 선정된 도서 목록: \(books.map { "\($0.title)-\($0.author)" }.joined(separator: ","))"
             ),
         ]
-        
+
         return sendChatRequest(
             model: "gpt-4o-mini",
             messages: messages,
@@ -132,8 +125,7 @@ extension DefaultAPIClient: APIClientProtocol {
             throw BookMatchError.invalidResponse
         }
     }
-    
-    
+
     /// `ChatGPT api`를 활용, `질문 기반 추천 도서`를 요청 및 반환받습니다.
     ///
     ///  - Parameters:
@@ -152,7 +144,7 @@ extension DefaultAPIClient: APIClientProtocol {
                 content: "질문: \(question)\n보유도서: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
             ),
         ]
-        
+
         return sendChatRequest(
             messages: messages,
             temperature: 0.01,
@@ -162,12 +154,12 @@ extension DefaultAPIClient: APIClientProtocol {
             guard let jsonString = response.choices.first?.message.content,
                   let jsonData = jsonString.data(using: .utf8),
                   let result = try? JSONDecoder().decode(
-                    AiRecommendationForQuestionDTO.self,
-                    from: jsonData
+                      AiRecommendationForQuestionDTO.self,
+                      from: jsonData
                   ) else {
                 throw BookMatchError.invalidResponse
             }
-            
+
             return result.toDomain(ownedBooks)
         }
         .retry(3)
@@ -175,7 +167,7 @@ extension DefaultAPIClient: APIClientProtocol {
             throw BookMatchError.invalidResponse
         }
     }
-    
+
     /// `ChatGPT api`를 활용, `보유도서 기반 추천 도서`를 요청 및 반환받습니다.
     ///
     ///  - Parameters:
@@ -183,7 +175,7 @@ extension DefaultAPIClient: APIClientProtocol {
     ///  - Returns: ``Rawbook`` 타입의 추천도서 배열
     ///  - Throws: GPT 반환 형식 에러
     public func getBookRecommendation(ownedBooks: [OwnedBook])
-    -> Single<AiRecommendationFromOwnedBooks> {
+        -> Single<AiRecommendationFromOwnedBooks> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.recommendationFromOwnedBooks),
             ChatMessage(
@@ -191,7 +183,7 @@ extension DefaultAPIClient: APIClientProtocol {
                 content: "보유도서 제목-저자 목록: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
             ),
         ]
-        
+
         return sendChatRequest(
             messages: messages,
             temperature: 0.01,
@@ -201,13 +193,13 @@ extension DefaultAPIClient: APIClientProtocol {
             guard let jsonString = response.choices.first?.message.content,
                   let jsonData = jsonString.data(using: .utf8),
                   let result = try? JSONDecoder().decode(
-                    AiRecommendationFromOwnedBooksDTO.self,
-                    from: jsonData
+                      AiRecommendationFromOwnedBooksDTO.self,
+                      from: jsonData
                   )
             else {
                 throw BookMatchError.invalidResponse
             }
-            
+
             return result.toDomain()
         }
         .retry(3)
@@ -216,7 +208,7 @@ extension DefaultAPIClient: APIClientProtocol {
             throw BookMatchError.invalidResponse
         }
     }
-    
+
     /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 새로운 추천도서`를 `재요청` 및 반환받습니다.
     ///
     ///  - Parameters:
@@ -235,7 +227,7 @@ extension DefaultAPIClient: APIClientProtocol {
                 content: "질문: \(question)\n기존 도서 제목 배열: \(previousBooks.map(\.title))"
             ),
         ]
-        
+
         return sendChatRequest(
             messages: messages,
             temperature: 0.01,
@@ -245,11 +237,11 @@ extension DefaultAPIClient: APIClientProtocol {
             guard let result = response.choices.first?.message.content else {
                 throw BookMatchError.invalidResponse
             }
-            
+
             let arr = result
                 .split(separator: "-")
                 .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-            
+
             return RawBook(title: arr[0], author: arr[1])
         }
         .retry(3)
@@ -258,7 +250,12 @@ extension DefaultAPIClient: APIClientProtocol {
             throw BookMatchError.invalidResponse
         }
     }
-    
+
+    // MARK: Private
+
+    private let configuration: APIConfiguration
+    private let disposeBag = DisposeBag()
+
     /// `ChatGPT api`를 요청합니다. APIClient의 public 메서드들이 모두 이 메서드를 공용합니다.
     ///
     ///  - Parameters:

@@ -2,6 +2,8 @@ import Foundation
 import Network
 
 struct ImageDownloadEndpoint: Endpoint {
+    // MARK: Lifecycle
+
     init(urlString: String) {
         self.urlString = urlString
     }
@@ -10,15 +12,17 @@ struct ImageDownloadEndpoint: Endpoint {
 
     typealias Response = Data
 
-    // MARK: Endpoint Protocol
-    /// Cannot use instance member 'urlString' within property initializer; property initializers run before 'self' is available
-    var baseURL: String {
-        urlString
-    }
-
     var path = ""
 
     var method = HTTPMethod.get
+
+    // MARK: Endpoint Protocol
+
+    /// Cannot use instance member 'urlString' within property initializer; property initializers
+    /// run before 'self' is available
+    var baseURL: String {
+        urlString
+    }
 
     var headerFields: [String: String] { [:] }
 

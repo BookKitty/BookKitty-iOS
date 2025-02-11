@@ -2,6 +2,8 @@ import Foundation
 import Network
 
 struct ChatGPTEndpoint: Endpoint {
+    // MARK: Lifecycle
+
     init(
         model: String,
         messages: [ChatMessage],
