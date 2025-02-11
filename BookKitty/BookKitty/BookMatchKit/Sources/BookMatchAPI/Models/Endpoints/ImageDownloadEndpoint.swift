@@ -4,15 +4,10 @@ import NetworkKit
 struct ImageDownloadEndpoint: Endpoint {
     // MARK: - Nested Types
 
-<<<<<<< HEAD:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/Endpoints/ImageDownloadEndpoint.swift
     init(urlString: String) {
         self.urlString = urlString
     }
-=======
-    // MARK: - Internal
 
-    typealias Response = Data
->>>>>>> develop:BookKitty/BookKitty/BookMatchKit/Sources/BookMatchAPI/Models/ImageDownloadEndpoint.swift
 
     // MARK: - Properties
 
