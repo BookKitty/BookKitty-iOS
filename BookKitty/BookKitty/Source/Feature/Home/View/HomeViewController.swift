@@ -107,12 +107,12 @@ class HomeViewController: BaseViewController {
 
         lottieView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.horizontalEdges.equalToSuperview().inset(Vars.paddingLarge)
+            make.horizontalEdges.equalToSuperview()
             make.height.equalTo(640)
         }
 
         recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(lottieView.snp.bottom).offset(Vars.spacing24)
+            make.top.equalTo(lottieView.snp.bottom)
             make.horizontalEdges.equalToSuperview()
             make.height.greaterThanOrEqualTo(448)
         }
