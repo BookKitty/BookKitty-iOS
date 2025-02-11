@@ -67,15 +67,26 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
     ///   - context: 코어데이터 컨텍스트
     /// - Returns: 성공 여부 Bool 타입
     func deleteQuestionAnswer(by id: UUID, context: NSManagedObjectContext) -> Bool {
-        let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
-            BookQuestionAnswerLinkEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "questionAnswer.id == %@", id as CVarArg)
+        let questionFetchRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity
+            .fetchRequest()
+        questionFetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
 
         do {
-            let results = try context.fetch(fetchRequest)
-            for entity in results {
+            guard let questionEntity = try context.fetch(questionFetchRequest).first else {
+                BookKittyLogger.log("삭제할 질문답변을 찾을 수 없음")
+                return false
+            }
+
+            let linkFetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
+                BookQuestionAnswerLinkEntity.fetchRequest()
+            linkFetchRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionEntity)
+
+            let linkResults = try context.fetch(linkFetchRequest)
+            for entity in linkResults {
                 context.delete(entity)
             }
+
+            context.delete(questionEntity) // 질문-답변도 함께 삭제
 
             try context.save()
             BookKittyLogger.log("질문답변 삭제 성공")
