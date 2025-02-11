@@ -16,8 +16,8 @@
 		60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F1CE8B2D53715B00E3F881 /* BookMatchKit */; };
 		60F33F2D2D58CD8C0060D7AE /* NetworkKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F33F2C2D58CD8C0060D7AE /* NetworkKit */; };
 		E5FC698C2D52414B002875FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5FC698B2D52414B002875FD /* SnapKit */; };
+		E93048662D559553008E9467 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E93048652D559553008E9467 /* RxCocoa */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
-		E9A9DF5B2D51EB54002EF385 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E9A9DF5A2D51EB54002EF385 /* RxCocoa */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +73,7 @@
 			files = (
 				60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */,
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
+				E93048662D559553008E9467 /* RxCocoa in Frameworks */,
 				E5FC698C2D52414B002875FD /* SnapKit in Frameworks */,
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				60F33F2D2D58CD8C0060D7AE /* NetworkKit in Frameworks */,
@@ -81,7 +82,6 @@
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
 				6041EB682D507E2800061ED0 /* RxDataSources in Frameworks */,
 				606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */,
-				E9A9DF5B2D51EB54002EF385 /* RxCocoa in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,10 +148,10 @@
 				606DA2412D4206F200C7FAA3 /* RxSwift */,
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
-				E9A9DF5A2D51EB54002EF385 /* RxCocoa */,
 				E5FC698B2D52414B002875FD /* SnapKit */,
 				60F1CE8B2D53715B00E3F881 /* BookMatchKit */,
 				60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */,
+				E93048652D559553008E9467 /* RxCocoa */,
 				60F33F2C2D58CD8C0060D7AE /* NetworkKit */,
 			);
 			productName = BookKitty;
@@ -645,14 +645,14 @@
 			package = E5FC698A2D52414B002875FD /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
 		};
-		E97DC36F2D50C161009ADFEA /* DesignSystem */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = DesignSystem;
-		};
-		E9A9DF5A2D51EB54002EF385 /* RxCocoa */ = {
+		E93048652D559553008E9467 /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 606DA23C2D4206F200C7FAA3 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxCocoa;
+		};
+		E97DC36F2D50C161009ADFEA /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
