@@ -9,6 +9,8 @@ struct NaverBooksResponse: Codable {
 }
 
 struct NaverBookDTO: Codable {
+    // MARK: - Properties
+
     let title: String
     let link: String
     let image: String
@@ -18,6 +20,8 @@ struct NaverBookDTO: Codable {
     let isbn: String
     let description: String
     let pubdate: String?
+
+    // MARK: - Functions
 
     func toBookItem() -> BookItem {
         BookItem(

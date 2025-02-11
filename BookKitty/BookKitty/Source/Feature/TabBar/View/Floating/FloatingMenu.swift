@@ -14,7 +14,30 @@ import UIKit
 
 /// 플로팅 메뉴 - 여러 메뉴 아이템을 담는 컨테이너 뷰
 final class FloatingMenu: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    /// 메뉴의 가시성 상태를 나타내는 `BehaviorRelay`
+    /// - `true` → 메뉴가 보임 (`alpha = 1.0`)
+    /// - `false` → 메뉴가 사라짐 (`alpha = 0.0`)
+    let isVisible = BehaviorRelay(value: false)
+
+    let items: [FloatingMenuItem] = FloatingMenuItemType.allCases.map {
+        FloatingMenuItem(with: $0)
+    }
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+
+    /// 메뉴 아이템을 담을 `UIStackView`
+    private let contentStackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.distribution = .fillEqually
+    }
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,31 +53,12 @@ final class FloatingMenu: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    /// 메뉴의 가시성 상태를 나타내는 `BehaviorRelay`
-    /// - `true` → 메뉴가 보임 (`alpha = 1.0`)
-    /// - `false` → 메뉴가 사라짐 (`alpha = 0.0`)
-    let isVisible = BehaviorRelay(value: false)
-
-    let items: [FloatingMenuItem] = FloatingMenuItemType.allCases.map {
-        FloatingMenuItem(with: $0)
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: Vars.radiusTiny).cgPath
     }
 
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
-
-    /// 메뉴 아이템을 담을 `UIStackView`
-    private let contentStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.distribution = .fillEqually
-    }
+    // MARK: - Functions
 
     private func setupUI() {
         backgroundColor = .white

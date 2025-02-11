@@ -9,6 +9,8 @@ import Foundation
 import RxSwift
 
 final class MockQuestionHistoryRepository: QuestionHistoryRepository {
+    // MARK: - Properties
+
     let mockQuestionList = [
         QuestionAnswer(
             createdAt: Date(),
@@ -174,6 +176,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
             ]
         ),
     ]
+
+    // MARK: - Functions
 
     func fetchQuestion(by _: UUID) -> QuestionAnswer? {
         mockQuestionList[0]

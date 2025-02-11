@@ -21,7 +21,7 @@ protocol BookCoreDataManageable {
 
 /// Book 엔티티를 관리하는 객체
 final class BookCoreDataManager: BookCoreDataManageable {
-    // MARK: Internal
+    // MARK: - Internal
 
     /// BookEntity 객체를 프레젠테이션 레이어의 Book 모델로 변경하기
     /// - Parameter entity: BookEntity 객체
@@ -146,7 +146,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
         }
     }
 
-    // MARK: Private
+    // MARK: - Private
 
     /// 모델을 코어데이터에 저장하기 위해 entity를 생성해주는 메소드
     /// - Parameters:

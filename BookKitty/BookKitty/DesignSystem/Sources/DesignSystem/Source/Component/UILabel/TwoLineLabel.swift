@@ -10,7 +10,14 @@ import Then
 import UIKit
 
 public class TwoLineLabel: UIView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let firstLineLabel: Headline3Label
+    let secondLineLabel: Headline3Label
+
+    // MARK: - Lifecycle
 
     public init(text1: String, text2: String) {
         firstLineLabel = Headline3Label(weight: .extraBold).then {
@@ -31,11 +38,6 @@ public class TwoLineLabel: UIView {
     public required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Internal
-
-    let firstLineLabel: Headline3Label
-    let secondLineLabel: Headline3Label
 }
 
 // MARK: - UI Configure

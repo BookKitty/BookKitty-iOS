@@ -14,7 +14,24 @@ protocol AddBookCoordinator: Coordinator {
 }
 
 final class DefaultAddBookCoordinator: AddBookCoordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    weak var finishDelegate: CoordinatorFinishDelegate?
+    var parentCoordinator: Coordinator?
+    var childCoordinators: [Coordinator] = []
+    var navigationController: UINavigationController
+    var addBookViewController: AddBookViewController
+    var addBookViewModel: AddBookViewModel
+
+    // MARK: - Private
+
+    private let disposeBag = DisposeBag()
+    private let confirmButtonRelay =
+        PublishRelay<Void>() // :흰색_확인_표시: `confirmButton` 이벤트를 위한 Relay 추가
+
+    // MARK: - Lifecycle
 
     // MARK: - Init
 
@@ -24,14 +41,7 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
         addBookViewController = AddBookViewController(viewModel: addBookViewModel)
     }
 
-    // MARK: Internal
-
-    weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
-    var childCoordinators: [Coordinator] = []
-    var navigationController: UINavigationController
-    var addBookViewController: AddBookViewController
-    var addBookViewModel: AddBookViewModel
+    // MARK: - Functions
 
     // MARK: - Start
 
@@ -39,12 +49,6 @@ final class DefaultAddBookCoordinator: AddBookCoordinator {
         setupBindings()
         navigationController.pushViewController(addBookViewController, animated: true)
     }
-
-    // MARK: Private
-
-    private let disposeBag = DisposeBag()
-    private let confirmButtonRelay =
-        PublishRelay<Void>() // :흰색_확인_표시: `confirmButton` 이벤트를 위한 Relay 추가
 
     private func setupBindings() {
         let manualTitleRelay = PublishRelay<String>()

@@ -12,7 +12,9 @@ enum TabBarItemType: String, CaseIterable {
     case qna = "Q&A"
     case library = "Library"
 
-    // MARK: Internal
+    // MARK: - Computed Properties
+
+    // MARK: - Internal
 
     var index: Int {
         switch self {

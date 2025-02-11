@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "Network",
+    name: "NetworkKit",
     platforms: [.iOS(.v16)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to
         // other packages.
         .library(
-            name: "Network",
-            targets: ["Network"]
+            name: "NetworkKit",
+            targets: ["NetworkKit"]
         ),
     ],
     dependencies: [
@@ -22,12 +22,12 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Network",
+            name: "NetworkKit",
             dependencies: ["RxSwift", "SwiftFormat"]
         ),
         .testTarget(
-            name: "NetworkTests",
-            dependencies: ["Network", "RxSwift", "SwiftFormat"]
+            name: "NetworkKitTests",
+            dependencies: ["NetworkKit", "RxSwift", "SwiftFormat"]
         ),
     ]
 )

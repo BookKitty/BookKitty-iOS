@@ -10,7 +10,15 @@ import UIKit
 /// 도서 `매칭` 기능의 핵심 모듈입니다.
 /// 사용자의 요청을 처리하고, 도서 검색, `매칭` 기능을 조율합니다.
 public final class BookMatchKit: BookMatchable {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let imageStrategy = VisionImageStrategy()
+    private let apiClient: APIClientProtocol
+    private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
 
     public init(
         naverClientId: String,
@@ -26,7 +34,9 @@ public final class BookMatchKit: BookMatchable {
         apiClient = DefaultAPIClient(configuration: config)
     }
 
-    // MARK: Public
+    // MARK: - Functions
+
+    // MARK: - Public
 
     /// `OCR로 인식된 텍스트 데이터와 이미지`를 기반으로 실제 도서를 `매칭`합니다.
     ///
@@ -68,12 +78,6 @@ public final class BookMatchKit: BookMatchable {
                 return .just(nil)
             }
     }
-
-    // MARK: Private
-
-    private let imageStrategy = VisionImageStrategy()
-    private let apiClient: APIClientProtocol
-    private let disposeBag = DisposeBag()
 
     /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
     /// - Note:``matchBook(_:, image:)`` 메서드에 사용됩니다.

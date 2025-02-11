@@ -11,7 +11,24 @@ import UIKit
 
 /// 추천하는 책들을 나타내는 컬렉션뷰 셀
 final class RecommendedBookCell: UICollectionViewCell {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Internal
+
+    static let reuseIdentifier = "RecommendedBookCell"
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let recommendedBookView = RecommendedBookView(
+        bookTitle: "",
+        bookAuthor: "",
+        imageUrl: "",
+        isOwned: false
+    )
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -24,9 +41,7 @@ final class RecommendedBookCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    static let reuseIdentifier = "RecommendedBookCell"
+    // MARK: - Functions
 
     func configureCell(
         bookTitle: String,
@@ -41,15 +56,6 @@ final class RecommendedBookCell: UICollectionViewCell {
             isOwned: isOwned
         )
     }
-
-    // MARK: Private
-
-    private let recommendedBookView = RecommendedBookView(
-        bookTitle: "",
-        bookAuthor: "",
-        imageUrl: "",
-        isOwned: false
-    )
 
     private func configureHierarchy() {
         addSubview(recommendedBookView)

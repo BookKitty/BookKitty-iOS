@@ -1,21 +1,25 @@
 import Foundation
-@testable import Network
+@testable import NetworkKit
 import RxSwift
 import Testing
 
 @Suite("Network Test", .serialized)
 final class NetworkTests {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    let disposeBag = DisposeBag()
+    var sut: NetworkManager!
+
+    // MARK: - Lifecycle
 
     deinit {
         sut = nil
         MockURLProtocol.requestHandler = nil
     }
 
-    // MARK: Internal
-
-    let disposeBag = DisposeBag()
-    var sut: NetworkManager!
+    // MARK: - Functions
 
     @Test
     func test_Request_성공_200() async {

@@ -8,7 +8,9 @@
 import Foundation
 
 struct Environment {
-    // MARK: Internal
+    // MARK: - Computed Properties
+
+    // MARK: - Internal
 
     var naverClientID: String {
         getEnvironmentVariable("NAVER_CLIENT_ID")
@@ -26,7 +28,9 @@ struct Environment {
         getEnvironmentVariable("OPENAI_API_KEY")
     }
 
-    // MARK: Private
+    // MARK: - Functions
+
+    // MARK: - Private
 
     private func getEnvironmentVariable(_ name: String) -> String {
         guard let apiKey = Bundle.main.object(forInfoDictionaryKey: name) as? String else {

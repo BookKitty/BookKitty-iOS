@@ -9,7 +9,14 @@ import SnapKit
 import UIKit
 
 public class FlexibleImageView: UIImageView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public var imageUrl: String
+    public var viewWidth: CGFloat
+
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -31,11 +38,6 @@ public class FlexibleImageView: UIImageView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Public
-
-    public var imageUrl: String
-    public var viewWidth: CGFloat
 }
 
 // MARK: - Setup UI

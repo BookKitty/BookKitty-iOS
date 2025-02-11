@@ -13,7 +13,27 @@ import SnapKit
 import UIKit
 
 final class BookDetailViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let viewModel: BookDetailViewModel
+    private let leftBarButtonTapTrigger = PublishRelay<Void>()
+    private let rightBarButtonTabTrigger = PublishRelay<Void>()
+    private let popupViewConfirmButtonTapTrigger = PublishRelay<Void>()
+
+    private let dimmingView = DimmingView()
+    private let scrollView = UIScrollView().then { $0.alwaysBounceVertical = true }
+    private let contentStackView = UIStackView().then {
+        $0.axis = .vertical
+        $0.spacing = Vars.spacing48
+    }
+
+    private let infoSection = BookDetailInfoSection()
+    private let introSection = BookDetailIntroSection()
+    private var popupView: ManageBookPopupView?
+
+    // MARK: - Lifecycle
 
     init(viewModel: BookDetailViewModel) {
         self.viewModel = viewModel
@@ -24,8 +44,6 @@ final class BookDetailViewController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Internal
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,6 +58,10 @@ final class BookDetailViewController: BaseViewController {
 
         navigationController?.navigationBar.isHidden = false
     }
+
+    // MARK: - Overridden Functions
+
+    // MARK: - Internal
 
     override func bind() {
         let input = BookDetailViewModel.Input(
@@ -98,23 +120,7 @@ final class BookDetailViewController: BaseViewController {
         navigationItem.leftBarButtonItem = backBarButtonItem
     }
 
-    // MARK: Private
-
-    private let viewModel: BookDetailViewModel
-    private let leftBarButtonTapTrigger = PublishRelay<Void>()
-    private let rightBarButtonTabTrigger = PublishRelay<Void>()
-    private let popupViewConfirmButtonTapTrigger = PublishRelay<Void>()
-
-    private let dimmingView = DimmingView()
-    private let scrollView = UIScrollView().then { $0.alwaysBounceVertical = true }
-    private let contentStackView = UIStackView().then {
-        $0.axis = .vertical
-        $0.spacing = Vars.spacing48
-    }
-
-    private let infoSection = BookDetailInfoSection()
-    private let introSection = BookDetailIntroSection()
-    private var popupView: ManageBookPopupView?
+    // MARK: - Functions
 
     private func configureRightBarButton(with isOwned: Bool) {
         if isOwned {

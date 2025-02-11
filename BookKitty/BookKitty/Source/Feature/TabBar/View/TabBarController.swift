@@ -16,7 +16,32 @@ import UIKit
 /// - `TabBarView`와 `viewControllers`를 관리하며, 선택된 탭에 따라 뷰 컨트롤러 전환
 /// - 플로팅 메뉴(`FloatingMenu`)와 플로팅 버튼(`FloatingButton`)의 상태를 관리.
 final class TabBarController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Internal
+
+    /// 관리할 뷰 컨트롤러 배열
+    var viewControllers: [UIViewController] = []
+
+    let tabBar = TabBarView()
+
+    // MARK: - Private
+
+    private let viewModel: TabBarViewModel
+
+    /// 현재 선택된 탭의 인덱스
+    private var currentIndex = 0
+
+    ///    /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
+    ///    private let isHiddenFloating = BehaviorRelay(value: true)
+    private let isFloatingActive = BehaviorRelay(value: false)
+
+    private let gradientView = GradientView()
+    private let dimmingView = DimmingView()
+    private let floatingButton = FloatingButton()
+    private let floatingMenu = FloatingMenu()
+
+    // MARK: - Lifecycle
 
     init(viewModel: TabBarViewModel) {
         self.viewModel = viewModel
@@ -27,13 +52,6 @@ final class TabBarController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: Internal
-
-    /// 관리할 뷰 컨트롤러 배열
-    var viewControllers: [UIViewController] = []
-
-    let tabBar = TabBarView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +66,8 @@ final class TabBarController: BaseViewController {
 
         navigationController?.navigationBar.isHidden = true
     }
+
+    // MARK: - Overridden Functions
 
     override func bind() {
         let selectedFloatingItem = PublishRelay<FloatingMenuItemType>()
@@ -104,21 +124,7 @@ final class TabBarController: BaseViewController {
         }
     }
 
-    // MARK: Private
-
-    private let viewModel: TabBarViewModel
-
-    /// 현재 선택된 탭의 인덱스
-    private var currentIndex = 0
-
-    ///    /// 플로팅 메뉴의 표시 여부를 관리하는 BehaviorRelay
-    ///    private let isHiddenFloating = BehaviorRelay(value: true)
-    private let isFloatingActive = BehaviorRelay(value: false)
-
-    private let gradientView = GradientView()
-    private let dimmingView = DimmingView()
-    private let floatingButton = FloatingButton()
-    private let floatingMenu = FloatingMenu()
+    // MARK: - Functions
 
     // MARK: - Rx Binding
 

@@ -12,7 +12,16 @@ import UIKit
 /// 도서 매칭 및 추천 기능의 핵심 모듈입니다.
 /// 사용자의 요청을 처리하고, 도서 검색, 매칭, 추천 기능을 조율합니다.
 public final class BookRecommendationKit: BookRecommendable {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let apiClient: APIClientProtocol
+    private let titleStrategy = LevenshteinStrategyWithNoParenthesis()
+    private let authorStrategy = LevenshteinStrategy()
+    private let configuration: BookMatchConfiguration
+
+    // MARK: - Lifecycle
 
     public init(
         naverClientId: String,
@@ -31,7 +40,9 @@ public final class BookRecommendationKit: BookRecommendable {
         apiClient = DefaultAPIClient(configuration: config)
     }
 
-    // MARK: Public
+    // MARK: - Functions
+
+    // MARK: - Public
 
     /// `보유 도서 목록`을 기반으로 새로운 도서를 `추천`합니다.
     ///
@@ -176,13 +187,6 @@ public final class BookRecommendationKit: BookRecommendable {
             )
         }
     }
-
-    // MARK: Private
-
-    private let apiClient: APIClientProtocol
-    private let titleStrategy = LevenshteinStrategyWithNoParenthesis()
-    private let authorStrategy = LevenshteinStrategy()
-    private let configuration: BookMatchConfiguration
 
     /// RawBook을 실제 BookItem으로 변환합니다.
     /// - Note:``recommendBooks(for:)``, ``recommendBooks(from:)`` 메서드에 사용됩니다.

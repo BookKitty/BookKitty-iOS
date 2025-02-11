@@ -10,16 +10,9 @@ import RxCocoa
 import RxSwift
 
 final class ReviewAddBookViewModel: ViewModelType {
-    // MARK: Lifecycle
+    // MARK: - Nested Types
 
-    // MARK: - Init
-
-    init(initialBookList: [Book] = []) {
-        bookListRelay.accept(initialBookList)
-        addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     struct Input {
         let confirmButtonTapped: Observable<Void>
@@ -32,10 +25,28 @@ final class ReviewAddBookViewModel: ViewModelType {
         let bookList: BehaviorRelay<[Book]>
     }
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
 
     /// ✅ 네비게이션 이벤트
     let navigateToBookListRelay = PublishRelay<Void>()
+
+    // MARK: - Private
+
+    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
+    private var addedBookTitles = Set<String>() // ✅ 중복 방지용 Set
+
+    // MARK: - Lifecycle
+
+    // MARK: - Init
+
+    init(initialBookList: [Book] = []) {
+        bookListRelay.accept(initialBookList)
+        addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
+    }
+
+    // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
         input.confirmButtonTapped
@@ -98,9 +109,4 @@ final class ReviewAddBookViewModel: ViewModelType {
         currentList.append(book)
         bookListRelay.accept(currentList)
     }
-
-    // MARK: Private
-
-    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
-    private var addedBookTitles = Set<String>() // ✅ 중복 방지용 Set
 }

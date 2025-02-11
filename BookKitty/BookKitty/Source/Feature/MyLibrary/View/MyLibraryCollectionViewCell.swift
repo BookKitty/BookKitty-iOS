@@ -10,7 +10,25 @@ import SnapKit
 import UIKit
 
 final class MyLibraryCollectionViewCell: UICollectionViewCell {
-    // MARK: Lifecycle
+    // MARK: - Static Properties
+
+    // MARK: - Internal
+
+    static let reuseIdentifier = "MyLibraryCollectionViewCell"
+
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private var imageLoadTask: URLSessionDataTask?
+    private var currentImageUrl: URL?
+
+    private let cellImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.isUserInteractionEnabled = true
+    }
+
+    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -23,10 +41,6 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
-
-    static let reuseIdentifier = "MyLibraryCollectionViewCell"
-
     override func prepareForReuse() {
         super.prepareForReuse()
         // 기존 요청 취소 및 기본 이미지 설정
@@ -34,6 +48,8 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         cellImageView.image = nil
         currentImageUrl = nil
     }
+
+    // MARK: - Functions
 
     // TODO: 고도화 필요
     func configureCell(imageUrl: URL?) {
@@ -68,16 +84,6 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
             }
         }
         imageLoadTask?.resume()
-    }
-
-    // MARK: Private
-
-    private var imageLoadTask: URLSessionDataTask?
-    private var currentImageUrl: URL?
-
-    private let cellImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFit
-        $0.isUserInteractionEnabled = true
     }
 
     private func configureHierarchy() {

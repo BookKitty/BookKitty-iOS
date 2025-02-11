@@ -17,7 +17,16 @@ protocol QuestionHistoryRepository {
 }
 
 struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    private let context = CoreDataStack.shared.context
+    private let bookCoreDataManager: BookCoreDataManageable
+    private let questionAnswerCoreDataManager: QuestionAnswerCoreDataManageable
+    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
+
+    // MARK: - Lifecycle
 
     init(
         bookCoreDataManager: BookCoreDataManageable = BookCoreDataManager(),
@@ -30,7 +39,9 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         self.bookQALinkCoreDataManager = bookQALinkCoreDataManager
     }
 
-    // MARK: Internal
+    // MARK: - Functions
+
+    // MARK: - Internal
 
     func fetchQuestions(offset: Int, limit: Int) -> RxSwift.Single<[QuestionAnswer]> {
         let qnaEntities = questionAnswerCoreDataManager.selectQuestionHistories(
@@ -89,13 +100,6 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     func deleteQuestionAnswer(uuid: UUID) -> Bool {
         questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
-
-    // MARK: Private
-
-    private let context = CoreDataStack.shared.context
-    private let bookCoreDataManager: BookCoreDataManageable
-    private let questionAnswerCoreDataManager: QuestionAnswerCoreDataManageable
-    private let bookQALinkCoreDataManager: BookQALinkCoreDataManageable
 
     private func questionEntityToModel(entity: QuestionAnswerEntity) -> QuestionAnswer {
         let bookEntities = (entity.bookQuestionAnswerLinks as? Set<BookQuestionAnswerLinkEntity>)?

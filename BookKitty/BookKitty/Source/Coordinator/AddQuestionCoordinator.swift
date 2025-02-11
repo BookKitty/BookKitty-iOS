@@ -11,15 +11,9 @@ import UIKit
 
 /// 사용자가 새 질문을 추가하는 플로우를 관리하는 Coordinator
 final class AddQuestionCoordinator: Coordinator {
-    // MARK: Lifecycle
+    // MARK: - Properties
 
-    init(_ navigationController: UINavigationController) {
-        self.navigationController = navigationController
-        newQuestionViewModel = NewQuestionViewModel()
-        newQuestionViewController = NewQuestionViewController(viewModel: newQuestionViewModel)
-    }
-
-    // MARK: Internal
+    // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
     var parentCoordinator: Coordinator?
@@ -28,11 +22,21 @@ final class AddQuestionCoordinator: Coordinator {
     var newQuestionViewController: NewQuestionViewController
     var newQuestionViewModel: NewQuestionViewModel
 
-    func start() { showNewQuestionScene() }
-
-    // MARK: Private
+    // MARK: - Private
 
     private let disposeBag = DisposeBag()
+
+    // MARK: - Lifecycle
+
+    init(_ navigationController: UINavigationController) {
+        self.navigationController = navigationController
+        newQuestionViewModel = NewQuestionViewModel()
+        newQuestionViewController = NewQuestionViewController(viewModel: newQuestionViewModel)
+    }
+
+    // MARK: - Functions
+
+    func start() { showNewQuestionScene() }
 }
 
 extension AddQuestionCoordinator {

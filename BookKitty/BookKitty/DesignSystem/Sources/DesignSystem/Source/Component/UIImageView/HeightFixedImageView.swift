@@ -15,7 +15,15 @@ public enum BookImageFixedHeight {
 }
 
 public class HeightFixedImageView: UIImageView, ImageLoadableView {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public var imageUrl: String
+    public var fixedHeight: CGFloat
+    public var onImageLoaded: (() -> Void)?
+
+    // MARK: - Lifecycle
 
     // MARK: - Initializer
 
@@ -46,13 +54,9 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Public
+    // MARK: - Functions
 
-    public var imageUrl: String
-    public var fixedHeight: CGFloat
-    public var onImageLoaded: (() -> Void)?
-
-    // MARK: Internal
+    // MARK: - Internal
 
     func configure(imageUrl: String) {
         self.imageUrl = imageUrl

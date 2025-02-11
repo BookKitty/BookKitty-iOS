@@ -11,7 +11,14 @@ import UIKit
 
 /// 사용자에게 앱의 사용 방법을 안내하는 가이드 화면을 담당하는 뷰컨트롤러입니다.
 final class GuideViewController: BaseViewController {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Private
+
+    /// 가이드 화면의 비즈니스 로직을 처리하는 뷰모델
+    private let viewModel: GuideViewModel
+
+    // MARK: - Lifecycle
 
     /// GuideViewModel을 주입받아 뷰컨트롤러를 초기화합니다.
     /// - Parameter viewModel: 가이드 화면의 비즈니스 로직을 처리할 뷰모델
@@ -26,7 +33,9 @@ final class GuideViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: Internal
+    // MARK: - Overridden Functions
+
+    // MARK: - Internal
 
     // MARK: - View Configuration
 
@@ -65,9 +74,4 @@ final class GuideViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
     }
-
-    // MARK: Private
-
-    /// 가이드 화면의 비즈니스 로직을 처리하는 뷰모델
-    private let viewModel: GuideViewModel
 }

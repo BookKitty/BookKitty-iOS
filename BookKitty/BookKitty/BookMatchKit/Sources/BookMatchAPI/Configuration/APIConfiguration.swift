@@ -9,7 +9,17 @@
 ///  - naverBaseURL: 네이버 책 검색 API의 기본 URL (기본값: "https://openapi.naver.com/v1/search/book.json")
 ///  - openAIBaseURL: OpenAI API의 기본 URL (기본값: "https://api.openai.com/v1/chat/completions")
 public struct APIConfiguration {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: - Public
+
+    public let naverClientId: String
+    public let naverClientSecret: String
+    public let openAIApiKey: String
+    public let naverBaseURL: String
+    public let openAIBaseURL: String
+
+    // MARK: - Lifecycle
 
     public init(
         naverClientId: String,
@@ -24,12 +34,4 @@ public struct APIConfiguration {
         self.naverBaseURL = naverBaseURL
         self.openAIBaseURL = openAIBaseURL
     }
-
-    // MARK: Public
-
-    public let naverClientId: String
-    public let naverClientSecret: String
-    public let openAIApiKey: String
-    public let naverBaseURL: String
-    public let openAIBaseURL: String
 }

@@ -11,6 +11,8 @@ import RxSwift
 
 /// 탭 바에서 발생하는 이벤트를 관리하는 ViewModel
 final class TabBarViewModel: ViewModelType {
+    // MARK: - Nested Types
+
     struct Input {
         /// 플로팅 메뉴에서 선택된 항목 스트림
         var selectedFloatingItem: Observable<FloatingMenuItemType>
@@ -18,10 +20,14 @@ final class TabBarViewModel: ViewModelType {
 
     struct Output {}
 
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
 
     let navigateToAddBook = PublishRelay<Void>()
     let navigateToAddQuestion = PublishRelay<Void>()
+
+    // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
         input.selectedFloatingItem

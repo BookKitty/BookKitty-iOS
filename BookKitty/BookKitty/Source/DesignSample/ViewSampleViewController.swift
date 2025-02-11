@@ -18,6 +18,10 @@ import Then
 import UIKit
 
 class ViewSampleViewController: BaseViewController {
+    // MARK: - Properties
+
+    // MARK: - Internal
+
     let verticalScrollView = UIScrollView()
     let contentView = UIView()
 
@@ -42,6 +46,8 @@ class ViewSampleViewController: BaseViewController {
         imageUrl: "https://shopping-phinf.pstatic.net/main_3246426/32464267002.20221230072620.jpg",
         isOwned: false
     )
+
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
