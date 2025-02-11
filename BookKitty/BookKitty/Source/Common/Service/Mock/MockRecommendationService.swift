@@ -5,29 +5,15 @@
 //  Created by 권승용 on 2/5/25.
 //
 
-import BookRecommendationKit
 import BookMatchCore
+import BookRecommendationKit
 import Foundation
 import RxSwift
 import UIKit
 
 /// Mock 추천 서비스 클래스
 class MockRecommendationService: BookRecommendable {
-    func recommendBooks(for _: String, from _: [OwnedBook]) -> Single<BookMatchModuleOutput> {
-        .just(BookMatchModuleOutput(
-            ownedISBNs: [
-                "9784063164130",
-                "9784063164147",
-            ],
-            newBooks: mockBookData,
-            description: "이러한 이유로 당신에게 책을 추천합니당"
-        )
-        )
-    }
-    
-    func recommendBooks(from _: [OwnedBook]) -> Single<[BookItem]> {
-        .just([])
-    }
+    // MARK: - Properties
 
     let mockBookData = [
         BookItem(
@@ -114,4 +100,23 @@ class MockRecommendationService: BookRecommendable {
             isOwned: false
         ),
     ]
+
+    // MARK: - Functions
+
+    func recommendBooks(for _: String, from _: [OwnedBook]) -> Single<BookMatchModuleOutput> {
+        .just(
+            BookMatchModuleOutput(
+                ownedISBNs: [
+                    "9784063164130",
+                    "9784063164147",
+                ],
+                newBooks: mockBookData,
+                description: "이러한 이유로 당신에게 책을 추천합니당"
+            )
+        )
+    }
+
+    func recommendBooks(from _: [OwnedBook]) -> Single<[BookItem]> {
+        .just([])
+    }
 }

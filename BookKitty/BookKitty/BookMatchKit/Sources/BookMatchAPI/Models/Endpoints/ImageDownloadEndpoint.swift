@@ -4,22 +4,19 @@ import NetworkKit
 struct ImageDownloadEndpoint: Endpoint {
     // MARK: - Nested Types
 
-    init(urlString: String) {
-        self.urlString = urlString
-    }
-
+    typealias Response = Data
 
     // MARK: - Properties
+
+    var path = ""
+
+    var method = HTTPMethod.get
 
     // MARK: - Private
 
     private let urlString: String
 
     // MARK: - Computed Properties
-
-    var path = ""
-
-    var method = HTTPMethod.get
 
     // MARK: Endpoint Protocol
 
@@ -38,8 +35,6 @@ struct ImageDownloadEndpoint: Endpoint {
     var data: Data? { nil }
 
     // MARK: - Lifecycle
-
-    // MARK: Initialization
 
     init(urlString: String) {
         self.urlString = urlString

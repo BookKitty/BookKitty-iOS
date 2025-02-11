@@ -2,10 +2,14 @@ import BookMatchCore
 
 /// GPT 모델의 응답을 `사용자 질문 기반 추천 도서` 데이터로 변환하는 DTO 구조체입니다.
 public struct AiRecommendationForQuestionDTO: Codable {
+    // MARK: - Properties
+
     // MARK: Public
 
     public let recommendationOwned: [String]
     public let recommendationNew: [String]
+
+    // MARK: - Functions
 
     // MARK: Internal
 
@@ -31,9 +35,13 @@ public struct AiRecommendationForQuestionDTO: Codable {
 
 /// GPT 모델의 응답을 `사용자 보유도서 기반 추천 도서` 데이터로 변환하는 DTO 구조체입니다.
 public struct AiRecommendationFromOwnedBooksDTO: Codable {
+    // MARK: - Properties
+
     // MARK: Public
 
     public let recommendations: [String]
+
+    // MARK: - Functions
 
     // MARK: Internal
 

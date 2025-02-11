@@ -1,5 +1,17 @@
 public struct BookMatchConfig: Sendable {
-    // MARK: Lifecycle
+    // MARK: - Properties
+
+    // MARK: Public
+
+    public let titleSimilarityThreshold: Double
+    public let authorSimilarityThreshold: Double
+
+    public let titleWeight: Double
+    public let authorWeight: Double
+
+    public let maxRetries: Int
+
+    // MARK: - Lifecycle
 
     public init(
         titleSimilarityThreshold: Double = 0.4,
@@ -15,14 +27,4 @@ public struct BookMatchConfig: Sendable {
 
         self.maxRetries = maxRetries
     }
-
-    // MARK: Public
-
-    public let titleSimilarityThreshold: Double
-    public let authorSimilarityThreshold: Double
-
-    public let titleWeight: Double
-    public let authorWeight: Double
-
-    public let maxRetries: Int
 }

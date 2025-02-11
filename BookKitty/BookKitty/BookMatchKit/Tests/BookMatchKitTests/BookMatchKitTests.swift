@@ -1,12 +1,14 @@
 // @testable import BookMatchCore
 @testable import BookMatchKit
 @testable import BookRecommendationKit
-import XCTest
 import RxSwift
+import XCTest
 
 final class BookMatchKitTests: XCTestCase {
+    // MARK: - Properties
+
     let disposeBag = DisposeBag()
-    
+
     let questions = [
         //        "요즘 스트레스가 많은데, 마음의 안정을 찾을 수 있는 책 추천해주세요.",
 //        "SF와 판타지를 좋아하는데, 현실과 가상세계를 넘나드는 소설 없을까요?",
@@ -21,27 +23,28 @@ final class BookMatchKitTests: XCTestCase {
 //        "우울할 때 읽으면 좋은 따뜻한 책 추천해주세요.",
 //        "의욕이 없을 때 동기부여가 될 만한 책 없을까요?",
     ]
-    
+
     let dummyOwnedBooks: [OwnedBook] = [
-        OwnedBook( id: "9788934972464", title: "사피엔스", author: "유발 하라리"),
-        OwnedBook(id: "9788901260716",title: "아몬드",author: "손원평"),
-        OwnedBook(id: "9788901219943",title: "공정하다는 착각",author: "마이클 샌델"),
-        OwnedBook(id: "9788901255828",title: "대도시의 사랑법",author: "박상영"),
-        OwnedBook(id: "9788932917245",title: "달러구트 꿈 백화점",author: "이미예"),
-        OwnedBook(id: "9788936434267",title: "이기적 유전자",author: "리처드 도킨스"),
-        OwnedBook(id: "9788901285610",title: "부의 추월차선",author: "엠제이 드마코"),
-        OwnedBook(id: "9788950965510",title: "원씽",author: "게리 켈러"),
-        OwnedBook(id: "9788901255279",title: "멋진 신세계",author: "올더스 헉슬리"),
-        OwnedBook(id: "9788937460449",title: "1984",author: "조지 오웰"),
+        OwnedBook(id: "9788934972464", title: "사피엔스", author: "유발 하라리"),
+        OwnedBook(id: "9788901260716", title: "아몬드", author: "손원평"),
+        OwnedBook(id: "9788901219943", title: "공정하다는 착각", author: "마이클 샌델"),
+        OwnedBook(id: "9788901255828", title: "대도시의 사랑법", author: "박상영"),
+        OwnedBook(id: "9788932917245", title: "달러구트 꿈 백화점", author: "이미예"),
+        OwnedBook(id: "9788936434267", title: "이기적 유전자", author: "리처드 도킨스"),
+        OwnedBook(id: "9788901285610", title: "부의 추월차선", author: "엠제이 드마코"),
+        OwnedBook(id: "9788950965510", title: "원씽", author: "게리 켈러"),
+        OwnedBook(id: "9788901255279", title: "멋진 신세계", author: "올더스 헉슬리"),
+        OwnedBook(id: "9788937460449", title: "1984", author: "조지 오웰"),
     ]
-    
-    
+
     let module = BookRecommendationKit(
         naverClientId: "",
         naverClientSecret: "",
         openAIApiKey: ""
     )
-    
+
+    // MARK: - Overridden Functions
+
     override func setUp() {
         super.setUp()
     }
@@ -50,22 +53,24 @@ final class BookMatchKitTests: XCTestCase {
         super.tearDown()
     }
 
+    // MARK: - Functions
+
     func test_RecommendForQuestion() async {
         var total = 0
         for question in questions {
             let result = try! await module.recommendBooks(for: question, from: []).value
             total += result.newBooks.count
-            
+
             XCTAssertTrue(!result.description.isEmpty)
             XCTAssertTrue(!result.newBooks.isEmpty)
-            
+
             print(result)
         }
     }
 
     func test_RecommendFromOwnedBooks() async {
         let result = try! await module.recommendBooks(from: dummyOwnedBooks).value
-            
+
         print(result)
         XCTAssertTrue(!result.isEmpty)
     }

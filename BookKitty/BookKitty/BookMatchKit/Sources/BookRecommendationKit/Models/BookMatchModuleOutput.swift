@@ -1,5 +1,6 @@
 
 import BookMatchCore
+
 /// 도서 매칭 모듈의 출력 데이터를 나타내는 구조체입니다.
 public struct BookMatchModuleOutput {
     // MARK: - Properties

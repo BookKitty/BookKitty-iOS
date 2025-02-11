@@ -4,19 +4,23 @@ import NetworkKit
 struct NaverBooksEndpoint: Endpoint {
     // MARK: - Nested Types
 
-    init(query: String, limit: Int, configuration: APIConfiguration) {
-        self.query = query
-        self.limit = limit
-        self.configuration = configuration
-    }
-
     // MARK: Internal
 
     typealias Response = NaverBooksResponse
 
+    // MARK: - Properties
+
     var baseURL = "https://openapi.naver.com"
     var path = "/v1/search/book.json"
     var method = HTTPMethod.get
+
+    // MARK: Private
+
+    private let query: String
+    private let limit: Int
+    private let configuration: APIConfiguration
+
+    // MARK: - Computed Properties
 
     var headerFields: [String: String] {
         [
@@ -37,9 +41,11 @@ struct NaverBooksEndpoint: Endpoint {
 
     var data: Data? { nil }
 
-    // MARK: Private
+    // MARK: - Lifecycle
 
-    private let query: String
-    private let limit: Int
-    private let configuration: APIConfiguration
+    init(query: String, limit: Int, configuration: APIConfiguration) {
+        self.query = query
+        self.limit = limit
+        self.configuration = configuration
+    }
 }

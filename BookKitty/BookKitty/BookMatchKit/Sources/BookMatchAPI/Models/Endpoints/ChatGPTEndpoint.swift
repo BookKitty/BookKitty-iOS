@@ -8,9 +8,19 @@ struct ChatGPTEndpoint: Endpoint {
 
     typealias Response = ChatGPTResponse
 
+    // MARK: - Properties
+
     var baseURL = "https://api.openai.com"
     var path = "/v1/chat/completions"
     var method = HTTPMethod.post
+
+    let model: String
+    let temperature: Double
+    let maxTokens: Int
+    let messages: [ChatMessage]
+    let configuration: APIConfiguration
+
+    // MARK: - Computed Properties
 
     var headerFields: [String: String] {
         [
