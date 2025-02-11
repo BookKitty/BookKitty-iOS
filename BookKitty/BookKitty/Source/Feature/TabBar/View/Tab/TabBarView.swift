@@ -24,7 +24,6 @@ final class TabBarView: UIStackView {
     // MARK: - Private
 
     private let disposeBag = DisposeBag()
-
     private let indicator = UIView().then {
         $0.backgroundColor = Colors.brandMain
         $0.layer.cornerRadius = Vars.radiusReg
@@ -38,6 +37,7 @@ final class TabBarView: UIStackView {
         configureUI()
         configureHierarchy()
         bindSelectedIndex()
+        setupInitialIndicator()
     }
 
     @available(*, unavailable)
@@ -49,13 +49,14 @@ final class TabBarView: UIStackView {
 
     private func bindSelectedIndex() {
         selectedIndex
+            .skip(1) // 처음 실행 시 애니메이션 방지
             .asDriver(onErrorJustReturn: 0)
             .drive(onNext: { [weak self] index in
-                self?.updateIndicator(index: index)
+                self?.updateIndicator(index: index, animate: true)
             }).disposed(by: disposeBag)
     }
 
-    private func updateIndicator(index: Int) {
+    private func updateIndicator(index: Int, animate: Bool = true) {
         guard index < arrangedSubviews.count else {
             return
         }
@@ -64,33 +65,38 @@ final class TabBarView: UIStackView {
         let newCenter = targetView.center
         let newBounds = targetView.bounds
 
-        UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
-            self.indicator.transform = CGAffineTransform(scaleX: 0.83, y: 0.83)
-            self.indicator.alpha = 0.7
-        }, completion: { _ in
-            UIView.animate(
-                withDuration: 0.45,
-                delay: 0.0,
-                usingSpringWithDamping: 0.45,
-                initialSpringVelocity: 0.7,
-                options: .curveEaseOut,
-                animations: {
-                    self.indicator.center = newCenter
-                    self.indicator.bounds = newBounds
-                    self.indicator.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                },
-                completion: { _ in
-                    UIView.animate(
-                        withDuration: 0.2,
-                        delay: 0.0,
-                        options: .curveEaseInOut,
-                        animations: {
-                            self.indicator.transform = .identity
-                        }
-                    )
-                }
-            )
-        })
+        if animate {
+            UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
+                self.indicator.transform = CGAffineTransform(scaleX: 0.83, y: 0.83)
+                self.indicator.alpha = 0.7
+            }, completion: { _ in
+                UIView.animate(
+                    withDuration: 0.45,
+                    delay: 0.0,
+                    usingSpringWithDamping: 0.45,
+                    initialSpringVelocity: 0.7,
+                    options: .curveEaseOut,
+                    animations: {
+                        self.indicator.center = newCenter
+                        self.indicator.bounds = newBounds
+                        self.indicator.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                    },
+                    completion: { _ in
+                        UIView.animate(
+                            withDuration: 0.2,
+                            delay: 0.0,
+                            options: .curveEaseInOut,
+                            animations: {
+                                self.indicator.transform = .identity
+                            }
+                        )
+                    }
+                )
+            })
+        } else {
+            indicator.center = newCenter
+            indicator.bounds = newBounds
+        }
     }
 
     /// `TabBarItem`을 생성하고 `selectedIndex`와 바인딩
@@ -107,9 +113,17 @@ final class TabBarView: UIStackView {
         }
 
         insertSubview(indicator, at: 0)
+    }
+
+    /// 처음 실행 시 애니메이션 없이 indicator 위치 설정
+    private func setupInitialIndicator() {
+        if let firstItem = arrangedSubviews.first {
+            indicator.frame = firstItem.frame
+            indicator.center = firstItem.center
+        }
 
         DispatchQueue.main.async {
-            self.updateIndicator(index: 0)
+            self.updateIndicator(index: 0, animate: false)
         }
     }
 
