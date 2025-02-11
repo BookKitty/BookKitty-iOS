@@ -19,8 +19,8 @@ final class MyLibraryViewModel: ViewModelType {
 
     /// ViewModel이 처리할 수 있는 입력 이벤트들을 정의
     struct Input {
-        /// viewDidLoad 시 발생하는 이벤트
-        let viewDidLoad: Observable<Void>
+        /// viewWillAppear 시 발생하는 이벤트
+        let viewWillAppear: Observable<Void>
         /// 책 항목이 탭되었을 때 발생하는 이벤트
         /// BookDetail 이동과 동시에 Book 전달
         let bookTapped: Observable<Book>
@@ -71,7 +71,7 @@ final class MyLibraryViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         // 화면 로드 시 책 목록 가져오기
-        input.viewDidLoad
+        input.viewWillAppear
             .withUnretained(self)
             .map { _ in
                 let fetchedBooks = self.bookRepository.fetchBookList(
