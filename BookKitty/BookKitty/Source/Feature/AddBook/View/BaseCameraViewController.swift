@@ -70,7 +70,9 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
     }
 
     func handleCapturedImage(_ image: UIImage) {
-        detectBookElements(in: image) // OCR 및 객체 감지 실행
+        // 이미지 리사이즈 (OCR 정확도 향상을 위해)
+        let resizedImage = image.resized(toWidth: 1024)
+        detectBookElements(in: resizedImage!) // OCR 및 객체 감지 실행
     }
 
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
@@ -142,6 +144,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                 return
             }
             guard let captureDevice = AVCaptureDevice.default(for: .video) else {
+                print("🚨 카메라 장치를 찾을 수 없음")
                 return
             }
             do {
@@ -169,7 +172,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                     }
                 }
             } catch {
-                print("🚨 카메라 초기화 실패")
+                print("🚨 카메라 초기화 실패: \(error.localizedDescription)")
             }
         }
     }
@@ -210,8 +213,14 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
             return
         }
 
-        let request = VNCoreMLRequest(model: model) { request, _ in
+        let request = VNCoreMLRequest(model: model) { request, error in
+            if let error {
+                print("⚠️ Vision 요청 실패: \(error.localizedDescription)")
+                return
+            }
+
             guard let results = request.results as? [VNRecognizedObjectObservation] else {
+                print("⚠️ Vision 결과 없음")
                 return
             }
 
@@ -231,7 +240,10 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
 
             dispatchGroup.notify(queue: .main) {
                 if let bestTitle = extractedTexts.first {
+                    print("✅ 최종 OCR 결과: \(bestTitle)")
                     self.ocrTextHandler?(bestTitle)
+                } else {
+                    print("⚠️ OCR 결과 없음")
                 }
             }
         }
@@ -249,19 +261,27 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
 
     private func performOCR(on image: UIImage, completion: @escaping (String) -> Void) {
         guard let cgImage = image.cgImage else {
+            print("⚠️ 이미지 변환 실패")
             completion("")
             return
         }
 
         let request = VNRecognizeTextRequest { request, error in
-            guard error == nil,
-                  let observations = request.results as? [VNRecognizedTextObservation] else {
+            if let error {
+                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
+                completion("")
+                return
+            }
+
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                print("⚠️ OCR 결과 없음")
                 completion("")
                 return
             }
 
             let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
                 .joined(separator: " ")
+            print("✅ OCR 결과: \(recognizedText)")
             completion(recognizedText)
         }
 
@@ -271,8 +291,23 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         do {
             try requestHandler.perform([request])
         } catch {
-            print("OCR 오류 발생: \(error.localizedDescription)")
+            print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
             completion("")
         }
+    }
+}
+
+// MARK: - UIImage Extension (리사이즈 기능 추가)
+
+extension UIImage {
+    func resized(toWidth width: CGFloat) -> UIImage? {
+        let scaleFactor = width / size.width
+        let canvasSize = CGSize(width: width, height: size.height * scaleFactor)
+
+        UIGraphicsBeginImageContextWithOptions(canvasSize, false, UIScreen.main.scale)
+        defer { UIGraphicsEndImageContext() }
+
+        draw(in: CGRect(origin: .zero, size: canvasSize))
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
 }
