@@ -15,5 +15,5 @@ protocol BookQALinkCoreDataManageable {
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity
+    )
 }

@@ -35,18 +35,16 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
     ///   - bookEntity: 연결할 `BookEntity` 객체
     ///   - questionAnswerEntity: 연결할 `QuestionAnswerEntity` 객체
     ///   - context: `NSManagedObjectContext` 객체, 새 엔터티를 생성하는 데 사용됨
-    /// - Returns: 생성된 `BookQuestionAnswerLinkEntity` 객체 (저장되지 않음)
     func createNewLinkWithoutSave(
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity {
+    ) {
         let linkEntity = BookQuestionAnswerLinkEntity(context: context)
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
 
         BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
-        return linkEntity
     }
 }

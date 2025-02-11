@@ -30,10 +30,10 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
 
         do {
             let fetchResult = try context.fetch(request)
-            BookKittyLogger.log("질문 목록 가져오기 성공")
+            BookKittyLogger.log("질문답변 목록 가져오기 성공")
             return fetchResult
         } catch {
-            BookKittyLogger.log("질문 목록 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
