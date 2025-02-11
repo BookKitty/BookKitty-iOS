@@ -21,6 +21,7 @@ final class NewQuestionViewController: BaseViewController {
 
     private let viewModel: NewQuestionViewModel
 
+    private let navigationBar = CustomNavigationBar()
     private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
     private let questionInputView = QuestionTextView()
     private let captionLabel = CaptionLabel().then { $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게 적어주세요." }
@@ -46,26 +47,15 @@ final class NewQuestionViewController: BaseViewController {
         setupTabGesture()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        navigationController?.navigationBar.isHidden = false
-    }
-
     // MARK: - Overridden Functions
 
     // MARK: - Internal
 
     override func bind() {
-        guard let leftBarButtonItem = navigationItem.leftBarButtonItem?.customView as? UIButton
-        else {
-            return
-        }
-
         let input = NewQuestionViewModel.Input(
             submitButtonTapped: submitButton.rx.tap
                 .withLatestFrom(questionInputView.textView.rx.text.orEmpty).asObservable(),
-            leftBarButtonTapTrigger: leftBarButtonItem.rx.tap.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable()
         )
 
         _ = viewModel.transform(input)
@@ -74,12 +64,19 @@ final class NewQuestionViewController: BaseViewController {
     override func configureBackground() { view.backgroundColor = Colors.background0 }
 
     override func configureHierarchy() {
-        [titleLabel, questionInputView, captionLabel, submitButton].forEach { view.addSubview($0) }
+        [navigationBar, titleLabel, questionInputView, captionLabel, submitButton]
+            .forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
+        navigationBar.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide)
+            $0.horizontalEdges.equalToSuperview()
+            $0.height.equalTo(Vars.viewSizeReg)
+        }
+
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingReg)
+            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.paddingReg)
             $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
         }
 
@@ -101,21 +98,21 @@ final class NewQuestionViewController: BaseViewController {
         }
     }
 
-    override func configureNavItem() {
-        var config = UIButton.Configuration.plain()
-        config.title = "돌아가기"
-        config.image = UIImage(systemName: "chevron.left")
-        config.imagePlacement = .leading
-        config.imagePadding = 5
-        config.contentInsets = .zero
-
-        let backButton = UIButton(configuration: config)
-        backButton.tintColor = Colors.brandSub
-
-        let backBarButtonItem = UIBarButtonItem(customView: backButton)
-
-        navigationItem.leftBarButtonItem = backBarButtonItem
-    }
+//    override func configureNavItem() {
+//        var config = UIButton.Configuration.plain()
+//        config.title = "돌아가기"
+//        config.image = UIImage(systemName: "chevron.left")
+//        config.imagePlacement = .leading
+//        config.imagePadding = 5
+//        config.contentInsets = .zero
+//
+//        let backButton = UIButton(configuration: config)
+//        backButton.tintColor = Colors.brandSub
+//
+//        let backBarButtonItem = UIBarButtonItem(customView: backButton)
+//
+//        navigationItem.leftBarButtonItem = backBarButtonItem
+//    }
 
     // MARK: - Functions
 
