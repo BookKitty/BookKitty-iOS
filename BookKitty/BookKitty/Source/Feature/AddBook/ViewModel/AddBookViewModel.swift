@@ -11,7 +11,6 @@ final class AddBookViewModel: ViewModelType {
     struct Input {
         let captureButtonTapped: Observable<Void>
         let leftBarButtonTapTrigger: Observable<Void>
-        let popupViewConfirmButtonTapTrigger: Observable<Void>
     }
 
     struct Output {
@@ -26,7 +25,6 @@ final class AddBookViewModel: ViewModelType {
 
     let navigateBackRelay = PublishRelay<Void>()
     let navigateToReviewRelay = PublishRelay<[Book]>()
-    let navigateToBookListRelay = PublishRelay<Void>()
     let bookListRelay = BehaviorRelay<[Book]>(value: []) // 사진이 캡쳐된 이후, 캡처본에 대한 데이터 흐름을 담당하는 스트림입니다
 
     private let errorRelay = PublishRelay<Error>()
@@ -39,11 +37,12 @@ final class AddBookViewModel: ViewModelType {
             .bind(to: navigateBackRelay)
             .disposed(by: disposeBag)
 
-        input.popupViewConfirmButtonTapTrigger
-            .withLatestFrom(bookListRelay)
-            .filter { !$0.isEmpty }
-            .bind(to: navigateToReviewRelay)
-            .disposed(by: disposeBag)
+        input.captureButtonTapped
+            .subscribe(onNext: {
+                // TODO: VC에서 가져온 데이터 기반으로 OCR 데이터 Neo님과 상의해주세요.
+                // TODO: 정상적으로 책 데이터 추출되면 BookRepository로 책 추가한 이후에 navigateBackRelay.accept(()) 해주세요.
+                // TODO: 정삭적으로 책 데이터를 추출하지 못하면 Output으로 스트림 구축해서 accept 해주세요.
+            }).disposed(by: disposeBag)
 
         return Output(
             error: errorRelay.asObservable()

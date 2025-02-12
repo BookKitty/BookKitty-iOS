@@ -333,3 +333,8 @@ extension UIImageView {
         }
     }
 }
+
+@available(iOS 17.0, *)
+#Preview {
+    ReviewAddBookViewController(viewModel: ReviewAddBookViewModel())
+}

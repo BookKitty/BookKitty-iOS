@@ -51,7 +51,7 @@ extension AddBookCoordinator {
         addBookViewModel.navigateBackRelay
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-                owner.navigationController.popViewController(animated: true)
+                owner.finish()
             }).disposed(by: disposeBag)
 
         addBookViewModel.navigateToReviewRelay
@@ -59,12 +59,6 @@ extension AddBookCoordinator {
             .subscribe(onNext: { coordinator, bookList in
                 coordinator.showReviewBookScene(bookList: bookList)
             }).disposed(by: disposeBag)
-
-        addBookViewModel.navigateToBookListRelay
-            .bind { [weak self] in
-                self?.finish()
-            }
-            .disposed(by: disposeBag)
 
         navigationController.pushViewController(addBookViewController, animated: true)
     }
