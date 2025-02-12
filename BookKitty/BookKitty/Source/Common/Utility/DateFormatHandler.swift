@@ -24,4 +24,18 @@ struct DateFormatHandler {
     func dateString(from date: Date) -> String {
         DateFormatHandler.dateFormatter.string(from: date)
     }
+
+    func dateString(from dateString: String) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        dateFormatter.locale = Locale(identifier: "ko_KR")
+
+        guard let date = dateFormatter.date(from: dateString) else {
+            return nil
+        }
+
+        dateFormatter.dateFormat = "yyyy년 M월 d일"
+
+        return dateFormatter.string(from: date)
+    }
 }

@@ -46,9 +46,7 @@ final class BookDetailInfoView: UIStackView {
         $0.numberOfLines = 0
     }
 
-    private let pubDateLabel = CaptionLabel(weight: .regular).then {
-        $0.text = "2025년 1월 20일 출판"
-    }
+    private let pubDateLabel = CaptionLabel(weight: .regular)
 
     private let isbnLabel = CaptionLabel(weight: .regular)
     private let priceLabel = CaptionLabel(weight: .semiBold)
@@ -84,9 +82,17 @@ final class BookDetailInfoView: UIStackView {
         bookThumbnailImageView.setupImage(imageLink: bookDetail.thumbnailUrl?.absoluteString ?? "")
         titleLabel.text = bookDetail.title
         authorLabel.text = bookDetail.author
-        pubDateLabel.text = bookDetail.pubDate
         isbnLabel.text = "ISBN: \(bookDetail.isbn)"
-        priceLabel.text = "가격 \(bookDetail.price)"
+
+        if let formattedDate = DateFormatHandler().dateString(from: bookDetail.pubDate) {
+            pubDateLabel.text = "\(formattedDate) 출판"
+        }
+
+        if let formattedNumber = NumberFormatHandler.formatWithComma(from: bookDetail.price) {
+            priceLabel.text = "가격 \(formattedNumber) 원"
+        } else {
+            priceLabel.text = "가격 미정"
+        }
     }
 
     private func configureUI() {
