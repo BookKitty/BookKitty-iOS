@@ -60,21 +60,21 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         questionId: UUID,
         context: NSManagedObjectContext
     ) -> [BookEntity] {
-        let questionRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity
-            .fetchRequest()
-        questionRequest.predicate = NSPredicate(format: "id == %@", questionId as CVarArg)
-
-        let linkRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> = BookQuestionAnswerLinkEntity
-            .fetchRequest()
-        linkRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionId as CVarArg)
-
         do {
+            let linkRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
+                BookQuestionAnswerLinkEntity
+                    .fetchRequest()
+            linkRequest.predicate = NSPredicate(
+                format: "questionAnswer.id == %@",
+                questionId as CVarArg
+            )
+
             let linkedEntities = try context.fetch(linkRequest)
 
             // 각 링크 엔티티에서 `book`을 추출
             return linkedEntities.compactMap(\.book)
         } catch {
-            print("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }

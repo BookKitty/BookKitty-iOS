@@ -77,11 +77,18 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         questionEntity.id = data.id
         questionEntity.aiAnswer = data.gptAnswer
         questionEntity.userQuestion = data.userQuestion
+        questionEntity.createdAt = Date()
 
-        let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
-            data: data.recommendedBooks,
-            context: context
-        )
+        let beforeCount = data.recommendedBooks.count
+        var afterCount = beforeCount
+        let bookEntities = data.recommendedBooks.map {
+            if let book = bookCoreDataManager.selectBookByIsbn(isbn: $0.isbn, context: context) {
+                afterCount -= 1
+                return book
+            }
+            BookKittyLogger.log("\(beforeCount)만큼 책 가져왔지만, \(afterCount)만큼 저장.")
+            return bookCoreDataManager.modelToEntity(model: $0, context: context)
+        }
 
         let linkEntities = bookEntities.map {
             bookQALinkCoreDataManager.createNewLinkWithoutSave(
@@ -95,7 +102,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             try context.save()
             return questionEntity.id
         } catch {
-            print("저장 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("저장 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -126,12 +133,15 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             bookCoreDataManager.entityToModel(entity: $0)
         }
 
-        // TODO: Date, UUID가 새로 생기면 데이터가 달라집니다. id, createdAt이 존재하지 않을 경우 예외처리를 통해 개발자에게 알리는 작업을 추가하면 좋을 듯 합니다!
+        guard let createdAt = entity.createdAt, let questionId = entity.id else {
+            return nil
+        }
+
         return QuestionAnswer(
-            createdAt: entity.createdAt ?? Date(),
+            createdAt: createdAt,
             userQuestion: entity.userQuestion ?? "",
             gptAnswer: entity.aiAnswer ?? "",
-            id: entity.id ?? UUID(),
+            id: questionId,
             recommendedBooks: books
         )
     }

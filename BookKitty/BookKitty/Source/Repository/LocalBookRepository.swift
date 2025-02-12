@@ -52,6 +52,10 @@ struct LocalBookRepository: BookRepository {
         return bookEntities.compactMap { bookCoreDataManager.entityToModel(entity: $0) }
     }
 
+    /// isbn에 해당하는 책의 상세정보 가져오기
+    ///
+    /// - Parameter isbn: 가져오고자 하는 책의 isbn 코드
+    /// - Returns: Book 타입의 책 데이터
     func fetchBookDetail(by isbn: String) -> Book? {
         if let bookEntity = bookCoreDataManager.selectBookByIsbn(isbn: isbn, context: context) {
             return bookCoreDataManager.entityToModel(entity: bookEntity)
@@ -76,6 +80,10 @@ struct LocalBookRepository: BookRepository {
         return bookEntities.compactMap { bookCoreDataManager.entityToModel(entity: $0) }
     }
 
+    /// 최근 추천받은 책목록 가져오기
+    ///
+    /// 질문답변을 통해 최근에 추천받은 책의 목록을 가져옵니다.
+    /// - Returns: Book 모델의 배열
     func fetchRecentRecommendedBooks() -> [Book] {
         let linkEntities = bookQALinkCoreDataManager.selectRecentRecommendedBooks(context: context)
         var books: [Book] = []
@@ -90,10 +98,23 @@ struct LocalBookRepository: BookRepository {
         return books
     }
 
+    /// 여러 권의 책 저장
+    /// 이미 코어데이터에 저장된 책은 제외하고 저장
+    ///
+    /// - Parameter data: Book 타입 데이터의 배열
+    /// - Returns: 성공 여부 Bool 반환.
     func saveBookList(data: [Book]) -> Bool {
         do {
+            let filteredBooks = data.filter {
+                if bookCoreDataManager.selectBookByIsbn(isbn: $0.isbn, context: context) != nil {
+                    BookKittyLogger.log("\($0.title) 책은 이미 저장되어 있으므로, 저장할 책 목록에서 제외합니다.")
+                    return false
+                }
+                return true
+            }
+
             let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
-                data: data,
+                data: filteredBooks,
                 context: context
             )
             guard bookEntities.count == data.count else {
@@ -110,10 +131,25 @@ struct LocalBookRepository: BookRepository {
         }
     }
 
+    /// 단일 책 저장
+    /// 이미 코어데이터에 저장된 책은 저장되지 않습니다.
+    ///
+    /// - Parameter data: Book 타입 데이터
+    /// - Returns: 성공 여부 Bool 반환.
     func saveBook(book: Book) -> Bool {
-        bookCoreDataManager.insertBook(model: book, context: context)
+        if bookCoreDataManager.selectBookByIsbn(isbn: book.isbn, context: context) != nil {
+            BookKittyLogger.log("\(book.title) 책은 이미 저장되어 있습니다.")
+            return false
+        }
+
+        return bookCoreDataManager.insertBook(model: book, context: context)
     }
 
+    /// 나의 책장에 책 추가하기
+    /// 이미 저장되어 있는 책을 소유 상태로 만들어 나의 책장에서 볼 수 있도록 합니다.
+    ///
+    /// - Parameter isbn: 책장에 등록하고자 하는 책의 isbn
+    /// - Returns: 성공 여부 boolean 반환
     func addBookToShelf(isbn: String) -> Bool {
         do {
             if let book = bookCoreDataManager.selectBookByIsbn(isbn: isbn, context: context) {
@@ -129,6 +165,11 @@ struct LocalBookRepository: BookRepository {
         }
     }
 
+    /// 나의 책장에서 책 제외하기
+    /// 이미 저장되어 있는 책을 미소유 상태로 만들어 나의 책장에서 볼 수 없도록 합니다.
+    ///
+    /// - Parameter isbn: 책장에서 제외하고자 하는 책의 isbn
+    /// - Returns: 성공 여부 boolean 반환
     func exceptBookFromShelf(isbn: String) -> Bool {
         do {
             if let book = bookCoreDataManager.selectBookByIsbn(isbn: isbn, context: context) {

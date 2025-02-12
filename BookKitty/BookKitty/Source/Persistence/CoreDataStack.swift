@@ -43,7 +43,7 @@ final class CoreDataStack {
         do {
             try context.save()
         } catch {
-            print("저장 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("저장 실패: \(error.localizedDescription)")
         }
     }
 }

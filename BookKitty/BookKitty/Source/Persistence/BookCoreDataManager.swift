@@ -62,7 +62,13 @@ final class BookCoreDataManager: BookCoreDataManageable {
         data: [Book],
         context: NSManagedObjectContext
     ) -> [BookEntity] {
-        data.map { modelToEntity(model: $0, context: context) }
+        data.map {
+            if let book = selectBookByIsbn(isbn: $0.isbn, context: context) {
+                return book
+            }
+
+            return modelToEntity(model: $0, context: context)
+        }
     }
 
     /// isbn에 해당하는 책 데이터 가져오기
@@ -101,8 +107,12 @@ final class BookCoreDataManager: BookCoreDataManageable {
     ) -> [BookEntity] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
+        
         request.fetchOffset = offset
-        request.fetchLimit = limit
+        
+        if limit > 0 {
+            request.fetchLimit = limit
+        }
 
         // updatedAt 내림차순 정렬 추가
         let sortDescriptor = NSSortDescriptor(key: "updatedAt", ascending: false)
@@ -140,14 +150,12 @@ final class BookCoreDataManager: BookCoreDataManageable {
         }
     }
 
-    // MARK: - Private
-
     /// 모델을 코어데이터에 저장하기 위해 entity를 생성해주는 메소드
     /// - Parameters:
     ///   - model: 저장하고자 하는 Book 모델 객체
     ///   - context:  코어데이터 컨텍스트
     /// - Returns: 변환 된 BookEntity 객체
-    private func modelToEntity(model: Book, context: NSManagedObjectContext) -> BookEntity {
+    func modelToEntity(model: Book, context: NSManagedObjectContext) -> BookEntity {
         let entity = BookEntity(context: context)
 
         entity.author = model.author
