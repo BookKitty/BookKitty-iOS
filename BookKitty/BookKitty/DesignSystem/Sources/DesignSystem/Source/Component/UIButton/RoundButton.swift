@@ -59,7 +59,7 @@ extension RoundButton {
         config.background.cornerRadius = Vars.radiusMini
 
         config.baseForegroundColor = Colors.fontWhite
-        config.baseBackgroundColor = isSecondary ? Colors.brandSub30 : Colors.brandSub
+        config.baseBackgroundColor = isSecondary ? Colors.brandSub2 : Colors.brandSub
         config.contentInsets = NSDirectionalEdgeInsets(
             top: Vars.spacing4,
             leading: Vars.paddingSmall,

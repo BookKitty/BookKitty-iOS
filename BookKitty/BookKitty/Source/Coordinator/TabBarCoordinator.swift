@@ -38,8 +38,10 @@ final class TabBarCoordinator: Coordinator {
         let homeCoordinator = DefaultHomeCoordinator(navigationController)
         let qnaCoordinator = DefaultQuestionCoordinator(navigationController)
         let bookCoordinator = MyLibraryCoordinator(navigationController)
+
         // childCoordinators에 각 Tab에 해당하는 Coordinator 등록
         addChildCoordinator(homeCoordinator, qnaCoordinator, bookCoordinator)
+
         // 각 Coordinator의 부모 코디네이터를 TabBarCoordinator로 지정
         homeCoordinator.parentCoordinator = self
         qnaCoordinator.parentCoordinator = self
@@ -70,7 +72,7 @@ final class TabBarCoordinator: Coordinator {
 
 extension TabBarCoordinator {
     private func showAddBookFlow() {
-        let addBookCoordinator = DefaultAddBookCoordinator(navigationController)
+        let addBookCoordinator = AddBookCoordinator(navigationController)
         addChildCoordinator(addBookCoordinator)
         addBookCoordinator.parentCoordinator = self
         addBookCoordinator.start()

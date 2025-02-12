@@ -12,80 +12,87 @@ import RxSwift
 final class ReviewAddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
     struct Input {
-        let confirmButtonTapped: Observable<Void>
-        let addBookWithTitleTapped: Observable<String>
-        let deleteBookTapped: Observable<Int>
+        let addBookWithTitleTapTrigger: Observable<String>
+        let deleteBookTapTrigger: Observable<Int>
+        let confirmButtonTapTrigger: Observable<Void>
+        let leftBarButtonTapTrigger: Observable<Void>
     }
 
     struct Output {
-        let navigateToBookList: Observable<Void>
-        let bookList: BehaviorRelay<[Book]>
+        let addedBookList: Observable<[Book]>
     }
 
     // MARK: - Properties
 
     let disposeBag = DisposeBag()
 
-    /// ✅ 네비게이션 이벤트
     let navigateToBookListRelay = PublishRelay<Void>()
+    let navigateBackRelay = PublishRelay<Void>()
 
     // MARK: - Private
 
-    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
+    private let addedBookListRelay = BehaviorRelay<[Book]>(value: [])
     private var addedBookTitles = Set<String>() // ✅ 중복 방지용 Set
 
     // MARK: - Lifecycle
 
-    // MARK: - Init
-
     init(initialBookList: [Book] = []) {
-        bookListRelay.accept(initialBookList)
+        addedBookListRelay.accept(initialBookList)
         addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
     }
 
     // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
-        input.confirmButtonTapped
+        input.confirmButtonTapTrigger
             .bind(to: navigateToBookListRelay)
             .disposed(by: disposeBag)
 
-        input.addBookWithTitleTapped
+        input.addBookWithTitleTapTrigger
             .subscribe(onNext: { [weak self] title in
                 self?.appendBook(with: title)
             })
             .disposed(by: disposeBag)
 
-        input.deleteBookTapped
-            .withUnretained(self)
-            .withLatestFrom(bookListRelay) { ownerIndex, bookList -> [Book] in
+        input.deleteBookTapTrigger
+			.withUnretained(self)
+            .withLatestFrom(addedBookListRelay) { ownerIndex, bookList in
                 let owner = ownerIndex.0
-                let index = ownerIndex.1
-                var newList = bookList
+				let index = ownerIndex.1
+				var newList = bookList
                 if index < newList.count {
                     let removedTitle = newList[index].title
-                    owner.addedBookTitles.remove(removedTitle) // ✅ 삭제된 책 제목 제거
+                    owner.addedBookTitles.remove(removedTitle)
                     newList.remove(at: index)
                 }
+
                 return newList
             }
-            .bind(to: bookListRelay)
+            .bind(to: addedBookListRelay)
             .disposed(by: disposeBag)
 
-        return Output(
-            navigateToBookList: navigateToBookListRelay.asObservable(),
-            bookList: bookListRelay
-        )
+        return Output(addedBookList: addedBookListRelay.asObservable())
     }
 
-    /// ✅ 새로운 책 추가 메서드
-    func appendBook(with title: String) {
-        guard !addedBookTitles.contains(title) else {
+    /// ✅ 새로운 책 추가 (Book 객체로)
+    func appendBook(_ book: Book) {
+        guard !addedBookTitles.contains(book.title) else {
             return
         } // ✅ 중복 방지
+        addedBookTitles.insert(book.title)
+
+        var currentList = addedBookListRelay.value
+        currentList.append(book)
+        addedBookListRelay.accept(currentList)
+    }
+
+    // MARK: - Private Methods
+
+    private func appendBook(with title: String) {
+        guard !addedBookTitles.contains(title) else {
+            return
+        }
         addedBookTitles.insert(title)
 
         let newBook = Book(
@@ -96,20 +103,8 @@ final class ReviewAddBookViewModel: ViewModelType {
             thumbnailUrl: nil
         )
 
-        var currentList = bookListRelay.value
+        var currentList = addedBookListRelay.value
         currentList.append(newBook)
-        bookListRelay.accept(currentList)
-    }
-
-    /// ✅ `Book` 객체를 직접 추가하는 오버로드 메서드
-    func appendBook(_ book: Book) {
-        guard !addedBookTitles.contains(book.title) else {
-            return
-        } // ✅ 중복 방지
-        addedBookTitles.insert(book.title)
-
-        var currentList = bookListRelay.value
-        currentList.append(book)
-        bookListRelay.accept(currentList)
+        addedBookListRelay.accept(currentList)
     }
 }

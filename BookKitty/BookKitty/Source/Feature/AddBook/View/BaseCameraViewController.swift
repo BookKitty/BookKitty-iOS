@@ -1,41 +1,30 @@
-//
-//  BaseCameraViewController.swift
-//  BookKitty
-//
-//  Created by 반성준 on 2/5/25.
-//
-
 import AVFoundation
+import CoreML
 import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
 import UIKit
+import Vision
 
 class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     // MARK: - Properties
 
-    // MARK: - Open
-
-    /// ✅ `open var`로 선언하여 하위 클래스에서 변경 가능하도록 설정
     open var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
-
-    // MARK: - Internal
 
     var captureSession = AVCaptureSession()
     var previewLayer: AVCaptureVideoPreviewLayer?
     var captureOutput = AVCapturePhotoOutput()
-
     private(set) var disposeBag = DisposeBag()
-
-    // MARK: - UI Elements
 
     let cameraView = UIView().then {
         $0.backgroundColor = .black
         $0.layer.cornerRadius = 8
         $0.clipsToBounds = true
     }
+
+    var ocrTextHandler: ((String) -> Void)? // OCR 결과 전달용 클로저
 
     // MARK: - Lifecycle
 
@@ -50,7 +39,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         }
         setupUI()
         setupConstraints()
-        configureViewModelBinding()
+        bindUI()
     }
 
     override func viewDidLayoutSubviews() {
@@ -62,14 +51,6 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
 
     // MARK: - Functions
 
-    // MARK: - DisposeBag 리셋
-
-    func resetDisposeBag() {
-        disposeBag = DisposeBag()
-    }
-
-    // MARK: - Capture Photo
-
     func capturePhoto() {
         let settings = AVCapturePhotoSettings()
         captureOutput.capturePhoto(with: settings, delegate: self)
@@ -77,25 +58,22 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
 
     func photoOutput(
         _: AVCapturePhotoOutput,
-        didFinishProcessingPhoto _: AVCapturePhoto,
+        didFinishProcessingPhoto photo: AVCapturePhoto,
         error: Error?
     ) {
-        guard error == nil else {
+        guard error == nil, let imageData = photo.fileDataRepresentation(),
+              let image = UIImage(data: imageData) else {
             showCaptureFailurePopup()
             return
         }
-        print("📸 사진 촬영 성공")
+        handleCapturedImage(image)
     }
 
-    // MARK: - ViewModel Binding
-
-    func configureViewModelBinding() {
-        // 하위 클래스에서 구현할 예정
+    func handleCapturedImage(_ image: UIImage) {
+        // 이미지 리사이즈 (OCR 정확도 향상을 위해)
+        let resizedImage = image.resized(toWidth: 1024)
+        detectBookElements(in: resizedImage!) // OCR 및 객체 감지 실행
     }
-
-    // MARK: - Private
-
-    // MARK: - Camera Permission Check
 
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -109,70 +87,6 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
             completion(false)
         }
     }
-
-    // MARK: - UI Setup
-
-    private func setupUI() {
-        view.backgroundColor = .white
-        view.addSubview(cameraView)
-        view.addSubview(captureButton)
-    }
-
-    private func setupConstraints() {
-        cameraView.snp.makeConstraints {
-            $0.center.equalToSuperview()
-            $0.width.height.equalTo(402) // ✅ 크기 고정
-        }
-
-        captureButton.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
-            $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(72) // ✅ 72x72 원형 버튼
-        }
-    }
-
-    // MARK: - Camera Setup
-
-    private func setupCamera() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-                return
-            }
-
-            do {
-                let input = try AVCaptureDeviceInput(device: captureDevice)
-                self.captureSession.beginConfiguration()
-                self.captureSession.inputs.forEach { self.captureSession.removeInput($0) }
-                self.captureSession.outputs.forEach { self.captureSession.removeOutput($0) }
-
-                if self.captureSession.canAddInput(input) {
-                    self.captureSession.addInput(input)
-                }
-                if self.captureSession.canAddOutput(self.captureOutput) {
-                    self.captureSession.addOutput(self.captureOutput)
-                }
-                self.captureSession.commitConfiguration()
-
-                DispatchQueue.main.async {
-                    self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-                    self.previewLayer?.videoGravity = .resizeAspectFill
-                    guard let previewLayer = self.previewLayer else {
-                        return
-                    }
-                    previewLayer.frame = self.cameraView.bounds
-                    self.cameraView.layer.insertSublayer(previewLayer, at: 0)
-
-                    if !self.captureSession.isRunning {
-                        self.captureSession.startRunning()
-                    }
-                }
-            } catch {
-                print("🚨 카메라 초기화 실패")
-            }
-        }
-    }
-
-    // MARK: - Camera Permission Alert
 
     private func showPermissionAlert() {
         let alert = UIAlertController(
@@ -197,16 +111,80 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         }
     }
 
-    // MARK: - 촬영 실패 팝업
+    private func setupUI() {
+        view.backgroundColor = .white
+        view.addSubview(cameraView)
+        view.addSubview(captureButton)
+    }
+
+    private func setupConstraints() {
+        cameraView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.width.height.equalTo(402)
+        }
+
+        captureButton.snp.makeConstraints {
+            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            $0.centerX.equalToSuperview()
+            $0.width.height.equalTo(72)
+        }
+    }
+
+    private func bindUI() {
+        captureButton.rx.tap
+            .bind { [weak self] in
+                self?.capturePhoto()
+            }
+            .disposed(by: disposeBag)
+    }
+
+    private func setupCamera() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else {
+                return
+            }
+            guard let captureDevice = AVCaptureDevice.default(for: .video) else {
+                print("🚨 카메라 장치를 찾을 수 없음")
+                return
+            }
+            do {
+                let input = try AVCaptureDeviceInput(device: captureDevice)
+                captureSession.beginConfiguration()
+                if captureSession.canAddInput(input) {
+                    captureSession.addInput(input)
+                }
+                if captureSession.canAddOutput(captureOutput) {
+                    captureSession.addOutput(captureOutput)
+                }
+                captureSession.commitConfiguration()
+
+                DispatchQueue.main.async {
+                    self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+                    self.previewLayer?.videoGravity = .resizeAspectFill
+                    self.previewLayer?.frame = self.cameraView.bounds
+                    self.cameraView.layer.insertSublayer(self.previewLayer!, at: 0)
+
+                    // 백그라운드에서 AVCaptureSession 시작
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        if !self.captureSession.isRunning {
+                            self.captureSession.startRunning()
+                        }
+                    }
+                }
+            } catch {
+                print("🚨 카메라 초기화 실패: \(error.localizedDescription)")
+            }
+        }
+    }
 
     private func showCaptureFailurePopup() {
         let alert = UIAlertController(
             title: "촬영 실패",
-            message: "책 제목이 명확하게 보이도록 다시 촬영해주세요.",
+            message: "이미지를 캡처하는 데 실패했습니다. 다시 시도해주세요.",
             preferredStyle: .alert
         )
 
-        let retryAction = UIAlertAction(title: "다시 촬영하기", style: .default) { _ in
+        let retryAction = UIAlertAction(title: "재시도", style: .default) { _ in
             self.capturePhoto()
         }
 
@@ -218,5 +196,119 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
+    }
+
+    private func detectBookElements(in image: UIImage) {
+        // CoreML 모델이 업데이트 가능한지 확인
+        if let mlModel = MyObjectDetector5_1().model as? MLModel,
+           mlModel.modelDescription.isUpdatable {
+            print("✅ 이 모델은 업데이트 가능합니다.")
+        } else {
+            print("⚠️ 이 모델은 업데이트가 불가능합니다.")
+        }
+
+        // CoreML 모델 로드
+        guard let model = try? VNCoreMLModel(for: MyObjectDetector5_1().model) else {
+            print("⚠️ CoreML 모델 로드 실패: 모델이 업데이트 가능한지 확인 필요")
+            return
+        }
+
+        let request = VNCoreMLRequest(model: model) { request, error in
+            if let error {
+                print("⚠️ Vision 요청 실패: \(error.localizedDescription)")
+                return
+            }
+
+            guard let results = request.results as? [VNRecognizedObjectObservation] else {
+                print("⚠️ Vision 결과 없음")
+                return
+            }
+            // TODO: RxSwift로 비동기 작업 처리 로직 변경하기
+
+            var extractedTexts: [String] = []
+            let dispatchGroup = DispatchGroup()
+
+            for observation in results
+                where observation.labels.first?.identifier == "titles-or-authors" {
+                dispatchGroup.enter()
+                self.performOCR(on: image) { recognizedText in
+                    if !recognizedText.isEmpty {
+                        extractedTexts.append(recognizedText)
+                    }
+                    dispatchGroup.leave()
+                }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                if let bestTitle = extractedTexts.first {
+                    print("✅ 최종 OCR 결과: \(bestTitle)")
+                    self.ocrTextHandler?(bestTitle)
+                } else {
+                    print("⚠️ OCR 결과 없음")
+                }
+            }
+        }
+
+        request.usesCPUOnly = true
+        request.preferBackgroundProcessing = true
+
+        do {
+            let handler = VNImageRequestHandler(cgImage: image.cgImage!, options: [:])
+            try handler.perform([request])
+        } catch let error as NSError {
+            print("⚠️ Vision Request Error: \(error.localizedDescription)")
+        }
+    }
+
+    private func performOCR(on image: UIImage, completion: @escaping (String) -> Void) {
+        guard let cgImage = image.cgImage else {
+            print("⚠️ 이미지 변환 실패")
+            completion("")
+            return
+        }
+
+        let request = VNRecognizeTextRequest { request, error in
+            if let error {
+                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
+                completion("")
+                return
+            }
+
+            guard let observations = request.results as? [VNRecognizedTextObservation] else {
+                print("⚠️ OCR 결과 없음")
+                completion("")
+                return
+            }
+
+            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
+                .joined(separator: " ")
+            print("✅ OCR 결과: \(recognizedText)")
+            completion(recognizedText)
+        }
+
+        request.recognitionLevel = .accurate
+
+        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+        do {
+            try requestHandler.perform([request])
+        } catch {
+            print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
+            completion("")
+        }
+    }
+}
+
+// MARK: - UIImage Extension (리사이즈 기능 추가)
+
+extension UIImage {
+    func resized(toWidth width: CGFloat) -> UIImage? {
+        let scaleFactor = width / size.width
+        let canvasSize = CGSize(width: width, height: size.height * scaleFactor)
+
+        UIGraphicsBeginImageContextWithOptions(canvasSize, false, UIScreen.main.scale)
+        defer { UIGraphicsEndImageContext() }
+
+        draw(in: CGRect(origin: .zero, size: canvasSize))
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
 }

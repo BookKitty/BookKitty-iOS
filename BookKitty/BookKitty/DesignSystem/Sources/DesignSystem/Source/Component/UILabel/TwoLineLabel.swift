@@ -52,7 +52,8 @@ extension TwoLineLabel {
 
     private func setupProperties() {
         backgroundColor = .clear
-        secondLineLabel.textColor = Colors.brandMain
+        firstLineLabel.textColor = Colors.fontSub2
+        secondLineLabel.textColor = Colors.brandSub
     }
 
     private func setupLayouts() {

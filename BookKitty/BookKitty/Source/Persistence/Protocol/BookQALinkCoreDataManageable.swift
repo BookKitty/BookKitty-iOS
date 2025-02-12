@@ -11,9 +11,13 @@ import CoreData
 protocol BookQALinkCoreDataManageable {
     func selectRecentRecommendedBooks(context: NSManagedObjectContext)
         -> [BookQuestionAnswerLinkEntity]
+
     func createNewLinkWithoutSave(
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    )
+    ) -> BookQuestionAnswerLinkEntity
+
+    func selectLinkedBooksByQuestionId(questionId: UUID, context: NSManagedObjectContext)
+        -> [BookEntity]
 }

@@ -35,7 +35,9 @@ final class DefaultHomeCoordinator: Coordinator {
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
         let repository = LocalBookRepository()
-        homeViewModel = HomeViewModel(bookRepository: repository)
+        homeViewModel = HomeViewModel(
+            bookRepository: repository
+        )
         homeViewController = HomeViewController(viewModel: homeViewModel)
     }
 

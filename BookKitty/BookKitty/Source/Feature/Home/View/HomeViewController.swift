@@ -40,7 +40,7 @@ class HomeViewController: BaseViewController {
             frame: .zero,
             collectionViewLayout: makeCollectionViewLayout()
         )
-        collectionView.backgroundColor = Colors.brandSub30
+        collectionView.backgroundColor = Colors.brandSub2
         collectionView.register(
             RecommendedBookCell.self,
             forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
@@ -126,7 +126,6 @@ class HomeViewController: BaseViewController {
 
     override func bind() {
         let input = HomeViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
             viewWillAppear: viewWillAppearRelay.asObservable(),
             bookSelected: bookSelectedRelay.asObservable()
         )
@@ -185,5 +184,9 @@ class HomeViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    HomeViewController(viewModel: HomeViewModel(bookRepository: MockBookRepository()))
+    HomeViewController(
+        viewModel: HomeViewModel(
+            bookRepository: MockBookRepository()
+        )
+    )
 }

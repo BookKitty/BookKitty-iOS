@@ -35,6 +35,11 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
 
     // MARK: - Internal
 
+    /// 질문답변 목록 가져오기
+    /// - Parameters:
+    ///   - offset: 시작지점
+    ///   - limit: 한번에 가져오는 개수
+    /// - Returns: 질문답변 데이터 모델을 rx로 반환.
     func fetchQuestions(offset: Int, limit: Int) -> RxSwift.Single<[QuestionAnswer]> {
         let qnaEntities = questionAnswerCoreDataManager.selectQuestionHistories(
             offset: offset,
@@ -53,6 +58,9 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         return .just(questions)
     }
 
+    /// 특정 id의 질문답변 데이터 가져오기
+    /// - Parameter uuid: 가져오고자 하는 질문답변의 uuid
+    /// - Returns: 타겟 질문답변
     func fetchQuestion(by uuid: UUID) -> QuestionAnswer? {
         if let entity = questionAnswerCoreDataManager.selectById(by: uuid, context: context) {
             return questionEntityToModel(entity: entity)
@@ -60,22 +68,24 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         return nil
     }
 
+    /// 질문답변 저장하기
+    /// - Parameter data: 저장하고자 하는 질문답변의 QuestionAnswer 모델 데이터
+    /// - Returns: 저장한 데이터의 uuid
     func saveQuestionAnswer(data: QuestionAnswer) -> UUID? {
         let questionEntity = QuestionAnswerEntity(context: context)
 
         questionEntity.id = data.id
         questionEntity.aiAnswer = data.gptAnswer
         questionEntity.userQuestion = data.userQuestion
-        questionEntity.createdAt = data.createdAt
 
         let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
             data: data.recommendedBooks,
             context: context
         )
 
-        for item in bookEntities {
+        let linkEntities = bookEntities.map {
             bookQALinkCoreDataManager.createNewLinkWithoutSave(
-                bookEntity: item,
+                bookEntity: $0,
                 questionAnswerEntity: questionEntity,
                 context: context
             )
@@ -83,21 +93,34 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
 
         do {
             try context.save()
-            BookKittyLogger.log("질문답변 저장 성공")
             return questionEntity.id
         } catch {
-            BookKittyLogger.log("질문답변 저장 실패: \(error.localizedDescription)")
+            print("저장 실패: \(error.localizedDescription)")
             return nil
         }
     }
 
+    /// 특정 질문을 삭제
+    /// 질문 삭제 시 연결된 책 관련 연결없는 책 삭제 로직 추가 필요.
+    ///
+    /// - Parameter uuid: 삭제하고자 하는 질문의 uuid
+    /// - Returns: 처리 결과 여부를 bool 타입으로 반환.
     func deleteQuestionAnswer(uuid: UUID) -> Bool {
         questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
 
-    private func questionEntityToModel(entity: QuestionAnswerEntity) -> QuestionAnswer {
-        let bookEntities = (entity.bookQuestionAnswerLinks as? Set<BookQuestionAnswerLinkEntity>)?
-            .compactMap(\.book) ?? []
+    /// 질문 엔티티를 QuestionAnswer 모델로 변경
+    /// - Parameter entity: 질문 엔티티
+    /// - Returns: QuestionAnswer 모델
+    private func questionEntityToModel(entity: QuestionAnswerEntity) -> QuestionAnswer? {
+        guard let questionId = entity.id else {
+            return nil
+        }
+
+        let bookEntities = bookQALinkCoreDataManager.selectLinkedBooksByQuestionId(
+            questionId: questionId,
+            context: context
+        )
 
         let books = bookEntities.compactMap {
             bookCoreDataManager.entityToModel(entity: $0)
