@@ -29,7 +29,10 @@ final class QuestionHistoryCell: UITableViewCell {
 
     private let questionLabel = BodyLabel(weight: .extraBold)
 
-    private let answerLabel = BodyLabel(weight: .regular)
+    private let answerLabel = BodyLabel(weight: .regular).then {
+        $0.lineBreakMode = .byTruncatingTail
+        $0.numberOfLines = 2
+    }
 
     private let recommendedBooksStackView = UIStackView().then {
         $0.axis = .horizontal

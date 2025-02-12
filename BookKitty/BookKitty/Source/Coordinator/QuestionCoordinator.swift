@@ -36,7 +36,7 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
 
-        let repository = MockQuestionHistoryRepository()
+        let repository = LocalQuestionHistoryRepository()
         questionHistoryViewModel = QuestionHistoryViewModel(questionHistoryRepository: repository)
         questionHistoryViewController =
             QuestionHistoryViewController(viewModel: questionHistoryViewModel)
@@ -65,7 +65,7 @@ extension DefaultQuestionCoordinator {
     /// 질문 상세 화면을 생성하고, ViewModel과 ViewController를 연결
     /// 책 상세 화면으로의 네비게이션 이벤트를 구독
     private func showQuestionDetailScreen(questionAnswer: QuestionAnswer) {
-        let questionHistoryRepository = MockQuestionHistoryRepository()
+        let questionHistoryRepository = LocalQuestionHistoryRepository()
         let questionDetailViewModel = QuestionDetailViewModel(
             questionAnswer: questionAnswer,
             questionHistoryRepository: questionHistoryRepository
@@ -93,7 +93,7 @@ extension DefaultQuestionCoordinator {
     ///
     /// 책 상세 화면을 생성하고, ViewModel과 ViewController를 연결
     private func showBookDetailScreen(with book: Book) {
-        let bookRepository = MockBookRepository()
+        let bookRepository = LocalBookRepository()
         let bookDetailViewModel = BookDetailViewModel(
             bookDetail: book,
             bookRepository: bookRepository

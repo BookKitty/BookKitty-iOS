@@ -7,17 +7,6 @@
 
 import CoreData
 
-/// BookQuestionAnswerLink 엔티티를 관리하는 코어 데이터 매니저 기능을 추상화하는 프로토콜
-protocol BookQALinkCoreDataManageable {
-    func selectRecentRecommendedBooks(context: NSManagedObjectContext)
-        -> [BookQuestionAnswerLinkEntity]
-    func createNewLinkWithoutSave(
-        bookEntity: BookEntity,
-        questionAnswerEntity: QuestionAnswerEntity,
-        context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity
-}
-
 /// BookQuestionAnswerLink 엔티티를 관리하는 객체
 final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
     /// 최근 추천받은 책을 가져오기
@@ -32,29 +21,59 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         fetchRequest.fetchLimit = 5
 
         do {
-            return try context.fetch(fetchRequest)
+            let fetchresult = try context.fetch(fetchRequest)
+            BookKittyLogger.log("최근 추천책 조회 성공")
+            return fetchresult
         } catch {
-            print("최근 추천책 조회 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("최근 추천책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
 
-    /// <#Description#>
+    /// 저장없이 새로운 링크 만들기
     /// - Parameters:
-    ///   - bookEntity: <#bookEntity description#>
-    ///   - questionAnswerEntity: <#questionAnswerEntity description#>
-    ///   - context: <#context description#>
-    /// - Returns: <#description#>
+    ///   - bookEntity: 연결하고자 하는 책 엔티티
+    ///   - questionAnswerEntity: 연결하고자 하는 질문 엔티티
+    ///   - context: 코어데이터 컨텍스트
+    /// - Returns: 링크 엔티티
     func createNewLinkWithoutSave(
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity {
+    ) {
         let linkEntity = BookQuestionAnswerLinkEntity(context: context)
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
 
-        return linkEntity
+        BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
+    }
+
+    /// 특정 질문에 연결된 책 엔티티 목록 가져오기
+    /// - Parameters:
+    ///   - questionId: 가져오고자 하는 대상 질문의 uuid
+    ///   - context: 코어데이터 컨텍스트
+    /// - Returns: 책 엔티티의 배열
+    func selectLinkedBooksByQuestionId(
+        questionId: UUID,
+        context: NSManagedObjectContext
+    ) -> [BookEntity] {
+        let questionRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity
+            .fetchRequest()
+        questionRequest.predicate = NSPredicate(format: "id == %@", questionId as CVarArg)
+
+        let linkRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> = BookQuestionAnswerLinkEntity
+            .fetchRequest()
+        linkRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionId as CVarArg)
+
+        do {
+            let linkedEntities = try context.fetch(linkRequest)
+
+            // 각 링크 엔티티에서 `book`을 추출
+            return linkedEntities.compactMap(\.book)
+        } catch {
+            print("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
+            return []
+        }
     }
 }
