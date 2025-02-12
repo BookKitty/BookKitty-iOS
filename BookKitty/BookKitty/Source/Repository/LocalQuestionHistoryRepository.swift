@@ -79,10 +79,16 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         questionEntity.userQuestion = data.userQuestion
         questionEntity.createdAt = Date()
 
-        let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
-            data: data.recommendedBooks,
-            context: context
-        )
+        let beforeCount = data.recommendedBooks.count
+        var afterCount = beforeCount
+        let bookEntities = data.recommendedBooks.map {
+            if let book = bookCoreDataManager.selectBookByIsbn(isbn: $0.isbn, context: context) {
+                afterCount -= 1
+                return book
+            }
+            BookKittyLogger.log("\(beforeCount)만큼 책 가져왔지만, \(afterCount)만큼 저장.")
+            return bookCoreDataManager.modelToEntity(model: $0, context: context)
+        }
 
         let linkEntities = bookEntities.map {
             bookQALinkCoreDataManager.createNewLinkWithoutSave(
@@ -96,7 +102,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             try context.save()
             return questionEntity.id
         } catch {
-            print("저장 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("저장 실패: \(error.localizedDescription)")
             return nil
         }
     }

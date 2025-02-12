@@ -17,4 +17,5 @@ protocol BookCoreDataManageable {
     func selectOwnedBooks(offset: Int, limit: Int, context: NSManagedObjectContext) -> [BookEntity]
     func selectBooksWithIsbnArray(isbnList: [String], context: NSManagedObjectContext)
         -> [BookEntity]
+    func modelToEntity(model: Book, context: NSManagedObjectContext) -> BookEntity
 }

@@ -70,12 +70,11 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
             )
 
             let linkedEntities = try context.fetch(linkRequest)
-            print(linkedEntities)
 
             // 각 링크 엔티티에서 `book`을 추출
             return linkedEntities.compactMap(\.book)
         } catch {
-            print("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
