@@ -107,8 +107,12 @@ final class BookCoreDataManager: BookCoreDataManageable {
     ) -> [BookEntity] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
+        
         request.fetchOffset = offset
-        request.fetchLimit = limit
+        
+        if limit > 0 {
+            request.fetchLimit = limit
+        }
 
         // updatedAt 내림차순 정렬 추가
         let sortDescriptor = NSSortDescriptor(key: "updatedAt", ascending: false)
