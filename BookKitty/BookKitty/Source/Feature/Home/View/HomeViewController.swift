@@ -40,7 +40,7 @@ class HomeViewController: BaseViewController {
             frame: .zero,
             collectionViewLayout: makeCollectionViewLayout()
         )
-        collectionView.backgroundColor = Colors.brandSub30
+        collectionView.backgroundColor = Colors.brandSub2
         collectionView.register(
             RecommendedBookCell.self,
             forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier

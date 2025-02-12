@@ -94,7 +94,7 @@ extension ManageBookPopupView {
         case .add:
             messageLabel.text = "나의 책장에 아래의 책을 등록하시겠습니까?"
             iconImageView.image = UIImage(systemName: "bookmark.fill")
-            iconImageView.tintColor = Colors.brandMain
+            iconImageView.tintColor = Colors.statusYellow
         case .delete:
             messageLabel.text = "나의 책장에서 아래의 책을 제외하시겠습니까?"
             iconImageView.image = UIImage(systemName: "trash.fill")

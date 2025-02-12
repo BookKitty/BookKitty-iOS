@@ -58,7 +58,7 @@ final class QuestionResultViewController: BaseViewController {
             frame: .zero,
             collectionViewLayout: makeCollectionViewLayout()
         )
-        collectionView.backgroundColor = Colors.brandMain30
+        collectionView.backgroundColor = Colors.brandSub3
         collectionView.register(
             RecommendedBookCell.self,
             forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier

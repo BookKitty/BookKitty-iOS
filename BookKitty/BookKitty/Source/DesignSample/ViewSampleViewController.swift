@@ -89,7 +89,7 @@ extension ViewSampleViewController {
         }()
 
         print(apiKey)
-        view.backgroundColor = Colors.brandMain30
+        view.backgroundColor = Colors.brandSub3
     }
 
     private func setupLayouts() {

@@ -40,13 +40,15 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    ) {
+    ) -> BookQuestionAnswerLinkEntity {
         let linkEntity = BookQuestionAnswerLinkEntity(context: context)
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
 
         BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
+
+        return linkEntity
     }
 
     /// 특정 질문에 연결된 책 엔티티 목록 가져오기
