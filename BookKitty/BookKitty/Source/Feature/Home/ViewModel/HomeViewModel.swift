@@ -50,6 +50,17 @@ final class HomeViewModel: ViewModelType {
             .bind(to: recommendedBooksRelay)
             .disposed(by: disposeBag)
 
+        // 홈 화면 돌아올 때마다 업데이트
+        // 비효율적일 수 있음 주의
+        input.viewWillAppear
+            .withUnretained(self)
+            .map { _, _ in
+                let fetchedBooks = self.bookRepository.fetchRecentRecommendedBooks()
+                return [SectionOfBook(items: fetchedBooks)]
+            }
+            .bind(to: recommendedBooksRelay)
+            .disposed(by: disposeBag)
+
         input.bookSelected
             .bind(to: navigateToBookDetail) // 책 상세 화면으로 이동
             .disposed(by: disposeBag)

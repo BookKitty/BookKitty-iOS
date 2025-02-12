@@ -116,6 +116,7 @@ final class QuestionDetailViewController: BaseViewController {
     override func bind() {
         let input = QuestionDetailViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
+            viewWillAppear: viewWillAppearRelay.asObservable(),
             deleteButtonTapped: navigationBar.rightButtonTapped.asObservable(),
             backButtonTapped: navigationBar.backButtonTapped.asObservable(),
             bookTapped: bookTappedRelay.asObservable()

@@ -17,6 +17,7 @@ final class QuestionResultViewModel: ViewModelType {
 
     struct Input {
         let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
+        let viewWillAppear: Observable<Void> // 뷰가 보일 때 책 소유 여부 업데이트
         let bookSelected: Observable<Book> // 사용자가 선택한 책
         let submitButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
     }
@@ -39,6 +40,7 @@ final class QuestionResultViewModel: ViewModelType {
     // MARK: - Private
 
     private let userQuestion: String
+    private var questionAnswer: QuestionAnswer?
 
     private let questionHistoryRepository: QuestionHistoryRepository
     private let bookRepository: BookRepository
@@ -72,6 +74,26 @@ final class QuestionResultViewModel: ViewModelType {
                 self.userQuestion
             }
             .bind(to: userQuestionRelay) // 질문을 저장
+            .disposed(by: disposeBag)
+
+        input.viewWillAppear
+            .withUnretained(self)
+            .map { owner, _ in
+                // 아직 책 정보가 없으면 업데이트 필요 x
+                guard !owner.recommendedBooksRelay.value.isEmpty,
+                      let uuid = owner.questionAnswer?.id else {
+                    return []
+                }
+
+                guard let updatedQnA = owner.questionHistoryRepository.fetchQuestion(by: uuid)
+                else {
+                    return []
+                }
+
+                let books = updatedQnA.recommendedBooks
+                return [SectionOfBook(items: books)]
+            }
+            .bind(to: recommendedBooksRelay)
             .disposed(by: disposeBag)
 
         let fetchBookInfoFromService = fetchBookInfoFromService(input.viewDidLoad)
@@ -174,8 +196,9 @@ final class QuestionResultViewModel: ViewModelType {
             id: UUID(),
             recommendedBooks: recommendedBooks
         )
-        _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
+        let _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
+        questionAnswer = questionToSave
         return [SectionOfBook(items: recommendedBooks)]
     }
 
