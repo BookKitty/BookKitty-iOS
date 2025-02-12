@@ -25,13 +25,16 @@ final class NewQuestionViewController: BaseViewController {
     private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
     private let questionInputView = QuestionTextView()
     private let captionLabel = CaptionLabel()
-        .then { $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게, 최소 10글자로 적어주세요." }
+        .then {
+            $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게, 최소 10글자로 적어주세요."
+        }
     private let exampleLabel = CaptionLabel().then {
         $0.text = """
         예시.
         “계획적인 삶을 살고 싶은데 어떻게 시작하면 좋을까?”
         “나도 연애를 하고 싶은데 쉽지 않네. 인기있어지는 방법 좀 알려줘.”
         """
+        $0.textColor = Colors.fontSub1
     }
 
     private let submitButton = RoundButton(title: "질문하기").then { $0.changeToDisabled() }
