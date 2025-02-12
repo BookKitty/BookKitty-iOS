@@ -8,14 +8,20 @@
 import Foundation
 
 enum NumberFormatHandler {
-    static func formatWithComma(from numberString: String) -> String? {
-        guard let number = Int(numberString) else {
-            return nil
-        }
+    // MARK: - Static Properties
 
+    static let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
+        return formatter
+    }()
 
-        return formatter.string(from: NSNumber(value: number))
+    // MARK: - Static Functions
+
+    static func formatWithComma(from numberString: String) -> String? {
+        guard let number = Double(numberString) else {
+            return nil
+        }
+        return numberFormatter.string(from: NSNumber(value: number))
     }
 }
