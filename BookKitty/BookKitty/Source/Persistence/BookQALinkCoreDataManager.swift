@@ -67,11 +67,14 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
     ///   - context: 코어데이터 컨텍스트
     /// - Returns: 책 엔티티의 배열
     func selectLinkedBooksByQuestionId(questionId: UUID, context: NSManagedObjectContext) -> [BookEntity] {
-        let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> = BookQuestionAnswerLinkEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "questionAnswer.id == %@", questionId as CVarArg)
+        let questionRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity.fetchRequest()
+        questionRequest.predicate = NSPredicate(format: "id == %@", questionId as CVarArg)
+        
+        let linkRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> = BookQuestionAnswerLinkEntity.fetchRequest()
+        linkRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionId as CVarArg)
         
         do {
-            let linkedEntities = try context.fetch(fetchRequest)
+            let linkedEntities = try context.fetch(linkRequest)
             
             // 각 링크 엔티티에서 `book`을 추출
             return linkedEntities.compactMap { $0.book }
