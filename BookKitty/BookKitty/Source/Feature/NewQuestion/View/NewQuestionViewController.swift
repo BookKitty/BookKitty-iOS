@@ -28,6 +28,7 @@ final class NewQuestionViewController: BaseViewController {
         .then {
             $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게, 최소 10글자로 적어주세요."
         }
+
     private let exampleLabel = CaptionLabel().then {
         $0.text = """
         예시.
