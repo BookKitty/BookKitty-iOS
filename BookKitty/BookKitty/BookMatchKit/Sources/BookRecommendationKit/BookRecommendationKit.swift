@@ -339,12 +339,14 @@ public final class BookRecommendationKit: BookRecommendable {
         // title과 author로 병렬 검색을 수행하기 위해 Observable 시영
         Observable<Void>.just(())
             .delay(.milliseconds(500), scheduler: MainScheduler.instance)
-            // TODO: 메모리 누수 확인하기
-            .flatMap { _ -> Observable<[BookItem]> in
+            .flatMap { [weak self] _ -> Observable<[BookItem]> in
+                guard let self else {
+                    return .error(BookMatchError.noMatchFound)
+                }
                 // title 검색과 author 검색을 동시에 수행
-                let titleSearch = self.apiClient.searchBooks(query: sourceBook.title, limit: 10)
+                let titleSearch = apiClient.searchBooks(query: sourceBook.title, limit: 10)
                     .asObservable()
-                let authorSearch = self.apiClient.searchBooks(query: sourceBook.author, limit: 10)
+                let authorSearch = apiClient.searchBooks(query: sourceBook.author, limit: 10)
                     .asObservable()
 
                 // 결과를 하나의 배열로 병합합니다.

@@ -150,9 +150,11 @@ public final class BookMatchKit: BookMatchable {
                     // `flatMap`: Single 시퀀스의 각 항목을 다른 Single로 변환하고, 그 결과들을 하나의 Single로
                     // 평탄화(flatten)하는 연산자
                     // Timer Single에서 searchBooks api의 결과값에 대한 Single로 스트림을 전환
-                    .flatMap { _ in
-                        self.apiClient
-                            .searchBooks(query: currentQuery, limit: 10) // Single<[BookItem]>을 반환
+                    .flatMap { [weak self] _ -> Single<[BookItem]> in
+                        guard let self else {
+                            return .error(BookMatchError.noMatchFound)
+                        }
+                        return apiClient.searchBooks(query: currentQuery, limit: 10)
                     }
                     .subscribe(
                         onSuccess: { results in // API 결과를 구독하여 처리

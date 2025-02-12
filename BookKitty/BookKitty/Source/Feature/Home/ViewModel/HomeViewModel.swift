@@ -54,8 +54,8 @@ final class HomeViewModel: ViewModelType {
         // 비효율적일 수 있음 주의
         input.viewWillAppear
             .withUnretained(self)
-            .map { _, _ in
-                let fetchedBooks = self.bookRepository.fetchRecentRecommendedBooks()
+            .map { owner, _ in
+                let fetchedBooks = owner.bookRepository.fetchRecentRecommendedBooks()
                 return [SectionOfBook(items: fetchedBooks)]
             }
             .bind(to: recommendedBooksRelay)

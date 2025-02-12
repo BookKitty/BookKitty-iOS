@@ -73,13 +73,13 @@ final class MyLibraryViewModel: ViewModelType {
         // 화면 로드 시 책 목록 가져오기
         input.viewWillAppear
             .withUnretained(self)
-            .map { _ in
-                let fetchedBooks = self.bookRepository.fetchBookList(
-                    offset: self.offset,
-                    limit: self.limit
+            .map { owner, _ in
+                let fetchedBooks = owner.bookRepository.fetchBookList(
+                    offset: owner.offset,
+                    limit: owner.limit
                 )
-                self.books = fetchedBooks
-                return [SectionOfBook(items: self.books)]
+                owner.books = fetchedBooks
+                return [SectionOfBook(items: owner.books)]
             }
             .bind(to: bookList)
             .disposed(by: disposeBag)
@@ -87,19 +87,19 @@ final class MyLibraryViewModel: ViewModelType {
         // 스크롤이 끝에 닿았을 때 책 목록 추가 (무한 스크롤 기능)
         input.reachedScrollEnd
             .withUnretained(self)
-            .map { _ in
-                guard !self.isLoading else {
-                    return [SectionOfBook(items: self.books)]
+            .map { owner, _ in
+                guard !owner.isLoading else {
+                    return [SectionOfBook(items: owner.books)]
                 }
-                self.isLoading = true
-                self.offset += self.limit
-                let fetchedBooks = self.bookRepository.fetchBookList(
-                    offset: self.offset,
-                    limit: self.limit
+                owner.isLoading = true
+                owner.offset += owner.limit
+                let fetchedBooks = owner.bookRepository.fetchBookList(
+                    offset: owner.offset,
+                    limit: owner.limit
                 )
-                self.books += fetchedBooks
-                self.isLoading = false
-                return [SectionOfBook(items: self.books)]
+                owner.books += fetchedBooks
+                owner.isLoading = false
+                return [SectionOfBook(items: owner.books)]
             }
             .bind(to: bookList)
             .disposed(by: disposeBag)
