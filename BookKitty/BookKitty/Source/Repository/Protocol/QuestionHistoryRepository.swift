@@ -42,7 +42,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     // MARK: - Functions
 
     // MARK: - Internal
-    
+
     /// 질문답변 목록 가져오기
     /// - Parameters:
     ///   - offset: 시작지점
@@ -65,7 +65,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
 
         return .just(questions)
     }
-    
+
     /// 특정 id의 질문답변 데이터 가져오기
     /// - Parameter uuid: 가져오고자 하는 질문답변의 uuid
     /// - Returns: 타겟 질문답변
@@ -75,7 +75,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         }
         return nil
     }
-    
+
     /// 질문답변 저장하기
     /// - Parameter data: 저장하고자 하는 질문답변의 QuestionAnswer 모델 데이터
     /// - Returns: 저장한 데이터의 uuid
@@ -107,7 +107,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             return nil
         }
     }
-    
+
     /// 특정 질문을 삭제
     /// 질문 삭제 시 연결된 책 관련 연결없는 책 삭제 로직 추가 필요.
     ///
@@ -116,7 +116,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     func deleteQuestionAnswer(uuid: UUID) -> Bool {
         questionAnswerCoreDataManager.deleteQuestionAnswer(by: uuid, context: context)
     }
-    
+
     /// 질문 엔티티를 QuestionAnswer 모델로 변경
     /// - Parameter entity: 질문 엔티티
     /// - Returns: QuestionAnswer 모델
@@ -124,8 +124,11 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         guard let questionId = entity.id else {
             return nil
         }
-        
-        let bookEntities = bookQALinkCoreDataManager.selectLinkedBooksByQuestionId(questionId: questionId, context: context)
+
+        let bookEntities = bookQALinkCoreDataManager.selectLinkedBooksByQuestionId(
+            questionId: questionId,
+            context: context
+        )
 
         let books = bookEntities.compactMap {
             bookCoreDataManager.entityToModel(entity: $0)
