@@ -36,9 +36,11 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         fetchRequest.fetchLimit = 5
 
         do {
-            return try context.fetch(fetchRequest)
+            let fetchresult = try context.fetch(fetchRequest)
+            BookKittyLogger.log("최근 추천책 조회 성공")
+            return fetchresult
         } catch {
-            print("최근 추천책 조회 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("최근 추천책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -53,13 +55,13 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         bookEntity: BookEntity,
         questionAnswerEntity: QuestionAnswerEntity,
         context: NSManagedObjectContext
-    ) -> BookQuestionAnswerLinkEntity {
+    ) {
         let linkEntity = BookQuestionAnswerLinkEntity(context: context)
         linkEntity.book = bookEntity
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
 
-        return linkEntity
+        BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
     }
 
     /// 특정 질문에 연결된 책 엔티티 목록 가져오기
@@ -71,15 +73,16 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         questionId: UUID,
         context: NSManagedObjectContext
     ) -> [BookEntity] {
-        let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
-            BookQuestionAnswerLinkEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(
-            format: "questionAnswer.id == %@",
-            questionId as CVarArg
-        )
+        let questionRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity
+            .fetchRequest()
+        questionRequest.predicate = NSPredicate(format: "id == %@", questionId as CVarArg)
+
+        let linkRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> = BookQuestionAnswerLinkEntity
+            .fetchRequest()
+        linkRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionId as CVarArg)
 
         do {
-            let linkedEntities = try context.fetch(fetchRequest)
+            let linkedEntities = try context.fetch(linkRequest)
 
             // 각 링크 엔티티에서 `book`을 추출
             return linkedEntities.compactMap(\.book)

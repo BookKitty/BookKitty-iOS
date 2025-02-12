@@ -72,7 +72,7 @@ final class MyLibraryViewController: BaseViewController {
 
     override func bind() {
         let input = MyLibraryViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
+            viewWillAppear: viewWillAppearRelay.asObservable(),
             bookTapped: bookTappedRelay.asObservable(),
             reachedScrollEnd: reachedScrollEndRelay.asObservable()
         )

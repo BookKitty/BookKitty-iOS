@@ -61,15 +61,13 @@ extension AddQuestionCoordinator {
     /// 질문 결과 화면을 표시하는 메서드
     /// - Parameter question: 사용자가 입력한 질문 내용
     private func showQuestionResultScene(with question: String) {
-        // TODO: xcconfig 활용, API 키 집어넣기
         let recommendationService = BookRecommendationKit(
             naverClientId: Environment().naverClientID,
             naverClientSecret: Environment().naverClientSecret,
             openAIApiKey: Environment().openaiAPIKey
         )
-        // TODO: Mock 레포지토리들 Real로 변경
-        let repository = MockBookRepository()
-        let questionHistoryRepository = MockQuestionHistoryRepository()
+        let repository = LocalBookRepository()
+        let questionHistoryRepository = LocalQuestionHistoryRepository()
         let questionResultViewModel = QuestionResultViewModel(
             userQuestion: question,
             recommendationService: recommendationService,
@@ -99,7 +97,7 @@ extension AddQuestionCoordinator {
     /// 책 상세 화면을 표시하는 메서드
     /// - Parameter isbn: 선택한 책의 ISBN 번호
     private func showBookDetailScene(with book: Book) {
-        let bookRepository = MockBookRepository()
+        let bookRepository = LocalBookRepository()
         let bookDetailViewModel = BookDetailViewModel(
             bookDetail: book,
             bookRepository: bookRepository

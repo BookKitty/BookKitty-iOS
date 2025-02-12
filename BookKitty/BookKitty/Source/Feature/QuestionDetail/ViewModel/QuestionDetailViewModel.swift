@@ -73,7 +73,8 @@ final class QuestionDetailViewModel: ViewModelType {
         input.deleteButtonTapped
             .withUnretained(self)
             .subscribe { _ in
-                self.questionHistoryRepository.deleteQuestionAnswer(uuid: self.questionAnswer.id)
+                _ = self.questionHistoryRepository
+                    .deleteQuestionAnswer(uuid: self.questionAnswer.id)
                 self.dismissViewController.accept(())
             }
             .disposed(by: disposeBag)
