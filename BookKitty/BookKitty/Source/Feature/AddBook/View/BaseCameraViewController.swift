@@ -8,7 +8,7 @@ import Then
 import UIKit
 import Vision
 
-class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
+class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegate {
     // MARK: - Properties
 
     open var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
@@ -16,13 +16,8 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
     var captureSession = AVCaptureSession()
     var previewLayer: AVCaptureVideoPreviewLayer?
     var captureOutput = AVCapturePhotoOutput()
-    private(set) var disposeBag = DisposeBag()
 
-    let cameraView = UIView().then {
-        $0.backgroundColor = .black
-        $0.layer.cornerRadius = 8
-        $0.clipsToBounds = true
-    }
+    let cameraView = UIView().then { $0.backgroundColor = .black }
 
     var ocrTextHandler: ((String) -> Void)? // OCR 결과 전달용 클로저
 
@@ -37,8 +32,6 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                 self.showPermissionAlert()
             }
         }
-        setupUI()
-        setupConstraints()
         bindUI()
     }
 
@@ -108,25 +101,6 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
 
         DispatchQueue.main.async {
             self.present(alert, animated: true)
-        }
-    }
-
-    private func setupUI() {
-        view.backgroundColor = .white
-        view.addSubview(cameraView)
-        view.addSubview(captureButton)
-    }
-
-    private func setupConstraints() {
-        cameraView.snp.makeConstraints {
-            $0.center.equalToSuperview()
-            $0.width.height.equalTo(402)
-        }
-
-        captureButton.snp.makeConstraints {
-            $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
-            $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(72)
         }
     }
 

@@ -74,6 +74,7 @@ extension TabBarCoordinator {
     private func showAddBookFlow() {
         let addBookCoordinator = AddBookCoordinator(navigationController)
         addChildCoordinator(addBookCoordinator)
+        addBookCoordinator.finishDelegate = self
         addBookCoordinator.parentCoordinator = self
         addBookCoordinator.start()
     }
@@ -92,6 +93,8 @@ extension TabBarCoordinator: CoordinatorFinishDelegate {
         childCoordinators.removeAll { $0 === childCoordinator }
         if childCoordinator is AddQuestionCoordinator {
             tabBarController.tabBar.selectedIndex.accept(1)
+        } else if childCoordinator is AddBookCoordinator {
+            tabBarController.tabBar.selectedIndex.accept(2)
         }
         navigationController.popViewController(animated: true)
     }
