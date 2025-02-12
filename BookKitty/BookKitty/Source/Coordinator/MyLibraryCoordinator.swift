@@ -30,7 +30,7 @@ final class MyLibraryCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        let repository = MockBookRepository()
+        let repository = LocalBookRepository()
         myLibraryViewModel = MyLibraryViewModel(bookRepository: repository)
         myLibraryViewController = MyLibraryViewController(viewModel: myLibraryViewModel)
     }
@@ -62,7 +62,7 @@ extension MyLibraryCoordinator {
     /// 탭바를 숨기고 화면을 네비게이션 스택에 추가
     /// - Parameter book: 책 상세 화면에서 표시할 Book 정보가 담긴 구조체
     private func showBookDetailScreen(with book: Book) {
-        let bookRepository = MockBookRepository()
+        let bookRepository = LocalBookRepository()
         let bookDetailViewModel = BookDetailViewModel(
             bookDetail: book,
             bookRepository: bookRepository
