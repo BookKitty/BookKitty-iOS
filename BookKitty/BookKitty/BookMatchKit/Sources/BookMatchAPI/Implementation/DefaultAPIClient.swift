@@ -8,13 +8,10 @@ import UIKit
 public final class DefaultAPIClient: APIClientProtocol {
     // MARK: - Properties
 
-    // MARK: - Internal
-
-    let disposeBag = DisposeBag()
-
-    // MARK: - Private
+    // MARK: Private
 
     private let configuration: APIConfiguration
+    private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
 
@@ -26,7 +23,7 @@ public final class DefaultAPIClient: APIClientProtocol {
 
     // MARK: - Functions
 
-    // MARK: - Public
+    // MARK: Public
 
     /// `네이버 책검색 api`를 활용, 도서를 검색합니다.
     ///
@@ -51,148 +48,18 @@ public final class DefaultAPIClient: APIClientProtocol {
                 guard let response else {
                     throw BookMatchError.invalidResponse
                 }
+
                 return response.items.map { $0.toBookItem() }
             }
             .catch { error in
-                // NetworkError를 BookMatchError로 변환
                 if let networkError = error as? NetworkError {
-                    switch networkError {
-                    case .invalidURL:
-                        return .error(BookMatchError.networkError("Invalid URL"))
-                    default:
-                        return .error(
-                            BookMatchError
-                                .networkError(networkError.localizedDescription)
-                        )
-                    }
+                    return .error(
+                        BookMatchError.networkError(networkError.localizedDescription)
+                    )
                 }
+
                 return .error(error)
             }
-    }
-
-    /// `ChatGPT api`를 활용, `질문 기반 추천 도서`를 요청 및 반환받습니다.
-    ///
-    ///  - Parameters:
-    ///     - question: 사용자 질문
-    ///     - ownedBooks: 사용자 보유 도서 배열
-    ///  - Returns: 보유/미보유에 대해 각각 도서 추천
-    ///  - Throws: GPT 반환 형식 에러
-    public func getBookRecommendation(
-        question: String,
-        ownedBooks: [OwnedBook]
-    ) -> Single<GPTRecommendationForQuestion> {
-        let messages = [
-            ChatMessage(role: "system", content: Prompts.recommendationForQuestion),
-            ChatMessage(
-                role: "user",
-                content: "질문: \(question)\n보유도서: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
-            ),
-        ]
-
-        return sendChatRequest(
-            messages: messages,
-            temperature: 0.01,
-            maxTokens: 100
-        )
-        .map { response in
-            guard let jsonString = response.choices.first?.message.content,
-                  let jsonData = jsonString.data(using: .utf8),
-                  let result = try? JSONDecoder().decode(
-                      GPTRecommendationForQuestionDTO.self,
-                      from: jsonData
-                  ) else {
-                throw BookMatchError.invalidResponse
-            }
-
-            return result.toDomain(ownedBooks)
-        }
-        .retry(3)
-        .catch { _ in
-            throw BookMatchError.invalidResponse
-        }
-    }
-
-    /// `ChatGPT api`를 활용, `보유도서 기반 추천 도서`를 요청 및 반환받습니다.
-    ///
-    ///  - Parameters:
-    ///     - ownedBooks: 사용자 보유 도서 배열
-    ///  - Returns: ``Rawbook`` 타입의 추천도서 배열
-    ///  - Throws: GPT 반환 형식 에러
-    public func getBookRecommendation(ownedBooks: [OwnedBook])
-        -> Single<GPTRecommendationFromOwnedBooks> {
-        let messages = [
-            ChatMessage(role: "system", content: Prompts.recommendationFromOwnedBooks),
-            ChatMessage(
-                role: "user",
-                content: "보유도서 제목-저자 목록: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
-            ),
-        ]
-
-        return sendChatRequest(
-            messages: messages,
-            temperature: 0.01,
-            maxTokens: 500
-        )
-        .map { response in
-            guard let jsonString = response.choices.first?.message.content,
-                  let jsonData = jsonString.data(using: .utf8),
-                  let result = try? JSONDecoder().decode(
-                      GPTRecommendationFromOwnedBooksDTO.self,
-                      from: jsonData
-                  )
-            else {
-                throw BookMatchError.invalidResponse
-            }
-
-            return result.toDomain()
-        }
-        .retry(3)
-        .catch { _ in
-            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
-            throw BookMatchError.invalidResponse
-        }
-    }
-
-    /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 새로운 추천도서`를 `재요청` 및 반환받습니다.
-    ///
-    ///  - Parameters:
-    ///     - question: 사용자 질문
-    ///     - previousBooks: 기존에 GPT가 이미 추천했던 도서 배열
-    ///  - Returns: ``Rawbook`` 타입의 단일 추천도서
-    ///  - Throws: GPT 반환 형식 에러
-    public func getAdditionalBook(
-        question: String,
-        previousBooks: [RawBook]
-    ) -> Single<RawBook> {
-        let messages = [
-            ChatMessage(role: "system", content: Prompts.additionalBook),
-            ChatMessage(
-                role: "user",
-                content: "질문: \(question)\n기존 도서 제목 배열: \(previousBooks.map(\.title))"
-            ),
-        ]
-
-        return sendChatRequest(
-            messages: messages,
-            temperature: 0.01,
-            maxTokens: 100
-        )
-        .map { response in
-            guard let result = response.choices.first?.message.content else {
-                throw BookMatchError.invalidResponse
-            }
-
-            let arr = result
-                .split(separator: "-")
-                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
-
-            return RawBook(title: arr[0], author: arr[1])
-        }
-        .retry(3)
-        .catch { _ in
-            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
-            throw BookMatchError.invalidResponse
-        }
     }
 
     /// URL로부터 이미지를 다운로드합니다.
@@ -260,6 +127,131 @@ public final class DefaultAPIClient: APIClientProtocol {
                 throw BookMatchError.invalidResponse
             }
             return result
+        }
+        .retry(3)
+        .catch { _ in
+            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
+            throw BookMatchError.invalidResponse
+        }
+    }
+
+    /// `ChatGPT api`를 활용, `질문 기반 추천 도서`를 요청 및 반환받습니다.
+    ///
+    ///  - Parameters:
+    ///     - question: 사용자 질문
+    ///     - ownedBooks: 사용자 보유 도서 배열
+    ///  - Returns: 보유/미보유에 대해 각각 도서 추천
+    ///  - Throws: GPT 반환 형식 에러
+    public func getBookRecommendation(
+        question: String,
+        ownedBooks: [OwnedBook]
+    ) -> Single<AiRecommendationForQuestion> {
+        let messages = [
+            ChatMessage(role: "system", content: Prompts.recommendationForQuestion),
+            ChatMessage(
+                role: "user",
+                content: "질문: \(question)\n보유도서: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
+            ),
+        ]
+
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 100
+        )
+        .map { response in
+            guard let jsonString = response.choices.first?.message.content,
+                  let jsonData = jsonString.data(using: .utf8),
+                  let result = try? JSONDecoder().decode(
+                      AiRecommendationForQuestionDTO.self,
+                      from: jsonData
+                  ) else {
+                throw BookMatchError.invalidResponse
+            }
+
+            return result.toDomain(ownedBooks)
+        }
+        .retry(3)
+        .catch { _ in
+            throw BookMatchError.invalidResponse
+        }
+    }
+
+    /// `ChatGPT api`를 활용, `보유도서 기반 추천 도서`를 요청 및 반환받습니다.
+    ///
+    ///  - Parameters:
+    ///     - ownedBooks: 사용자 보유 도서 배열
+    ///  - Returns: ``Rawbook`` 타입의 추천도서 배열
+    ///  - Throws: GPT 반환 형식 에러
+    public func getBookRecommendation(ownedBooks: [OwnedBook])
+        -> Single<AiRecommendationFromOwnedBooks> {
+        let messages = [
+            ChatMessage(role: "system", content: Prompts.recommendationFromOwnedBooks),
+            ChatMessage(
+                role: "user",
+                content: "보유도서 제목-저자 목록: \(ownedBooks.map { "\($0.title)-\($0.author)" })"
+            ),
+        ]
+
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 500
+        )
+        .map { response in
+            guard let jsonString = response.choices.first?.message.content,
+                  let jsonData = jsonString.data(using: .utf8),
+                  let result = try? JSONDecoder().decode(
+                      AiRecommendationFromOwnedBooksDTO.self,
+                      from: jsonData
+                  )
+            else {
+                throw BookMatchError.invalidResponse
+            }
+
+            return result.toDomain()
+        }
+        .retry(3)
+        .catch { _ in
+            // 3회 재시도 후에도 실패하면 invalidResponse를 반환
+            throw BookMatchError.invalidResponse
+        }
+    }
+
+    /// `ChatGPT api`를 활용, `질문 기반 추천 도중, 새로운 추천도서`를 `재요청` 및 반환받습니다.
+    ///
+    ///  - Parameters:
+    ///     - question: 사용자 질문
+    ///     - previousBooks: 기존에 GPT가 이미 추천했던 도서 배열
+    ///  - Returns: ``Rawbook`` 타입의 단일 추천도서
+    ///  - Throws: GPT 반환 형식 에러
+    public func getAdditionalBook(
+        question: String,
+        previousBooks: [RawBook]
+    ) -> Single<RawBook> {
+        let messages = [
+            ChatMessage(role: "system", content: Prompts.additionalBook),
+            ChatMessage(
+                role: "user",
+                content: "질문: \(question)\n기존 도서 제목 배열: \(previousBooks.map(\.title))"
+            ),
+        ]
+
+        return sendChatRequest(
+            messages: messages,
+            temperature: 0.01,
+            maxTokens: 100
+        )
+        .map { response in
+            guard let result = response.choices.first?.message.content else {
+                throw BookMatchError.invalidResponse
+            }
+
+            let arr = result
+                .split(separator: "-")
+                .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+
+            return RawBook(title: arr[0], author: arr[1])
         }
         .retry(3)
         .catch { _ in

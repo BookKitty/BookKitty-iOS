@@ -24,7 +24,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "아르테(arte)",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9788954625760",

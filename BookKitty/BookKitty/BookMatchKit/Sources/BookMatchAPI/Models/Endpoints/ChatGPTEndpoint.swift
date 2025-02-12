@@ -10,27 +10,19 @@ struct ChatGPTEndpoint: Endpoint {
 
     // MARK: - Properties
 
-    // MARK: - Private
+    var baseURL = "https://api.openai.com"
+    var path = "/v1/chat/completions"
+    var method = HTTPMethod.post
 
     private let model: String
-    private let messages: [ChatMessage]
     private let temperature: Double
     private let maxTokens: Int
+    private let messages: [ChatMessage]
     private let configuration: APIConfiguration
 
     // MARK: - Computed Properties
 
-    // MARK: Endpoint Protocol
-
-    var baseURL: String {
-        configuration.openAIBaseURL
-    }
-
-    var path: String { "/v1/chat/completions" }
-
-    var method: HTTPMethod { .post }
-
-    var heaerFields: [String: String] {
+    var headerFields: [String: String] {
         [
             "Authorization": "Bearer \(configuration.openAIApiKey)",
             "Content-Type": "application/json",

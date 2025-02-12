@@ -19,17 +19,18 @@ class HomeViewController: BaseViewController {
 
     // MARK: - Private
 
+    private let verticalScrollView = UIScrollView()
+    private let contentView = UIView()
+
+    private let lottieView =
+        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
+
     private let bookSelectedRelay = PublishRelay<Book>()
 
     private let viewModel: HomeViewModel
 
-    private let titleLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "책냥이가 아래 책들을 추천합니다."
-        $0.textColor = Colors.fontMain
-    }
-
     private let copyrightLabel = CaptionLabel().then {
-        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전상규"
+        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전성규"
         $0.textColor = Colors.fontSub1
         $0.textAlignment = .center
     }
@@ -84,24 +85,42 @@ class HomeViewController: BaseViewController {
     // MARK: - Internal
 
     override func configureHierarchy() {
-        [titleLabel, recommendedBooksCollectionView, copyrightLabel].forEach { view.addSubview($0) }
+        view.addSubview(verticalScrollView)
+        verticalScrollView.addSubview(contentView)
+
+        [
+            lottieView,
+            recommendedBooksCollectionView,
+            copyrightLabel,
+        ].forEach { contentView.addSubview($0) }
     }
 
     override func configureLayout() {
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(Vars.spacing48)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing24)
+        verticalScrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
+        lottieView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(640)
         }
 
         recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing24)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(lottieView.snp.bottom)
+            make.horizontalEdges.equalToSuperview()
             make.height.greaterThanOrEqualTo(448)
         }
 
         copyrightLabel.snp.makeConstraints { make in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-Vars.spacing16)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.spacing24)
+            make.top.equalTo(recommendedBooksCollectionView.snp.bottom).offset(Vars.spacing72)
+            make.bottom.equalToSuperview().inset(Vars.spacing72)
+            make.horizontalEdges.equalToSuperview().inset(Vars.paddingLarge)
         }
     }
 

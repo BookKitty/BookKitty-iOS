@@ -19,7 +19,8 @@ final class MockBookRepository: BookRepository {
             publisher: "아르테(arte)",
             thumbnailUrl: URL(
                 string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
-            )
+            ),
+            isOwned: true
         ),
         Book(
             isbn: "9788954625760",
@@ -120,10 +121,12 @@ final class MockBookRepository: BookRepository {
     }
 
     func addBookToShelf(isbn _: String) -> Bool {
-        true
+        print("책 서재에 추가")
+        return true
     }
 
     func exceptBookFromShelf(isbn _: String) -> Bool {
-        true
+        print("책 서재에서 제거")
+        return true
     }
 }

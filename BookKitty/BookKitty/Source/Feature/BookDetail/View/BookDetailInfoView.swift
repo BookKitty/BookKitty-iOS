@@ -80,13 +80,13 @@ final class BookDetailInfoView: UIStackView {
 
     // MARK: - Internal
 
-    func setupData(with model: TestBookModel) {
-        bookThumbnailImageView.setupImage(imageLink: model.imageLink)
-        titleLabel.text = model.title
-        authorLabel.text = model.author
-        pubDateLabel.text = model.pubdate
-        isbnLabel.text = "ISBN: \(model.isbn)"
-        priceLabel.text = "가격 \(model.price)"
+    func setupData(with bookDetail: Book) {
+        bookThumbnailImageView.setupImage(imageLink: bookDetail.thumbnailUrl?.absoluteString ?? "")
+        titleLabel.text = bookDetail.title
+        authorLabel.text = bookDetail.author
+        pubDateLabel.text = bookDetail.pubDate
+        isbnLabel.text = "ISBN: \(bookDetail.isbn)"
+        priceLabel.text = "가격 \(bookDetail.price)"
     }
 
     private func configureUI() {
