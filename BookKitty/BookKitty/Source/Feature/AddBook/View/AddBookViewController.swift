@@ -1,19 +1,10 @@
-//
-//  AddBookViewController.swift
-//  BookKitty
-//
-//  Created by 반성준 on 2/5/25.
-//
-
 import AVFoundation
-import BookMatchKit
 import DesignSystem
 import RxCocoa
 import RxSwift
 import SnapKit
 import Then
 import UIKit
-import Vision
 
 final class AddBookViewController: BaseCameraViewController {
     // MARK: - Properties
@@ -45,17 +36,15 @@ final class AddBookViewController: BaseCameraViewController {
         $0.textColor = .black
     }
 
-    private let viewModel: AddBookViewModel
-    private let manualTitleRelay = PublishRelay<String>()
-    private let confirmButtonRelay = PublishRelay<Void>()
-    private var addedBookTitles = Set<String>()
-    private let bookMatchKit = BookMatchKit(
-        naverClientId: "emT6GVaVUMCyF7CSqifr",
-        naverClientSecret: "eIjwLMH9ZS"
-    )
+    private let manualAddPopup = TitleInputPopupView()
+    private let navigationBar = CustomNavigationBar()
+    private let dimmingView = DimmingView()
 
-    /// ✅ ReviewAddBookViewController 인스턴스 (재사용 목적)
-    private var reviewViewController: ReviewAddBookViewController?
+    private let confirmButtonRelay = PublishRelay<Void>()
+    private let manualTitleRelay = PublishRelay<String>()
+
+    private let viewModel: AddBookViewModel
+    private var addedBookTitles = Set<String>()
 
     // MARK: - Lifecycle
 
@@ -63,7 +52,6 @@ final class AddBookViewController: BaseCameraViewController {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
-        // ✅ OCR 결과를 자동으로 manualTitleRelay에 전달
         ocrTextHandler = { [weak self] recognizedText in
             self?.manualTitleRelay.accept(recognizedText)
         }
@@ -76,10 +64,11 @@ final class AddBookViewController: BaseCameraViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         setupUI()
         setupConstraints()
+
         bindViewModel()
+        bindNavigationBar()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -89,27 +78,13 @@ final class AddBookViewController: BaseCameraViewController {
         }
     }
 
-    // MARK: - Functions
+    // MARK: - Overridden Functions
 
-    // MARK: - 네비게이션 바 설정
-
-    fileprivate func setupNavigationBar() {
-        navigationController?.navigationBar.isHidden = false
-
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "돌아가기",
-            style: .plain,
-            target: self,
-            action: #selector(didTapBackButton)
-        )
-
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "제목 입력",
-            style: .plain,
-            target: self,
-            action: #selector(didTapManualAddButton)
-        )
+    override func handleCapturedImage(_ image: UIImage) {
+        viewModel.handleCapturedImage(from: image)
     }
+
+    // MARK: - Functions
 
     // MARK: - UI Setup
 
@@ -161,84 +136,58 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: - ViewModel Binding
 
-    fileprivate func bindViewModel() {
+    private func bindViewModel() {
         let input = AddBookViewModel.Input(
             captureButtonTapped: captureButton.rx.tap.asObservable(),
-            manualAddButtonTapped: manualTitleRelay.asObservable(),
-            confirmButtonTapped: confirmButtonRelay.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            popupViewConfirmButtonTapTrigger: confirmButtonRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
 
-        output.navigateToReviewAddBook
-            .compactMap(\.first)
-            .filter { !$0.title.isEmpty }
-            .subscribe(onNext: { [weak self] book in
-                self?.navigateToReviewScene(with: book)
-            })
-            .disposed(by: disposeBag)
-
-        output.showTitleInputPopup
-            .subscribe(onNext: { [weak self] in
-                self?.showManualTitleInput()
+        output.error
+            .withUnretained(self)
+            .subscribe(onNext: { error in
+                print("Error occurred : \(error)")
             })
             .disposed(by: disposeBag)
     }
 
-    // MARK: - 화면 이동
+    private func bindNavigationBar() {
+        navigationBar.rightButtonTapped
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                let manualAddPopup = owner.manualAddPopup
+                owner.dimmingView.isVisible.accept(true)
 
-    fileprivate func navigateToReviewScene(with book: Book) {
-        guard !addedBookTitles.contains(book.title) else {
-            return
-        }
-        addedBookTitles.insert(book.title)
+                if owner.view.subviews.contains(where: { $0 is TitleInputPopupView }) {
+                    manualAddPopup.isHidden = false
+                } else {
+                    owner.view.addSubview(manualAddPopup)
+                    manualAddPopup.snp.makeConstraints {
+                        $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+                        $0.centerY.equalToSuperview()
+                    }
+                }
+            }).disposed(by: disposeBag)
 
-        if let reviewVC = reviewViewController {
-            reviewVC.appendBook(book)
-        } else {
-            let reviewViewModel = ReviewAddBookViewModel(initialBookList: [book])
-            let reviewVC = ReviewAddBookViewController(viewModel: reviewViewModel)
-            reviewViewController = reviewVC
-            navigationController?.pushViewController(reviewVC, animated: true)
-        }
-    }
+        manualAddPopup.confirmButton.rx.tap
+            .bind(to: confirmButtonRelay)
+            .disposed(by: disposeBag)
 
-    // MARK: - 수동 입력 추가
+        manualAddPopup.cancelButton.rx.tap
+            .map { false }
+            .bind(to: dimmingView.isVisible)
+            .disposed(by: disposeBag)
 
-    fileprivate func showManualTitleInput() {
-        let alert = UIAlertController(
-            title: "책 제목 입력",
-            message: "책 제목을 입력해주세요.",
-            preferredStyle: .alert
-        )
-        alert.addTextField()
-
-        let addAction = UIAlertAction(title: "추가", style: .default) { [weak self] _ in
-            if let title = alert.textFields?.first?.text, !title.isEmpty {
-                let book = Book(
-                    isbn: "",
-                    title: title,
-                    author: "알 수 없음",
-                    publisher: "알 수 없음",
-                    thumbnailUrl: nil
-                )
-                self?.navigateToReviewScene(with: book)
-            }
-        }
-
-        alert.addAction(addAction)
-        alert.addAction(UIAlertAction(title: "취소", style: .cancel))
-
-        present(alert, animated: true)
-    }
-
-    @objc
-    private func didTapBackButton() {
-        navigationController?.popViewController(animated: true)
-    }
-
-    @objc
-    private func didTapManualAddButton() {
-        showManualTitleInput()
+        dimmingView.isVisible
+            .skip(1)
+            .filter { !$0 }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.manualAddPopup.isHidden = true
+            }).disposed(by: disposeBag)
     }
 }

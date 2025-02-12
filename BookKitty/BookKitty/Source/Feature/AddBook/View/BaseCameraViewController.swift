@@ -223,6 +223,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                 print("⚠️ Vision 결과 없음")
                 return
             }
+            // TODO: RxSwift로 비동기 작업 처리 로직 변경하기
 
             var extractedTexts: [String] = []
             let dispatchGroup = DispatchGroup()

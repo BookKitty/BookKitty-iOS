@@ -76,6 +76,7 @@ extension AddQuestionCoordinator {
             bookRepository: repository,
             questionHistoryRepository: questionHistoryRepository
         )
+
         let questionResultViewController =
             QuestionResultViewController(viewModel: questionResultViewModel)
         // 책 상세 화면으로 이동하는 이벤트를 구독
@@ -84,6 +85,7 @@ extension AddQuestionCoordinator {
             .bind(onNext: { owner, book in
                 owner.showBookDetailScene(with: book)
             }).disposed(by: disposeBag)
+
         questionResultViewModel.navigateToQuestionHistory
             .withUnretained(self)
             .bind(onNext: { owner, _ in

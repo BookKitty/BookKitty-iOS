@@ -13,14 +13,14 @@ final class ReviewAddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
     struct Input {
-        let confirmButtonTapped: Observable<Void>
-        let addBookWithTitleTapped: Observable<String>
-        let deleteBookTapped: Observable<Int>
+        let addBookWithTitleTapTrigger: Observable<String>
+        let deleteBookTapTrigger: Observable<Int>
+        let confirmButtonTapTrigger: Observable<Void>
+        let leftBarButtonTapTrigger: Observable<Void>
     }
 
     struct Output {
-        let navigateToBookList: Observable<Void>
-        let bookList: Observable<[Book]>
+        let addedBookList: Observable<[Book]>
     }
 
     // MARK: - Properties
@@ -28,52 +28,48 @@ final class ReviewAddBookViewModel: ViewModelType {
     let disposeBag = DisposeBag()
 
     let navigateToBookListRelay = PublishRelay<Void>()
+    let navigateBackRelay = PublishRelay<Void>()
 
     // MARK: - Private
 
-    private let bookListRelay = BehaviorRelay<[Book]>(value: [])
+    private let addedBookListRelay = BehaviorRelay<[Book]>(value: [])
     private var addedBookTitles = Set<String>() // ✅ 중복 방지용 Set
 
     // MARK: - Lifecycle
 
     init(initialBookList: [Book] = []) {
-        bookListRelay.accept(initialBookList)
+        addedBookListRelay.accept(initialBookList)
         addedBookTitles = Set(initialBookList.map(\.title)) // ✅ 초기 데이터 반영
     }
 
     // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
-        // ✅ 확인 버튼 탭 시 화면 전환
-        input.confirmButtonTapped
+        input.confirmButtonTapTrigger
             .bind(to: navigateToBookListRelay)
             .disposed(by: disposeBag)
 
-        // ✅ 책 제목 추가
-        input.addBookWithTitleTapped
+        input.addBookWithTitleTapTrigger
             .subscribe(onNext: { [weak self] title in
                 self?.appendBook(with: title)
             })
             .disposed(by: disposeBag)
 
-        // ✅ 책 삭제
-        input.deleteBookTapped
-            .withLatestFrom(bookListRelay) { index, bookList in
+        input.deleteBookTapTrigger
+            .withLatestFrom(addedBookListRelay) { index, bookList in
                 var newList = bookList
                 if index < newList.count {
                     let removedTitle = newList[index].title
-                    self.addedBookTitles.remove(removedTitle) // ✅ 삭제된 책 제목 제거
+                    self.addedBookTitles.remove(removedTitle)
                     newList.remove(at: index)
                 }
+
                 return newList
             }
-            .bind(to: bookListRelay)
+            .bind(to: addedBookListRelay)
             .disposed(by: disposeBag)
 
-        return Output(
-            navigateToBookList: navigateToBookListRelay.asObservable(),
-            bookList: bookListRelay.asObservable()
-        )
+        return Output(addedBookList: addedBookListRelay.asObservable())
     }
 
     /// ✅ 새로운 책 추가 (Book 객체로)
@@ -83,18 +79,17 @@ final class ReviewAddBookViewModel: ViewModelType {
         } // ✅ 중복 방지
         addedBookTitles.insert(book.title)
 
-        var currentList = bookListRelay.value
+        var currentList = addedBookListRelay.value
         currentList.append(book)
-        bookListRelay.accept(currentList)
+        addedBookListRelay.accept(currentList)
     }
 
     // MARK: - Private Methods
 
-    /// ✅ 새로운 책 추가 (제목으로)
     private func appendBook(with title: String) {
         guard !addedBookTitles.contains(title) else {
             return
-        } // ✅ 중복 방지
+        }
         addedBookTitles.insert(title)
 
         let newBook = Book(
@@ -105,8 +100,8 @@ final class ReviewAddBookViewModel: ViewModelType {
             thumbnailUrl: nil
         )
 
-        var currentList = bookListRelay.value
+        var currentList = addedBookListRelay.value
         currentList.append(newBook)
-        bookListRelay.accept(currentList)
+        addedBookListRelay.accept(currentList)
     }
 }

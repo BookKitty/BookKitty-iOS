@@ -15,6 +15,12 @@ final class ReviewAddBookViewController: BaseViewController {
     private let deleteBookSubject = PublishSubject<Int>()
     private let manualTitleSubject = PublishSubject<String>()
     private var addedBookTitles = Set<String>()
+    private let addBookButton = TextButton(title: "+ 책 추가하기")
+    private let confirmButton = RoundButton(title: "추가 완료")
+
+    private let manualAddPopup = TitleInputPopupView()
+    private let navigationBar = CustomNavigationBar()
+    private let dimmingView = DimmingView()
 
     private let titleLabel = UILabel().then {
         $0.text = "촬영 결과"
@@ -41,9 +47,6 @@ final class ReviewAddBookViewController: BaseViewController {
         $0.numberOfLines = 2
     }
 
-    private let addBookButton = TextButton(title: "+ 책 추가하기")
-    private let confirmButton = RoundButton(title: "추가 완료")
-
     // MARK: - Lifecycle
 
     init(viewModel: ReviewAddBookViewModel) {
@@ -61,6 +64,7 @@ final class ReviewAddBookViewController: BaseViewController {
         setupUI()
         setupConstraints()
         bindViewModel()
+        bindPopup() // 추가
     }
 
     // MARK: - Functions
@@ -135,9 +139,10 @@ final class ReviewAddBookViewController: BaseViewController {
 
     private func bindViewModel() {
         let input = ReviewAddBookViewModel.Input(
-            confirmButtonTapped: confirmButton.rx.tap.asObservable(),
-            addBookWithTitleTapped: manualTitleSubject.asObservable(),
-            deleteBookTapped: deleteBookSubject.asObservable()
+            addBookWithTitleTapTrigger: manualTitleSubject.asObservable(),
+            deleteBookTapTrigger: deleteBookSubject.asObservable(),
+            confirmButtonTapTrigger: confirmButton.rx.tap.asObservable(),
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -153,16 +158,10 @@ final class ReviewAddBookViewController: BaseViewController {
             }
         )
 
-        output.bookList
-            .map { [SectionModel(model: "Books", items: $0)] }
-            .bind(to: collectionView.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-
-        addBookButton.rx.tap
-            .bind { [weak self] in
-                self?.showManualTitleInput()
-            }
-            .disposed(by: disposeBag)
+//        output.bookList
+//            .map { [SectionModel(model: "Books", items: $0)] }
+//            .bind(to: collectionView.rx.items(dataSource: dataSource))
+//            .disposed(by: disposeBag)
 
         confirmButton.rx.tap
             .bind { [weak self] in
@@ -186,26 +185,48 @@ final class ReviewAddBookViewController: BaseViewController {
         return UISwipeActionsConfiguration(actions: [deleteAction])
     }
 
-    // MARK: - Show Manual Title Input
+    private func bindPopup() {
+        addBookButton.rx.tap
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                let manualAddPopup = owner.manualAddPopup
+                owner.dimmingView.isVisible.accept(true)
 
-    private func showManualTitleInput() {
-        let alert = UIAlertController(
-            title: "책 제목으로 직접 추가하기",
-            message: "책의 제목을 입력해주세요.",
-            preferredStyle: .alert
-        )
-        alert.addTextField()
+                if owner.view.subviews.contains(where: { $0 is TitleInputPopupView }) {
+                    manualAddPopup.isHidden = false
+                } else {
+                    owner.view.addSubview(manualAddPopup)
+                    manualAddPopup.snp.makeConstraints {
+                        $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+                        $0.centerY.equalToSuperview()
+                    }
+                }
+            }).disposed(by: disposeBag)
 
-        let addAction = UIAlertAction(title: "확인", style: .default) { [weak self] _ in
-            if let title = alert.textFields?.first?.text, !title.isEmpty {
-                self?.manualTitleSubject.onNext(title)
-            }
-        }
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        manualAddPopup.confirmButton.rx.tap
+            .withLatestFrom(manualAddPopup.bookTitleInput.rx.text.orEmpty)
+            .filter { !$0.isEmpty }
+            .do(onNext: { [weak self] _ in
+                self?.dimmingView.isVisible.accept(false)
+                self?.manualAddPopup.bookTitleInput.text = "" // 입력 필드 초기화
+            })
+            .bind(to: manualTitleSubject)
+            .disposed(by: disposeBag)
 
-        alert.addAction(addAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true)
+        manualAddPopup.cancelButton.rx.tap
+            .map { false }
+            .bind(to: dimmingView.isVisible)
+            .disposed(by: disposeBag)
+
+        dimmingView.isVisible
+            .skip(1)
+            .filter { !$0 }
+            .observe(on: MainScheduler.instance)
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.manualAddPopup.isHidden = true
+            }).disposed(by: disposeBag)
     }
 }
 

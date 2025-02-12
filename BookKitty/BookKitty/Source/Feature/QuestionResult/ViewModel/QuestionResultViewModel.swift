@@ -171,6 +171,7 @@ final class QuestionResultViewModel: ViewModelType {
             id: UUID(),
             recommendedBooks: recommendedBooks
         )
+
         questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         return [SectionOfBook(items: recommendedBooks)]
