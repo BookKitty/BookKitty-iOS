@@ -56,11 +56,11 @@ final class ReviewAddBookViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.deleteBookTapTrigger
-			.withUnretained(self)
+            .withUnretained(self)
             .withLatestFrom(addedBookListRelay) { ownerIndex, bookList in
                 let owner = ownerIndex.0
-				let index = ownerIndex.1
-				var newList = bookList
+                let index = ownerIndex.1
+                var newList = bookList
                 if index < newList.count {
                     let removedTitle = newList[index].title
                     owner.addedBookTitles.remove(removedTitle)
