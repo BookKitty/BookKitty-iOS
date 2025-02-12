@@ -107,9 +107,9 @@ final class BookCoreDataManager: BookCoreDataManageable {
     ) -> [BookEntity] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
-        
+
         request.fetchOffset = offset
-        
+
         if limit > 0 {
             request.fetchLimit = limit
         }
