@@ -50,10 +50,6 @@ extension DefaultHomeCoordinator {
     /// 책 목록 화면을 생성하고 ViewModel과 ViewController를 연결
     /// 사용자가 책을 선택하면 책 상세 화면으로 이동
     private func showHomeScreen() {
-        let bookRepository = LocalBookRepository()
-        let homeViewModel = HomeViewModel(bookRepository: bookRepository)
-        let homeViewController = HomeViewController(viewModel: homeViewModel)
-
         // 책 상세 화면으로 이동 이벤트 처리
         homeViewModel.navigateToBookDetail
             .withUnretained(self)
@@ -77,6 +73,12 @@ extension DefaultHomeCoordinator {
             bookRepository: bookRepository
         )
         let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
+
+        bookDetailViewModel.navigateBackRelay
+            .withUnretained(self)
+            .bind(onNext: { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }).disposed(by: disposeBag)
 
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
