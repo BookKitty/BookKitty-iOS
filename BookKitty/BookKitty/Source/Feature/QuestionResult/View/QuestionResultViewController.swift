@@ -167,6 +167,7 @@ final class QuestionResultViewController: BaseViewController {
     override func bind() {
         let input = QuestionResultViewModel.Input(
             viewDidLoad: viewDidLoadRelay.asObservable(),
+            viewWillAppear: viewWillAppearRelay.asObservable(),
             bookSelected: bookSelectedRelay.asObservable(),
             submitButtonTapped: submitButtonTappedRelay.asObservable()
         )

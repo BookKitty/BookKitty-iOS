@@ -17,6 +17,7 @@ final class QuestionDetailViewModel: ViewModelType {
 
     struct Input {
         let viewDidLoad: Observable<Void>
+        let viewWillAppear: Observable<Void>
         let deleteButtonTapped: Observable<Void>
         let backButtonTapped: Observable<Void>
         let bookTapped: Observable<Book>
@@ -68,6 +69,21 @@ final class QuestionDetailViewModel: ViewModelType {
                 let sectionOfBooks = SectionOfBook(items: qna.recommendedBooks)
                 self.recommendedBooksRelay.accept([sectionOfBooks])
             })
+            .disposed(by: disposeBag)
+
+        input.viewWillAppear
+            .skip(1)
+            .withUnretained(self)
+            .map { owner, _ in
+                if let updatedQnA = owner.questionHistoryRepository
+                    .fetchQuestion(by: owner.questionAnswer.id) {
+                    let books = updatedQnA.recommendedBooks
+                    return [SectionOfBook(items: books)]
+                } else {
+                    return [SectionOfBook(items: owner.questionAnswer.recommendedBooks)]
+                }
+            }
+            .bind(to: recommendedBooksRelay)
             .disposed(by: disposeBag)
 
         input.deleteButtonTapped

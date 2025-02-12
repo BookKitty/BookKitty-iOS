@@ -9,6 +9,7 @@ final class HomeViewModel: ViewModelType {
 
     struct Input {
         let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
+        let viewWillAppear: Observable<Void> // 뷰가 나타날 때 소유 여부 새로고침
         let bookSelected: Observable<Book> // 사용자가 선택한 책
     }
 
@@ -49,6 +50,17 @@ final class HomeViewModel: ViewModelType {
                     limit: 5
                 )
 
+                return [SectionOfBook(items: fetchedBooks)]
+            }
+            .bind(to: recommendedBooksRelay)
+            .disposed(by: disposeBag)
+
+        // 홈 화면 돌아올 때마다 업데이트
+        // 비효율적일 수 있음 주의
+        input.viewWillAppear
+            .withUnretained(self)
+            .map { _, _ in
+                let fetchedBooks = self.bookRepository.fetchRecentRecommendedBooks()
                 return [SectionOfBook(items: fetchedBooks)]
             }
             .bind(to: recommendedBooksRelay)
