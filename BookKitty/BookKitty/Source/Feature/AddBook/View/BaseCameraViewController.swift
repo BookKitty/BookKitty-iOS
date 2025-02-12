@@ -70,7 +70,7 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
     }
 
     func handleCapturedImage(_ image: UIImage) {
-        // 이미지 리사이즈 (OCR 정확도 향상을 위해)
+        // 이미지 전처리 (리사이즈 및 크롭)
         let resizedImage = image.resized(toWidth: 1024)
         detectBookElements(in: resizedImage!) // OCR 및 객체 감지 실행
     }
@@ -223,7 +223,6 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
                 print("⚠️ Vision 결과 없음")
                 return
             }
-            // TODO: RxSwift로 비동기 작업 처리 로직 변경하기
 
             var extractedTexts: [String] = []
             let dispatchGroup = DispatchGroup()
@@ -286,7 +285,10 @@ class BaseCameraViewController: UIViewController, AVCapturePhotoCaptureDelegate 
             completion(recognizedText)
         }
 
-        request.recognitionLevel = .accurate
+        // OCR 언어 설정 (한국어 및 영어)
+        request.recognitionLanguages = ["ko", "en"]
+        request.usesLanguageCorrection = true
+        request.minimumTextHeight = 0.002
 
         let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         do {
