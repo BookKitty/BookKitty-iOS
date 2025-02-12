@@ -90,7 +90,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             return bookCoreDataManager.modelToEntity(model: $0, context: context)
         }
 
-        let linkEntities = bookEntities.map {
+        _ = bookEntities.map {
             bookQALinkCoreDataManager.createNewLinkWithoutSave(
                 bookEntity: $0,
                 questionAnswerEntity: questionEntity,
@@ -129,8 +129,15 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             context: context
         )
 
-        let books = bookEntities.compactMap {
+        var books = bookEntities.compactMap {
             bookCoreDataManager.entityToModel(entity: $0)
+        }
+
+        books.sort {
+            if $0.isOwned == $1.isOwned {
+                return $0.title < $1.title
+            }
+            return $0.isOwned && !$1.isOwned
         }
 
         guard let createdAt = entity.createdAt, let questionId = entity.id else {

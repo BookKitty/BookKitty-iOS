@@ -97,7 +97,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
     /// 책장 책 목록 가져오기
     /// - Parameters:
     ///   - offset: 책을 가져오기 시작하는 지점
-    ///   - limit: 한번에 가져오는 책의 최대 개수
+    ///   - limit: 한번에 가져오는 책의 최대 개수. 0이면 모두 가져옵니다.
     ///   - context: 코어데이터 컨텍스트
     /// - Returns: 조건을 충족하는 BookEntity 배열
     func selectOwnedBooks(
@@ -107,9 +107,9 @@ final class BookCoreDataManager: BookCoreDataManageable {
     ) -> [BookEntity] {
         let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
         request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
-        
+
         request.fetchOffset = offset
-        
+
         if limit > 0 {
             request.fetchLimit = limit
         }
