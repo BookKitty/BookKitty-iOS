@@ -8,7 +8,7 @@ final class HomeViewModel: ViewModelType {
     // MARK: - Internal
 
     struct Input {
-        let viewDidLoad: Observable<Void> // 뷰가 로드될 때 전달받은 질문
+        let viewWillAppear: Observable<Void> // 뷰가 로드될 때 전달받은 질문
         let bookSelected: Observable<Book> // 사용자가 선택한 책
     }
 
@@ -41,14 +41,10 @@ final class HomeViewModel: ViewModelType {
     // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
-        input.viewDidLoad
+        input.viewWillAppear
             .withUnretained(self)
             .map { _ in
-                let fetchedBooks = self.bookRepository.fetchBookList(
-                    offset: 0,
-                    limit: 5
-                )
-
+                let fetchedBooks = self.bookRepository.fetchRecentRecommendedBooks()
                 return [SectionOfBook(items: fetchedBooks)]
             }
             .bind(to: recommendedBooksRelay)
