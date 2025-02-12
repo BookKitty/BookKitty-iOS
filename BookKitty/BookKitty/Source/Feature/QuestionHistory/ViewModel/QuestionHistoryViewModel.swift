@@ -83,9 +83,10 @@ final class QuestionHistoryViewModel: ViewModelType {
                     limit: owner.limit
                 )
             }
-            .map { fetchedQuestions in
-                self.questions.append(contentsOf: fetchedQuestions)
-                return self.questions
+            .withUnretained(self)
+            .map { owner, fetchedQuestions in
+                owner.questions.append(contentsOf: fetchedQuestions)
+                return owner.questions
             }
             .bind(to: fetchedQuestionsRelay)
             .disposed(by: disposeBag)
@@ -103,9 +104,10 @@ final class QuestionHistoryViewModel: ViewModelType {
                 )
             }
             .do(onCompleted: { [weak self] in self?.isLoading = false }) // API 호출이 끝나면 로딩 상태 해제
-            .map { fetchedQuestions in
-                self.questions.append(contentsOf: fetchedQuestions)
-                return self.questions
+            .withUnretained(self)
+            .map { owner, fetchedQuestions in
+                owner.questions.append(contentsOf: fetchedQuestions)
+                return owner.questions
             }
             .bind(to: fetchedQuestionsRelay)
             .disposed(by: disposeBag)

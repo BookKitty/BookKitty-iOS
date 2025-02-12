@@ -60,14 +60,13 @@ final class QuestionDetailViewModel: ViewModelType {
 
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
-            .withUnretained(self)
-            .subscribe(onNext: { _ in
-                let qna = self.questionAnswer
-                self.questionDateRelay.accept(DateFormatHandler().dateString(from: qna.createdAt))
-                self.userQuestionRelay.accept(qna.userQuestion)
-                self.recommendationReasonRelay.accept(qna.gptAnswer)
+            .subscribe(with: self, onNext: { owner, _ in
+                let qna = owner.questionAnswer
+                owner.questionDateRelay.accept(DateFormatHandler().dateString(from: qna.createdAt))
+                owner.userQuestionRelay.accept(qna.userQuestion)
+                owner.recommendationReasonRelay.accept(qna.gptAnswer)
                 let sectionOfBooks = SectionOfBook(items: qna.recommendedBooks)
-                self.recommendedBooksRelay.accept([sectionOfBooks])
+                owner.recommendedBooksRelay.accept([sectionOfBooks])
             })
             .disposed(by: disposeBag)
 
@@ -87,11 +86,10 @@ final class QuestionDetailViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.deleteButtonTapped
-            .withUnretained(self)
-            .subscribe { _ in
-                _ = self.questionHistoryRepository
-                    .deleteQuestionAnswer(uuid: self.questionAnswer.id)
-                self.dismissViewController.accept(())
+            .subscribe(with: self) { owner, _ in
+                _ = owner.questionHistoryRepository
+                    .deleteQuestionAnswer(uuid: owner.questionAnswer.id)
+                owner.dismissViewController.accept(())
             }
             .disposed(by: disposeBag)
 

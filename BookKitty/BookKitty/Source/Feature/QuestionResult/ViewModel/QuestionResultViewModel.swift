@@ -70,8 +70,8 @@ final class QuestionResultViewModel: ViewModelType {
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
             .withUnretained(self)
-            .map { _ in
-                self.userQuestion
+            .map { owner, _ in
+                owner.userQuestion
             }
             .bind(to: userQuestionRelay) // 질문을 저장
             .disposed(by: disposeBag)
@@ -128,9 +128,9 @@ final class QuestionResultViewModel: ViewModelType {
         -> Observable<(String, BookMatchModuleOutput)> {
         viewDidLoad
             .withUnretained(self)
-            .flatMapLatest { _ in
+            .flatMapLatest { owner, _ in
                 // 코어데이터에서 사용자가 소유한 책 가져오기 (예제 데이터)
-                let ownedBooks = self.bookRepository.fetchBookList(offset: 0, limit: 15).map {
+                let ownedBooks = owner.bookRepository.fetchBookList(offset: 0, limit: 15).map {
                     OwnedBook(
                         id: $0.isbn,
                         title: $0.title,
@@ -142,12 +142,12 @@ final class QuestionResultViewModel: ViewModelType {
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
                         // TODO: 에러 받아서 처리하기
-                        self.recommendationService.recommendBooks(
-                            for: self.userQuestion,
+                        owner.recommendationService.recommendBooks(
+                            for: owner.userQuestion,
                             from: ownedBooks
                         )
                         .subscribe(onSuccess: { result in
-                            observer.onNext((self.userQuestion, result))
+                            observer.onNext((owner.userQuestion, result))
                         }) // 결과 방출
                     }
                     return Disposables.create {

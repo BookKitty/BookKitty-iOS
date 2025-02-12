@@ -340,6 +340,7 @@ public final class BookRecommendationKit: BookRecommendable {
         Observable<Void>.just(())
             .delay(.milliseconds(500), scheduler: MainScheduler.instance)
             // TODO: 메모리 누수 확인하기
+        // TODO: 안전을 위해 weak self... 필요할까요?
             .flatMap { _ -> Observable<[BookItem]> in
                 // title 검색과 author 검색을 동시에 수행
                 let titleSearch = self.apiClient.searchBooks(query: sourceBook.title, limit: 10)

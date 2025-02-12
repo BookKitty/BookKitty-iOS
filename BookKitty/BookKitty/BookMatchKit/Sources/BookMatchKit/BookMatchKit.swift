@@ -66,6 +66,7 @@ public final class BookMatchKit: BookMatchable {
                 return .never()
             }
 
+            // TODO: self 사용 괜찮은가?
             return apiClient.downloadImage(from: book.image)
                 .flatMap { downloadedImage in
                     self.imageStrategy.calculateSimilarity(image, downloadedImage)
@@ -151,6 +152,7 @@ public final class BookMatchKit: BookMatchable {
                     // 평탄화(flatten)하는 연산자
                     // Timer Single에서 searchBooks api의 결과값에 대한 Single로 스트림을 전환
                     .flatMap { _ in
+                        // TODO: self 사용 괜찮은가?
                         self.apiClient
                             .searchBooks(query: currentQuery, limit: 10) // Single<[BookItem]>을 반환
                     }
