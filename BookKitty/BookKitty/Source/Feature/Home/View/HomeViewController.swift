@@ -126,7 +126,7 @@ class HomeViewController: BaseViewController {
 
     override func bind() {
         let input = HomeViewModel.Input(
-            viewDidLoad: viewDidLoadRelay.asObservable(),
+            viewWillAppear: viewWillAppearRelay.asObservable(),
             bookSelected: bookSelectedRelay.asObservable()
         )
 
@@ -184,5 +184,9 @@ class HomeViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    HomeViewController(viewModel: HomeViewModel(bookRepository: MockBookRepository()))
+    HomeViewController(
+        viewModel: HomeViewModel(
+            bookRepository: MockBookRepository()
+        )
+    )
 }
