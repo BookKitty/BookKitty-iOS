@@ -20,16 +20,23 @@ class BaseViewController: UIViewController {
     /// RxSwift의 메모리 관리를 위한 DisposeBag입니다.
     let disposeBag = DisposeBag()
     let viewDidLoadRelay = PublishRelay<Void>()
+    let viewWillAppearRelay = PublishRelay<Void>()
 
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
+        super.viewDidLoad()
         configureBackground()
         configureNavItem()
         configureHierarchy()
         configureLayout()
         bind()
         viewDidLoadRelay.accept(())
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        viewWillAppearRelay.accept(())
     }
 
     // MARK: - Functions

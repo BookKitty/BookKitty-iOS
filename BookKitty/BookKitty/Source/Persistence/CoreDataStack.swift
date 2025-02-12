@@ -25,7 +25,7 @@ final class CoreDataStack {
     // MARK: - Lifecycle
 
     private init() {
-        persistentContainer = NSPersistentContainer(name: "MyAppModel") // 모델 파일명
+        persistentContainer = NSPersistentContainer(name: "BookKitty") // 모델 파일명
         persistentContainer.loadPersistentStores { _, error in
             if let error {
                 fatalError("CoreData 로드 실패: \(error.localizedDescription)")

@@ -7,14 +7,6 @@
 
 import CoreData
 
-/// QuestionAnswer 엔티티를 관리하는 코어 데이터 매니저 기능을 추상화하는 프로토콜
-protocol QuestionAnswerCoreDataManageable {
-    func selectQuestionHistories(offset: Int, limit: Int, context: NSManagedObjectContext)
-        -> [QuestionAnswerEntity]
-    func selectById(by uuid: UUID, context: NSManagedObjectContext) -> QuestionAnswerEntity?
-    func deleteQuestionAnswer(by id: UUID, context: NSManagedObjectContext) -> Bool
-}
-
 /// QuestionAnswer 엔티티를 관리하는 객체
 final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
     /// 이전 질문 목록 가져오기
@@ -37,9 +29,11 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         request.sortDescriptors = [sortDescriptor]
 
         do {
-            return try context.fetch(request)
+            let fetchResult = try context.fetch(request)
+            BookKittyLogger.log("질문답변 목록 가져오기 성공")
+            return fetchResult
         } catch {
-            print("질문 목록 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -56,12 +50,13 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         do {
             if let entity = try context.fetch(request).first {
                 if entity.id == uuid {
+                    BookKittyLogger.log("질문답변 데이터 가져오기 성공")
                     return entity
                 }
             }
             return nil
         } catch {
-            print("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -72,20 +67,32 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
     ///   - context: 코어데이터 컨텍스트
     /// - Returns: 성공 여부 Bool 타입
     func deleteQuestionAnswer(by id: UUID, context: NSManagedObjectContext) -> Bool {
-        let fetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
-            BookQuestionAnswerLinkEntity.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "questionAnswer.id == %@", id as CVarArg)
+        let questionFetchRequest: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity
+            .fetchRequest()
+        questionFetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
 
         do {
-            let results = try context.fetch(fetchRequest)
-            for entity in results {
+            guard let questionEntity = try context.fetch(questionFetchRequest).first else {
+                BookKittyLogger.log("삭제할 질문답변을 찾을 수 없음")
+                return false
+            }
+
+            let linkFetchRequest: NSFetchRequest<BookQuestionAnswerLinkEntity> =
+                BookQuestionAnswerLinkEntity.fetchRequest()
+            linkFetchRequest.predicate = NSPredicate(format: "questionAnswer == %@", questionEntity)
+
+            let linkResults = try context.fetch(linkFetchRequest)
+            for entity in linkResults {
                 context.delete(entity)
             }
 
+            context.delete(questionEntity) // 질문-답변도 함께 삭제
+
             try context.save()
+            BookKittyLogger.log("질문답변 삭제 성공")
             return true
         } catch {
-            print("삭제 실패: \(error.localizedDescription)")
+            BookKittyLogger.log("질문답변 삭제 실패: \(error.localizedDescription)")
             return false
         }
     }
