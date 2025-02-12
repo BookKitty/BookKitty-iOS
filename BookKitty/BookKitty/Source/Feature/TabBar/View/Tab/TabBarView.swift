@@ -25,7 +25,7 @@ final class TabBarView: UIStackView {
 
     private let disposeBag = DisposeBag()
     private let indicator = UIView().then {
-        $0.backgroundColor = Colors.brandMain
+        $0.backgroundColor = Colors.brandSub2
         $0.layer.cornerRadius = Vars.radiusReg
     }
 

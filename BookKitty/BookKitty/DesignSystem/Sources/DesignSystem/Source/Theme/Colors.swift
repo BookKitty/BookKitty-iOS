@@ -40,9 +40,9 @@ public enum Colors {
     // MARK: - Brand
 
     public static var brandMain: UIColor { UIColor.designSystemColor(name: "BrandMain") }
-    public static var brandMain30: UIColor { UIColor.designSystemColor(name: "BrandMain30") }
     public static var brandSub: UIColor { UIColor.designSystemColor(name: "BrandSub") }
-    public static var brandSub30: UIColor { UIColor.designSystemColor(name: "BrandSub30") }
+    public static var brandSub2: UIColor { UIColor.designSystemColor(name: "BrandSub2") }
+    public static var brandSub3: UIColor { UIColor.designSystemColor(name: "BrandSub3") }
 
     // MARK: - Font Color
 
