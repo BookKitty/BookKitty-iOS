@@ -108,22 +108,6 @@ final class BookDetailViewController: BaseViewController {
         dimmingView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 
-    override func configureNavItem() {
-        var config = UIButton.Configuration.plain()
-        config.title = "돌아가기"
-        config.image = UIImage(systemName: "chevron.left")
-        config.imagePlacement = .leading
-        config.imagePadding = 5
-        config.contentInsets = .zero
-
-        let backButton = UIButton(configuration: config)
-        backButton.tintColor = Colors.brandSub
-
-        let backBarButtonItem = UIBarButtonItem(customView: backButton)
-
-        navigationItem.leftBarButtonItem = backBarButtonItem
-    }
-
     // MARK: - Functions
 
     private func bindNavigationBar() {

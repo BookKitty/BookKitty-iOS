@@ -24,7 +24,19 @@ final class NewQuestionViewController: BaseViewController {
     private let navigationBar = CustomNavigationBar()
     private let titleLabel = TwoLineLabel(text1: "당신이 알고싶은 지식,", text2: "책냥이에게 물어보세요-!")
     private let questionInputView = QuestionTextView()
-    private let captionLabel = CaptionLabel().then { $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게 적어주세요." }
+    private let captionLabel = CaptionLabel()
+        .then {
+            $0.text = "당신이 궁금한 것들, 알고 싶은 지식을 자유롭게, 최소 10글자로 적어주세요."
+        }
+    private let exampleLabel = CaptionLabel().then {
+        $0.text = """
+        예시.
+        “계획적인 삶을 살고 싶은데 어떻게 시작하면 좋을까?”
+        “나도 연애를 하고 싶은데 쉽지 않네. 인기있어지는 방법 좀 알려줘.”
+        """
+        $0.textColor = Colors.fontSub1
+    }
+
     private let submitButton = RoundButton(title: "질문하기").then { $0.changeToDisabled() }
 
     // MARK: - Lifecycle
@@ -64,7 +76,7 @@ final class NewQuestionViewController: BaseViewController {
     override func configureBackground() { view.backgroundColor = Colors.background0 }
 
     override func configureHierarchy() {
-        [navigationBar, titleLabel, questionInputView, captionLabel, submitButton]
+        [navigationBar, titleLabel, questionInputView, captionLabel, exampleLabel, submitButton]
             .forEach { view.addSubview($0) }
     }
 
@@ -91,28 +103,17 @@ final class NewQuestionViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
         }
 
+        exampleLabel.snp.makeConstraints {
+            $0.top.equalTo(captionLabel.snp.bottom).offset(Vars.spacing32)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+        }
+
         submitButton.snp.makeConstraints {
             $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(Vars.viewSizeReg)
         }
     }
-
-//    override func configureNavItem() {
-//        var config = UIButton.Configuration.plain()
-//        config.title = "돌아가기"
-//        config.image = UIImage(systemName: "chevron.left")
-//        config.imagePlacement = .leading
-//        config.imagePadding = 5
-//        config.contentInsets = .zero
-//
-//        let backButton = UIButton(configuration: config)
-//        backButton.tintColor = Colors.brandSub
-//
-//        let backBarButtonItem = UIBarButtonItem(customView: backButton)
-//
-//        navigationItem.leftBarButtonItem = backBarButtonItem
-//    }
 
     // MARK: - Functions
 
@@ -126,7 +127,7 @@ final class NewQuestionViewController: BaseViewController {
         questionInputView.currentCount
             .withUnretained(self)
             .bind(onNext: { owner, count in
-                count == 0 || count > 100 ? owner.submitButton.changeToDisabled() : owner
+                count < 10 || count > 100 ? owner.submitButton.changeToDisabled() : owner
                     .submitButton
                     .changeToEnabled()
             }).disposed(by: disposeBag)
