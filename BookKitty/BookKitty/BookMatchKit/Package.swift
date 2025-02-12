@@ -30,41 +30,55 @@ let package = Package(
             targets: ["BookMatchStrategy"]
         ),
     ],
-
     dependencies: [
-        .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
+        .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.8.0"),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
         .package(path: "../NetworkKit"),
     ],
-
     targets: [
         .target(
             name: "BookMatchKit",
             dependencies: [
-                "RxSwift", "SwiftFormat",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"), // ✅ RxCocoa 참조 정확히 수정
+                "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
+            ],
+            resources: [
+                .process("Resources/MyObjectDetector5_1.mlmodel"), // ✅ CoreML 모델 포함
             ]
         ),
         .target(
             name: "BookRecommendationKit",
             dependencies: [
-                "RxSwift", "SwiftFormat",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"), // ✅ RxCocoa 참조 정확히 수정
+                "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
             ]
         ),
-
         .target(
             name: "BookMatchStrategy",
-            dependencies: ["SwiftFormat", "BookMatchCore"]
+            dependencies: [
+                "SwiftFormat",
+                "BookMatchCore",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"), // ✅ RxCocoa 참조 정확히 수정
+            ]
         ),
         .target(
             name: "BookMatchCore",
-            dependencies: ["RxSwift", "SwiftFormat"]
+            dependencies: [
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"), // ✅ RxCocoa 참조 정확히 수정
+                "SwiftFormat",
+            ]
         ),
         .target(
             name: "BookMatchAPI",
             dependencies: [
-                "RxSwift",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"), // ✅ RxCocoa 참조 정확히 수정
                 "SwiftFormat",
                 "BookMatchCore",
                 .product(name: "NetworkKit", package: "NetworkKit"),
@@ -73,7 +87,10 @@ let package = Package(
         .testTarget(
             name: "BookMatchKitTests",
             dependencies: [
-                "RxSwift", "SwiftFormat",
+                .product(name: "RxSwift", package: "RxSwift"),
+                .product(name: "RxCocoa", package: "RxSwift"),
+                .product(name: "RxTest", package: "RxSwift"), // ✅ RxTest 추가 (테스트 라이브러리)
+                "SwiftFormat",
                 "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
             ]
         ),
