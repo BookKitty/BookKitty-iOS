@@ -77,6 +77,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         questionEntity.id = data.id
         questionEntity.aiAnswer = data.gptAnswer
         questionEntity.userQuestion = data.userQuestion
+        questionEntity.createdAt = Date()
 
         let bookEntities = bookCoreDataManager.createMultipleBooksWithoutSave(
             data: data.recommendedBooks,
@@ -126,12 +127,15 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             bookCoreDataManager.entityToModel(entity: $0)
         }
 
-        // TODO: Date, UUID가 새로 생기면 데이터가 달라집니다. id, createdAt이 존재하지 않을 경우 예외처리를 통해 개발자에게 알리는 작업을 추가하면 좋을 듯 합니다!
+        guard let createdAt = entity.createdAt, let questionId = entity.id else {
+            return nil
+        }
+
         return QuestionAnswer(
-            createdAt: entity.createdAt ?? Date(),
+            createdAt: createdAt,
             userQuestion: entity.userQuestion ?? "",
             gptAnswer: entity.aiAnswer ?? "",
-            id: entity.id ?? UUID(),
+            id: questionId,
             recommendedBooks: books
         )
     }
