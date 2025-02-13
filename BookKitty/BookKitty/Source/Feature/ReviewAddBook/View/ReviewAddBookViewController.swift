@@ -1,5 +1,6 @@
 // ReviewAddBookViewController.swift
 
+import BookMatchKit
 import DesignSystem
 import RxCocoa
 import RxDataSources
@@ -46,6 +47,10 @@ final class ReviewAddBookViewController: BaseViewController {
         $0.textAlignment = .left
         $0.numberOfLines = 2
     }
+
+    // MARK: - ViewModel Binding
+
+    private let capturedImageRelay = PublishRelay<UIImage>()
 
     // MARK: - Lifecycle
 
@@ -135,14 +140,13 @@ final class ReviewAddBookViewController: BaseViewController {
         }
     }
 
-    // MARK: - ViewModel Binding
-
     private func bindViewModel() {
         let input = ReviewAddBookViewModel.Input(
             addBookWithTitleTapTrigger: manualTitleSubject.asObservable(),
             deleteBookTapTrigger: deleteBookSubject.asObservable(),
             confirmButtonTapTrigger: confirmButton.rx.tap.asObservable(),
-            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            capturedImage: capturedImageRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -336,5 +340,9 @@ extension UIImageView {
 
 @available(iOS 17.0, *)
 #Preview {
-    ReviewAddBookViewController(viewModel: ReviewAddBookViewModel())
+    let bookMatchKit: BookMatchKit? = nil // ✅ `nil` 가능하게 설정 (OCR 비활성화)
+
+    ReviewAddBookViewController(
+        viewModel: ReviewAddBookViewModel(bookMatchKit: bookMatchKit!)
+    )
 }

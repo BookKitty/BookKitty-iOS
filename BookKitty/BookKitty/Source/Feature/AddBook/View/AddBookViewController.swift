@@ -150,15 +150,14 @@ final class AddBookViewController: BaseViewController {
     override func bind() {
         let input = AddBookViewModel.Input(
             leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
-            capturedImage: capturedImageRelay.asObservable()
+            capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
         )
 
         let output = viewModel.transform(input)
 
         output.error
-            .withUnretained(self)
             .subscribe(onNext: { error in
-                print("Error occurred : \(error)")
+                print("⚠️ Error: \(error.localizedDescription)")
             })
             .disposed(by: disposeBag)
     }
@@ -168,7 +167,7 @@ final class AddBookViewController: BaseViewController {
     private func bindUI() {
         captureButton.rx.tap
             .bind { [weak self] in
-                print("hello")
+                print("촬영 버튼 눌림")
                 self?.capturePhoto()
             }
             .disposed(by: disposeBag)
@@ -192,7 +191,8 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             return
         }
 
-        capturedImageRelay.accept(image)
+        print("📸 이미지 캡처 성공")
+        capturedImageRelay.accept(image) // ✅ OCR을 위한 이미지 전달
     }
 
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
