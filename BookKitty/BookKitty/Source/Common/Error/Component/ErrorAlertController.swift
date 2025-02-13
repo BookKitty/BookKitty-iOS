@@ -18,15 +18,11 @@ final class ErrorAlertController: BaseViewController {
 
     // MARK: - Lifecycle
 
-    init(
-        errorTitle: String,
-        errorBody: String,
-        buttonTitle: String
-    ) {
+    init(presentableError: AlertPresentableError) {
         popup = FailAlertPopupView(
-            primaryMessage: errorTitle,
-            secondaryMessage: errorBody,
-            buttonTitle: buttonTitle
+            primaryMessage: presentableError.title,
+            secondaryMessage: presentableError.body,
+            buttonTitle: presentableError.buttonTitle
         )
         super.init(nibName: nil, bundle: nil)
     }
@@ -71,9 +67,5 @@ final class ErrorAlertController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    ErrorAlertController(
-        errorTitle: "some text",
-        errorBody: "secondary message",
-        buttonTitle: "button title"
-    )
+    ErrorAlertController(presentableError: NetworkError.networkUnstable)
 }
