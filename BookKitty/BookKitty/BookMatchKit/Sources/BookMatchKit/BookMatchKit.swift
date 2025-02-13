@@ -12,7 +12,7 @@ import Vision
 
 /// 도서 `매칭` 기능의 핵심 모듈입니다.
 /// 사용자의 요청을 처리하고, 도서 검색, `매칭` 기능을 조율합니다.
-public final class BookMatchKit: BookMatchable {
+public final class BookMatchKit: @preconcurrency BookMatchable {
     // MARK: - Properties
 
     // MARK: - Private
@@ -46,6 +46,7 @@ public final class BookMatchKit: BookMatchable {
     ///   - image: 도서 표지 이미지
     /// - Returns: 매칭된 도서 정보 또는 nil
     /// - Throws: 초기 단어부터 검색된 결과가 나오지 않을 때
+    @MainActor
     public func matchBook(image: UIImage) -> Single<BookItem?> {
         print("🛠 matchBook(image:) 실행됨") // ✅ matchBook 함수 실행 확인
 
@@ -135,20 +136,97 @@ public final class BookMatchKit: BookMatchable {
             })
     }
 
+    private func preprocessImageForOCR(_ image: UIImage) -> UIImage? {
+        guard let ciImage = CIImage(image: image) else {
+            return nil
+        }
+
+        let filter = CIFilter(name: "CIColorControls")
+        filter?.setValue(ciImage, forKey: kCIInputImageKey)
+        filter?.setValue(1.5, forKey: kCIInputContrastKey) // ✅ 대비 증가
+        filter?.setValue(0.0, forKey: kCIInputSaturationKey) // ✅ 채도 제거
+
+        guard let outputImage = filter?.outputImage else {
+            return nil
+        }
+        let context = CIContext(options: nil)
+        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
+            return nil
+        }
+
+        return UIImage(cgImage: cgImage)
+    }
+
+    @MainActor
+    private func performOCR(on image: UIImage, completion: @escaping ([String]) -> Void) {
+        print("📌 performOCR 실행됨!")
+
+        guard let preprocessedImage = preprocessImageForOCR(image),
+              let cgImage = preprocessedImage.cgImage else {
+            print("⚠️ 대비 조정 실패, 원본 이미지 사용")
+            completion([])
+            return
+        }
+
+        let request = VNRecognizeTextRequest { request, error in
+            if let error {
+                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
+                completion([])
+                return
+            }
+
+            guard let observations = request.results as? [VNRecognizedTextObservation],
+                  !observations.isEmpty else {
+                print("⚠️ OCR 결과 없음")
+                completion([])
+                return
+            }
+
+            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
+            print("✅ OCR 인식된 텍스트: \(recognizedText)")
+            completion(recognizedText)
+        }
+
+        request.recognitionLanguages = ["ko", "en"]
+        request.usesLanguageCorrection = true
+        request.minimumTextHeight = 0.005
+
+        Task {
+            let resizedImage = await preprocessedImage.resized(toWidth: 1024) ?? preprocessedImage
+            print("📏 이미지 리사이징 완료: \(resizedImage.size)")
+
+            await MainActor.run {
+                let requestHandler = VNImageRequestHandler(
+                    cgImage: resizedImage.cgImage!,
+                    options: [:]
+                )
+                do {
+                    print("📝 OCR 실행 중...")
+                    try requestHandler.perform([request])
+                } catch {
+                    print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
+                    completion([])
+                }
+            }
+        }
+    }
+
     // MARK: - OCR Logic
 
-    // 이미지에서 텍스트를 추출하고, 추출된 텍스트를 반환합니다.
-    // - Parameter image: 텍스트를 추출할 이미지
-    // - Returns: 추출된 텍스트 배열
-
+    /// 이미지에서 텍스트를 추출하고, 추출된 텍스트를 반환합니다.
+    /// - Parameter image: 텍스트를 추출할 이미지
+    /// - Returns: 추출된 텍스트 배열
+    @MainActor
     private func extractText(from image: UIImage) -> Single<[String]> {
         print("📌 extractText 실행됨!") // ✅ OCR 실행 확인
 
         return Single.create { single in
-            print("🛠 detectBookElements 호출 예정") // ✅ `detectBookElements` 실행 직전 확인
-            self.detectBookElements(in: image) { extractedTexts in
-                print("📄 detectBookElements 결과: \(extractedTexts)") // ✅ OCR 결과 확인
-                single(.success(extractedTexts))
+            Task { @MainActor in // ✅ 메인 스레드에서 실행
+                print("📌 detectBookElements 호출 예정") // ✅ 실행 직전 확인
+                self.detectBookElements(in: image) { extractedTexts in
+                    print("📌 detectBookElements 결과: \(extractedTexts)") // ✅ OCR 결과 확인
+                    single(.success(extractedTexts))
+                }
             }
             return Disposables.create()
         }
@@ -188,8 +266,9 @@ public final class BookMatchKit: BookMatchable {
     }
 
     /// CoreML을 사용하여 책 제목을 인식 후 OCR 실행
+    @MainActor
     private func detectBookElements(in image: UIImage, completion: @escaping ([String]) -> Void) {
-        print("📌 detectBookElements 실행됨!") // ✅ Vision 모델 실행 확인
+        print("📌 detectBookElements 실행됨!")
 
         guard let model = try? VNCoreMLModel(for: MyObjectDetector5_1().model) else {
             print("⚠️ CoreML 모델 로드 실패, OCR 강제 실행")
@@ -210,15 +289,54 @@ public final class BookMatchKit: BookMatchable {
                 return
             }
 
-            print("📚 감지된 객체 수: \(results.count)")
-
-            if results.isEmpty {
-                print("⚠️ Vision 모델이 아무것도 감지하지 못함, OCR 강제 실행")
+            // ✅ Confidence Threshold 추가
+            let filteredResults = results.filter { $0.confidence > 0.6 } // 신뢰도 60% 이상
+            if filteredResults.isEmpty {
+                print("⚠️ 신뢰도 낮음, OCR 강제 실행")
                 self.performOCR(on: image, completion: completion)
                 return
             }
 
-            self.performOCR(on: image, completion: completion) // ✅ 무조건 OCR 실행
+            print("📚 감지된 객체 수 (Threshold 적용): \(filteredResults.count)")
+
+            var extractedTexts: [String] = []
+            let dispatchGroup = DispatchGroup()
+
+            for observation in filteredResults {
+                let detectedLabel = observation.labels.first?.identifier ?? "Unknown"
+                print("🔎 감지된 객체: \(detectedLabel)")
+
+                if detectedLabel == "titles-or-authors" || detectedLabel == "book-title" {
+                    dispatchGroup.enter()
+
+                    let expandedBox = self.expandBoundingBox(observation.boundingBox, factor: 1.5)
+                    let croppedImage = self.cropImage(image, to: expandedBox) ?? image
+
+                    // ✅ 크롭된 이미지를 UI에 출력해서 확인
+                    DispatchQueue.main.async {
+                        let debugImageView = UIImageView(image: croppedImage)
+                        debugImageView.frame = CGRect(x: 10, y: 100, width: 200, height: 200)
+                        debugImageView.contentMode = .scaleAspectFit
+                        UIApplication.shared.windows.first?.addSubview(debugImageView)
+                    }
+
+                    self.performOCR(on: croppedImage) { recognizedText in
+                        print("✅ OCR 실행 완료, 결과: \(recognizedText)")
+                        extractedTexts.append(contentsOf: recognizedText)
+                        dispatchGroup.leave()
+                    }
+                }
+            }
+
+            dispatchGroup.notify(queue: .main) {
+                print("📑 최종 OCR 텍스트: \(extractedTexts)")
+                if extractedTexts.isEmpty {
+                    print("⚠️ OCR 실패, 원본 이미지로 한 번 더 OCR 실행")
+                    self.performOCR(on: image, completion: completion)
+                } else {
+                    completion(extractedTexts)
+                }
+            }
         }
 
         do {
@@ -230,47 +348,26 @@ public final class BookMatchKit: BookMatchable {
         }
     }
 
-    /// OCR 실행하여 텍스트 추출
-    private func performOCR(on image: UIImage, completion: @escaping ([String]) -> Void) {
-        print("📌 performOCR 실행됨!") // ✅ OCR 실행 여부 확인
-
-        guard let cgImage = image.cgImage else {
-            print("⚠️ 이미지 변환 실패, OCR 실행 불가")
-            completion([])
-            return
+    private func convertToGrayscale(_ image: UIImage) -> UIImage? {
+        guard let ciImage = CIImage(image: image) else {
+            return nil
         }
 
-        let request = VNRecognizeTextRequest { request, error in
-            if let error {
-                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
-                completion([])
-                return
-            }
+        let filter = CIFilter(name: "CIColorControls")
+        filter?.setValue(ciImage, forKey: kCIInputImageKey)
+        filter?.setValue(1.5, forKey: kCIInputContrastKey) // 대비 증가
+        filter?.setValue(0.0, forKey: kCIInputSaturationKey) // 채도 제거 (흑백)
 
-            guard let observations = request.results as? [VNRecognizedTextObservation],
-                  !observations.isEmpty else {
-                print("⚠️ OCR 결과 없음")
-                completion([])
-                return
-            }
-
-            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
-            print("✅ OCR 인식된 텍스트: \(recognizedText)")
-
-            completion(recognizedText)
+        guard let outputImage = filter?.outputImage else {
+            return nil
+        }
+        let context = CIContext(options: nil)
+        guard let cgImage = context.createCGImage(outputImage, from: outputImage.extent)
+        else {
+            return nil
         }
 
-        request.recognitionLanguages = ["ko", "en"]
-        request.usesLanguageCorrection = true
-        request.minimumTextHeight = 0.002
-
-        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        do {
-            try requestHandler.perform([request])
-        } catch {
-            print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
-            completion([])
-        }
+        return UIImage(cgImage: cgImage)
     }
 
     /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
@@ -312,7 +409,6 @@ public final class BookMatchKit: BookMatchable {
                         guard let self else {
                             return .error(BookMatchError.noMatchFound)
                         }
-
                         return apiClient.searchBooks(query: currentQuery, limit: 10)
                     }
                     .subscribe(

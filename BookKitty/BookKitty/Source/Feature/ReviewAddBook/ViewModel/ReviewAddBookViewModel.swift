@@ -52,6 +52,7 @@ final class ReviewAddBookViewModel: ViewModelType {
 
     // MARK: - Functions
 
+    @MainActor
     func transform(_ input: Input) -> Output {
         // ✅ "완료 버튼" 클릭 시, 책 리스트 화면으로 이동
         input.confirmButtonTapTrigger
