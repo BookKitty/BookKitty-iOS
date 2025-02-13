@@ -35,6 +35,7 @@ let package = Package(
                 .process("Resource/Fonts"),
                 .process("Resource/Colors.xcassets"),
                 .process("Resource/Images.xcassets"),
+                .process("Resource/LottieJson"),
             ]
         ),
     ]
