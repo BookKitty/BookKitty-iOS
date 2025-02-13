@@ -66,32 +66,9 @@ final class TabBarView: UIStackView {
         let newBounds = targetView.bounds
 
         if animate {
-            UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseIn, animations: {
-                self.indicator.transform = CGAffineTransform(scaleX: 0.83, y: 0.83)
-                self.indicator.alpha = 0.7
-            }, completion: { _ in
-                UIView.animate(
-                    withDuration: 0.45,
-                    delay: 0.0,
-                    usingSpringWithDamping: 0.45,
-                    initialSpringVelocity: 0.7,
-                    options: .curveEaseOut,
-                    animations: {
-                        self.indicator.center = newCenter
-                        self.indicator.bounds = newBounds
-                        self.indicator.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                    },
-                    completion: { _ in
-                        UIView.animate(
-                            withDuration: 0.2,
-                            delay: 0.0,
-                            options: .curveEaseInOut,
-                            animations: {
-                                self.indicator.transform = .identity
-                            }
-                        )
-                    }
-                )
+            UIView.animate(withDuration: 0.25, delay: 0.0, options: .curveEaseInOut, animations: {
+                self.indicator.center = newCenter
+                self.indicator.bounds = newBounds
             })
         } else {
             indicator.center = newCenter
