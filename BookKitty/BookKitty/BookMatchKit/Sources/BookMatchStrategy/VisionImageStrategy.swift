@@ -63,7 +63,7 @@ public class VisionImageStrategy: SimilarityCalculatable {
     private func extractFeaturePrint(from image: UIImage) throws
         -> VNFeaturePrintObservation {
         guard let ciImage = CIImage(image: image) else {
-            throw BookMatchError.networkError("Image Fetch Failed")
+            throw BookMatchError.networkError
         }
 
         let requestHandler = VNImageRequestHandler(ciImage: ciImage, options: [:])
