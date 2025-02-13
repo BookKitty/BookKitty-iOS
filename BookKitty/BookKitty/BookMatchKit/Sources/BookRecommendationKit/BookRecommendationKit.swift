@@ -119,6 +119,14 @@ public final class BookRecommendationKit: BookRecommendable {
                 let ownedRaws = result.recommendation.ownedBooks.map {
                     RawBook(title: $0.title, author: $0.author)
                 }
+                
+                let filteredOwnedBooks = result.recommendation.ownedBooks.compactMap { recommendedBook in
+                    if let validOwnedBook = ownedBooks.first(where: { $0.title == recommendedBook.title && $0.author == recommendedBook.author }) {
+                        return validOwnedBook.id
+                    } else {
+                        return nil
+                    }
+                }
 
                 let validNewRaws = result.books.map {
                     RawBook(title: $0.title, author: $0.author)
@@ -130,7 +138,7 @@ public final class BookRecommendationKit: BookRecommendable {
                 )
                 .map { description in
                     BookMatchModuleOutput(
-                        ownedISBNs: ownedBooks.map(\.id),
+                        ownedISBNs: filteredOwnedBooks,
                         newBooks: Array(Set(result.books)),
                         description: description
                     )
