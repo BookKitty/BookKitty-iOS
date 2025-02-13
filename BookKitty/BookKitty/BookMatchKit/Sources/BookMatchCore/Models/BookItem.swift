@@ -1,5 +1,5 @@
 /// 네이버 책 검색 API로부터 받은 상세 도서 정보를 나타내는 구조체입니다.
-public struct BookItem: Codable, Identifiable, Hashable {
+public struct BookItem: Decodable, Identifiable, Hashable {
     // MARK: - Properties
 
     // MARK: - Public

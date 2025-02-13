@@ -1,5 +1,5 @@
 /// 사용자가 보유한 도서 정보를 나타내는 구조체입니다.
-public struct OwnedBook: Codable, Identifiable, Hashable {
+public struct OwnedBook: Decodable, Identifiable, Hashable {
     // MARK: - Properties
 
     // MARK: - Public

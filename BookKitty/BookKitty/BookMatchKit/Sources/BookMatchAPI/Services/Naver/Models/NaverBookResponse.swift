@@ -1,6 +1,6 @@
 import BookMatchCore
 
-struct NaverBooksResponse: Codable {
+struct NaverBooksResponse: Decodable {
     let lastBuildDate: String
     let total: Int
     let start: Int
@@ -8,7 +8,7 @@ struct NaverBooksResponse: Codable {
     let items: [NaverBookDTO]
 }
 
-struct NaverBookDTO: Codable {
+struct NaverBookDTO: Decodable {
     // MARK: - Properties
 
     let title: String

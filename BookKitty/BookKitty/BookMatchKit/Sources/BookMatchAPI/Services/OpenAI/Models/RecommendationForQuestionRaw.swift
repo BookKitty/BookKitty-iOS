@@ -1,7 +1,7 @@
 import BookMatchCore
 
 /// GPT 모델의 응답을 `사용자 질문 기반 추천 도서` 데이터로 변환하는 DTO 구조체입니다.
-public struct RecommendationForQuestionRaw: Codable {
+public struct RecommendationForQuestionRaw: Decodable {
     // MARK: - Properties
 
     public let recommendationOwned: [String]
