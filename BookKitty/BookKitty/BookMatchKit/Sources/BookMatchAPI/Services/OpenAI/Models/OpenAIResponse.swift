@@ -1,13 +1,13 @@
 import BookMatchCore
 
 /// OpenAI API로부터 받은 응답을 디코딩하기 위한 구조체입니다.
-struct ChatGPTResponse: Codable {
+struct ChatGPTResponse: Decodable {
     // MARK: - Nested Types
 
-    struct Choice: Codable {
+    struct Choice: Decodable {
         // MARK: - Nested Types
 
-        struct Message: Codable {
+        struct Message: Decodable {
             let content: String
         }
 
@@ -21,7 +21,7 @@ struct ChatGPTResponse: Codable {
     let choices: [Choice]
 }
 
-struct ChatMessage: Codable {
+struct ChatMessage: Decodable {
     let role: String
     let content: String
 }

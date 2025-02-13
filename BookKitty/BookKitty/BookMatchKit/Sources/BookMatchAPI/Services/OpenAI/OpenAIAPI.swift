@@ -56,7 +56,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
     public func getBookRecommendation(
         question: String,
         ownedBooks: [OwnedBook]
-    ) -> Single<AiRecommendationForQuestion> {
+    ) -> Single<RecommendationForQuestion> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.recommendationForQuestion),
             ChatMessage(
@@ -74,7 +74,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
             guard let jsonString = response.choices.first?.message.content,
                   let jsonData = jsonString.data(using: .utf8),
                   let result = try? JSONDecoder().decode(
-                      RecommendationOwnedNewDTO.self,
+                      RecommendationForQuestionRaw.self,
                       from: jsonData
                   ) else {
                 throw BookMatchError.invalidGPTFormat
@@ -95,7 +95,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
     ///  - Returns: ``Rawbook`` 타입의 추천도서 배열
     ///  - Throws: ``invalidGPTFormat``, ``networkError``
     public func getBookRecommendation(ownedBooks: [OwnedBook])
-        -> Single<AiRecommendationFromOwnedBooks> {
+        -> Single<RecommendationFromOwned> {
         let messages = [
             ChatMessage(role: "system", content: Prompts.recommendationFromOwnedBooks),
             ChatMessage(
@@ -112,7 +112,10 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
         .map { response in
             guard let jsonString = response.choices.first?.message.content,
                   let jsonData = jsonString.data(using: .utf8),
-                  let result = try? JSONDecoder().decode(RecommendationsDTO.self, from: jsonData)
+                  let result = try? JSONDecoder().decode(
+                      RecommendationFromOwnedRaw.self,
+                      from: jsonData
+                  )
             else {
                 throw BookMatchError.invalidGPTFormat
             }

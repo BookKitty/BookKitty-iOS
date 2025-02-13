@@ -13,7 +13,7 @@ enum TestConstant {
     static let dummyData = TestCodableType(title: "title", body: "body")
 }
 
-struct TestCodableType: Codable, Equatable {
+struct TestCodableType: Decodable, Equatable {
     let title: String
     let body: String
 }
