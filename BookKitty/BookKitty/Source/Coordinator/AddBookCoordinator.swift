@@ -59,8 +59,16 @@ extension AddBookCoordinator {
         navigationController.pushViewController(addBookViewController, animated: true)
     }
 
-    private func showReviewBookScene(bookList: [Book]) {
-        let reviewViewModel = ReviewAddBookViewModel(initialBookList: bookList)
+    private func showReviewBookScene(bookList: [Book]) { // ✅ bookList 파라미터 유지
+        let bookMatchKit = BookMatchKit(
+            naverClientId: "your_client_id",
+            naverClientSecret: "your_client_secret"
+        ) // ✅ BookMatchKit 인스턴스 생성
+
+        let reviewViewModel = ReviewAddBookViewModel(
+            initialBookList: bookList, // ✅ bookList 전달
+            bookMatchKit: bookMatchKit
+        ) // ✅ reviewViewModel 생성
 
         reviewViewModel.navigateBackRelay
             .withUnretained(self)

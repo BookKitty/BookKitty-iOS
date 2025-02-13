@@ -38,6 +38,7 @@ final class AddBookViewModel: ViewModelType {
 
     // MARK: - Functions
 
+    @MainActor
     func transform(_ input: Input) -> Output {
         input.leftBarButtonTapTrigger
             .bind(to: navigateBackRelay)

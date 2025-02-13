@@ -36,6 +36,9 @@ class EtcSampleViewController: BaseViewController {
         빈줄도 넣고 테스트3
     """)
 
+    let lottie1 = LottieLocalView(lottieName: .loadingCircle)
+    let lottie2 = LottieLocalView(lottieName: .searchingBooks)
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -56,11 +59,13 @@ extension EtcSampleViewController {
         [
             questionInput,
             questionView,
+            lottie1,
+            lottie2,
         ].forEach { contentView.addSubview($0) }
     }
 
     private func setupProperties() {
-        view.backgroundColor = Colors.background0
+        view.backgroundColor = Colors.background2
     }
 
     private func setupLayouts() {
@@ -80,6 +85,16 @@ extension EtcSampleViewController {
 
         questionView.snp.makeConstraints { make in
             make.top.equalTo(questionInput.snp.bottom).offset(Vars.spacing48)
+            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+        }
+
+        lottie1.snp.makeConstraints { make in
+            make.top.equalTo(questionView.snp.bottom).offset(Vars.spacing48)
+            make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+        }
+
+        lottie2.snp.makeConstraints { make in
+            make.top.equalTo(lottie1.snp.bottom).offset(Vars.spacing48)
             make.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
             make.bottom.equalToSuperview().inset(Vars.spacing48)
         }
