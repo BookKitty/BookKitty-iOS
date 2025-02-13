@@ -7,7 +7,6 @@
 
 import BookMatchCore
 import DesignSystem
-import DotLottie
 import RxCocoa
 import RxDataSources
 import RxRelay
