@@ -1,7 +1,7 @@
 import BookMatchCore
 import RxSwift
 
-public protocol AiClientProtocol {
+public protocol AIRecommendable {
     func getBookRecommendation(question: String, ownedBooks: [OwnedBook])
         -> Single<AiRecommendationForQuestion>
     func getBookRecommendation(ownedBooks: [OwnedBook]) -> Single<AiRecommendationFromOwnedBooks>

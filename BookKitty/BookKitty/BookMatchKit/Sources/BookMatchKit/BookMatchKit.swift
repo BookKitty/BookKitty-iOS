@@ -15,10 +15,9 @@ import Vision
 public final class BookMatchKit: @preconcurrency BookMatchable {
     // MARK: - Properties
 
-    // MARK: - Private
-
     private let imageStrategy = VisionImageStrategy()
-    private let apiClient: APIClientProtocol
+    private let naverAPI: NaverAPI
+    private let imageDownloadAPI: ImageDownloadAPI
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
@@ -33,7 +32,8 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
             openAIApiKey: ""
         )
 
-        apiClient = DefaultAPIClient(configuration: config)
+        naverAPI = NaverAPI(configuration: config)
+        imageDownloadAPI = ImageDownloadAPI(configuration: config)
     }
 
     // MARK: - Functions
@@ -84,9 +84,10 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
 
             print("📷 이미지 다운로드 시작: \(book.image)")
 
-            return apiClient.downloadImage(from: book.image)
+            return imageDownloadAPI.downloadImage(from: book.image)
                 .catch { error in
                     print("⚠️ 이미지 다운로드 실패: \(error.localizedDescription)")
+                        
                     return .error(BookMatchError.imageDownloadFailed)
                 }
                 .flatMap { downloadedImage in
@@ -399,7 +400,8 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
                         guard let self else {
                             return .error(BookMatchError.noMatchFound)
                         }
-                        return apiClient.searchBooks(query: currentQuery, limit: 10)
+
+                        return naverAPI.searchBooks(query: currentQuery, limit: 10)
                     }
                     .subscribe(
                         onSuccess: { results in
