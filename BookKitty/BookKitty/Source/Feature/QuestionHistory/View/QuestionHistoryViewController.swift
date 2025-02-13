@@ -31,6 +31,7 @@ final class QuestionHistoryViewController: BaseViewController {
             QuestionHistoryCell.self,
             forCellReuseIdentifier: QuestionHistoryCell.identifier
         )
+        tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 240
