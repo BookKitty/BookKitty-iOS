@@ -6,6 +6,7 @@ public enum BookMatchError: Error {
     case invalidResponse
     case rateLimitExceeded
     case imageCalculationFailed(String)
+    case imageDownloadFailed
 
     // MARK: - Computed Properties
 
@@ -25,6 +26,8 @@ public enum BookMatchError: Error {
             return "잠시 요청이 많아 서비스 이용이 어렵습니다\n잠시 후 다시 시도해주세요"
         case .imageCalculationFailed:
             return "이미지 유사도 연산에 실패했습니다.\n잠시 후 다시 시도해주세요"
+        case .imageDownloadFailed:
+            return "이미지 다운로드 실패"
         }
     }
 }

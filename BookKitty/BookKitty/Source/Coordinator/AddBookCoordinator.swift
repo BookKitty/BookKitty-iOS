@@ -20,7 +20,6 @@ final class AddBookCoordinator: Coordinator {
 
     var addBookViewController: AddBookViewController
     var addBookViewModel: AddBookViewModel
-    var bookMatchKit: BookMatchKit // ✅ BookMatchKit 추가
 
     // MARK: - Private
 
@@ -31,14 +30,14 @@ final class AddBookCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        bookMatchKit = BookMatchKit(
-            naverClientId: "dummyClientId",
-            naverClientSecret: "dummyClientSecret"
-        ) // ✅ BookMatchKit 인스턴스 생성
-        addBookViewModel = AddBookViewModel()
+
+        let repository = LocalBookRepository()
+
+        addBookViewModel = AddBookViewModel(
+            bookRepository: repository
+        )
         addBookViewController = AddBookViewController(
-            viewModel: addBookViewModel,
-            bookMatchKit: bookMatchKit
+            viewModel: addBookViewModel
         ) // ✅ 올바르게 전달
     }
 
@@ -55,12 +54,6 @@ extension AddBookCoordinator {
             .withUnretained(self)
             .bind(onNext: { owner, _ in
                 owner.finish()
-            }).disposed(by: disposeBag)
-
-        addBookViewModel.navigateToReviewRelay
-            .withUnretained(self)
-            .subscribe(onNext: { coordinator, bookList in
-                coordinator.showReviewBookScene(bookList: bookList)
             }).disposed(by: disposeBag)
 
         navigationController.pushViewController(addBookViewController, animated: true)
