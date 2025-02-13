@@ -44,7 +44,6 @@ public class LottieLocalView: UIView {
 
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = .loop
-        animationView.play()
 
         lottieAnimationView = animationView
 
@@ -65,6 +64,16 @@ public class LottieLocalView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Functions
+
+    public func play() {
+        lottieAnimationView.play()
+    }
+
+    public func stop() {
+        lottieAnimationView.stop()
     }
 }
 
