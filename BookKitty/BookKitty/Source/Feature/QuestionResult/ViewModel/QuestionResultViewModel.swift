@@ -26,6 +26,7 @@ final class QuestionResultViewModel: ViewModelType {
         let userQuestion: Driver<String> // 사용자의 질문
         let recommendedBooks: Driver<[SectionOfBook]> // 추천된 책 목록
         let recommendationReason: Driver<String> // 추천 이유
+        let requestFinished: PublishRelay<Void> // 요청 완료 (로딩 해제)
         let error: Observable<Error> // 에러 처리
     }
 
@@ -49,6 +50,7 @@ final class QuestionResultViewModel: ViewModelType {
     private let userQuestionRelay = BehaviorRelay<String>(value: "")
     private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
     private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
+    private let requestFinishedRelay = PublishRelay<Void>()
     private let errorRelay = PublishRelay<Error>()
 
     // MARK: - Lifecycle
@@ -120,6 +122,7 @@ final class QuestionResultViewModel: ViewModelType {
             userQuestion: userQuestionRelay.asDriver(),
             recommendedBooks: recommendedBooksRelay.asDriver(),
             recommendationReason: recommendationReasonRelay.asDriver(),
+            requestFinished: requestFinishedRelay,
             error: errorRelay.asObservable()
         )
     }
@@ -199,6 +202,8 @@ final class QuestionResultViewModel: ViewModelType {
         let _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         questionAnswer = questionToSave
+
+        requestFinishedRelay.accept(())
         return [SectionOfBook(items: recommendedBooks)]
     }
 

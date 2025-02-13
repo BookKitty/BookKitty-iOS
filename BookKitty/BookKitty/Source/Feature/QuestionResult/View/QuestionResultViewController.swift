@@ -7,6 +7,7 @@
 
 import BookMatchCore
 import DesignSystem
+import DotLottie
 import RxCocoa
 import RxDataSources
 import RxRelay
@@ -23,6 +24,8 @@ final class QuestionResultViewController: BaseViewController {
     private let bookSelectedRelay = PublishRelay<Book>()
     private let submitButtonTappedRelay = PublishRelay<Void>()
 
+    private let viewModel: QuestionResultViewModel
+
     private let scrollView = UIScrollView().then {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
@@ -37,6 +40,8 @@ final class QuestionResultViewController: BaseViewController {
 
     private let userQuestionBodyLabel = UserQuestionView(questionText: "")
 
+    private let loadingAnimationView = LottieLocalView(lottieName: .searchingBooks)
+
     private let recommendedBooksHeadlineLabel = TwoLineLabel(
         text1: "책냥이가 위 질문에 대해",
         text2: "다음의 책을 추천합니다."
@@ -50,8 +55,6 @@ final class QuestionResultViewController: BaseViewController {
     private let recommendationBodyLabel = BodyLabel(weight: .regular)
 
     private let submitButton = RoundButton(title: "답변 확인을 완료합니다")
-
-    private let viewModel: QuestionResultViewModel
 
     private lazy var recommendedBooksCollectionView: UICollectionView = {
         let collectionView = UICollectionView(
@@ -98,9 +101,14 @@ final class QuestionResultViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Overridden Functions
-
     // MARK: - Internal
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        playLoadingAnimation()
+    }
+
+    // MARK: - Overridden Functions
 
     override func configureHierarchy() {
         view.addSubview(scrollView)
@@ -113,6 +121,7 @@ final class QuestionResultViewController: BaseViewController {
             recommendationHeadlineLabel,
             recommendationBodyLabel,
             submitButton,
+            loadingAnimationView,
         ].forEach { contentView.addSubview($0) }
     }
 
@@ -162,6 +171,13 @@ final class QuestionResultViewController: BaseViewController {
             make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide).inset(Vars.spacing24)
             make.bottom.equalToSuperview().inset(Vars.spacing16)
         }
+
+        loadingAnimationView.snp.makeConstraints { make in
+            make.top.equalTo(userQuestionBodyLabel.snp.bottom).offset(Vars.spacing48)
+            make.horizontalEdges.equalTo(contentView.safeAreaLayoutGuide)
+            make.height.greaterThanOrEqualTo(600)
+            make.bottom.equalToSuperview().inset(Vars.spacing16)
+        }
     }
 
     override func bind() {
@@ -187,6 +203,13 @@ final class QuestionResultViewController: BaseViewController {
         output.recommendationReason
             .drive(onNext: { [weak self] reason in
                 self?.recommendationBodyLabel.text = reason
+            })
+            .disposed(by: disposeBag)
+
+        output.requestFinished
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self, onNext: { owner, _ in
+                owner.stopLoadingAnimation()
             })
             .disposed(by: disposeBag)
 
@@ -236,6 +259,38 @@ final class QuestionResultViewController: BaseViewController {
         section.orthogonalScrollingBehavior = .groupPaging
 
         return UICollectionViewCompositionalLayout(section: section)
+    }
+
+    private func playLoadingAnimation() {
+        showLoadingAnimation()
+        loadingAnimationView.play()
+    }
+
+    private func stopLoadingAnimation() {
+        hideLoadingAnimation()
+        loadingAnimationView.stop()
+    }
+
+    private func showLoadingAnimation() {
+        loadingAnimationView.isHidden = false
+        [
+            recommendedBooksHeadlineLabel,
+            recommendedBooksCollectionView,
+            recommendationHeadlineLabel,
+            recommendationBodyLabel,
+            submitButton,
+        ].forEach { $0.isHidden = true }
+    }
+
+    private func hideLoadingAnimation() {
+        loadingAnimationView.isHidden = true
+        [
+            recommendedBooksHeadlineLabel,
+            recommendedBooksCollectionView,
+            recommendationHeadlineLabel,
+            recommendationBodyLabel,
+            submitButton,
+        ].forEach { $0.isHidden = false }
     }
 }
 
