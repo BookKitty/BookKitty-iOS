@@ -1,4 +1,5 @@
 import AVFoundation
+import BookMatchKit
 import DesignSystem
 import RxCocoa
 import RxSwift
@@ -42,9 +43,9 @@ final class AddBookViewController: BaseCameraViewController {
 
     // MARK: - Lifecycle
 
-    init(viewModel: AddBookViewModel) {
+    init(viewModel: AddBookViewModel, bookMatchKit: BookMatchKit) { // ✅ bookMatchKit 추가
         self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
+        super.init(bookMatchKit: bookMatchKit) // ✅ BookMatchKit 전달
 
         ocrTextHandler = { [weak self] recognizedText in
             self?.manualTitleRelay.accept(recognizedText)
@@ -152,5 +153,12 @@ final class AddBookViewController: BaseCameraViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    AddBookViewController(viewModel: AddBookViewModel())
+    let bookMatchKit = BookMatchKit(
+        naverClientId: "dummyClientId",
+        naverClientSecret: "dummyClientSecret"
+    ) // ✅ BookMatchKit 인스턴스 생성
+    return AddBookViewController(
+        viewModel: AddBookViewModel(),
+        bookMatchKit: bookMatchKit
+    ) // ✅ 올바른 인스턴스 전달
 }

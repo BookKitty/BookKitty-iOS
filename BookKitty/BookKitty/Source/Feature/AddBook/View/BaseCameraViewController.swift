@@ -1,4 +1,5 @@
 import AVFoundation
+import BookMatchKit
 import CoreML
 import DesignSystem
 import RxCocoa
@@ -21,7 +22,19 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
 
     var ocrTextHandler: ((String) -> Void)? // OCR 결과 전달용 클로저
 
+    private let bookMatchKit: BookMatchKit
+
     // MARK: - Lifecycle
+
+    init(bookMatchKit: BookMatchKit) {
+        self.bookMatchKit = bookMatchKit
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,7 +78,18 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
     func handleCapturedImage(_ image: UIImage) {
         // 이미지 전처리 (리사이즈 및 크롭)
         let resizedImage = image.resized(toWidth: 1024)
-        detectBookElements(in: resizedImage!) // OCR 및 객체 감지 실행
+        bookMatchKit.extractText(from: resizedImage!)
+            .subscribe(onSuccess: { [weak self] extractedTexts in
+                if let bestTitle = extractedTexts.first {
+                    print("✅ 최종 OCR 결과: \(bestTitle)")
+                    self?.ocrTextHandler?(bestTitle)
+                } else {
+                    print("⚠️ OCR 결과 없음")
+                }
+            }, onFailure: { error in
+                print("⚠️ OCR 실패: \(error.localizedDescription)")
+            })
+            .disposed(by: disposeBag)
     }
 
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
@@ -169,107 +193,6 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
 
         DispatchQueue.main.async {
             self.present(alert, animated: true)
-        }
-    }
-
-    private func detectBookElements(in image: UIImage) {
-        // CoreML 모델이 업데이트 가능한지 확인
-        if let mlModel = MyObjectDetector5_1().model as? MLModel,
-           mlModel.modelDescription.isUpdatable {
-            print("✅ 이 모델은 업데이트 가능합니다.")
-        } else {
-            print("⚠️ 이 모델은 업데이트가 불가능합니다.")
-        }
-
-        // CoreML 모델 로드
-        guard let model = try? VNCoreMLModel(for: MyObjectDetector5_1().model) else {
-            print("⚠️ CoreML 모델 로드 실패: 모델이 업데이트 가능한지 확인 필요")
-            return
-        }
-
-        let request = VNCoreMLRequest(model: model) { request, error in
-            if let error {
-                print("⚠️ Vision 요청 실패: \(error.localizedDescription)")
-                return
-            }
-
-            guard let results = request.results as? [VNRecognizedObjectObservation] else {
-                print("⚠️ Vision 결과 없음")
-                return
-            }
-
-            var extractedTexts: [String] = []
-            let dispatchGroup = DispatchGroup()
-
-            for observation in results
-                where observation.labels.first?.identifier == "titles-or-authors" {
-                dispatchGroup.enter()
-                self.performOCR(on: image) { recognizedText in
-                    if !recognizedText.isEmpty {
-                        extractedTexts.append(recognizedText)
-                    }
-                    dispatchGroup.leave()
-                }
-            }
-
-            dispatchGroup.notify(queue: .main) {
-                if let bestTitle = extractedTexts.first {
-                    print("✅ 최종 OCR 결과: \(bestTitle)")
-                    self.ocrTextHandler?(bestTitle)
-                } else {
-                    print("⚠️ OCR 결과 없음")
-                }
-            }
-        }
-
-        request.usesCPUOnly = true
-        request.preferBackgroundProcessing = true
-
-        do {
-            let handler = VNImageRequestHandler(cgImage: image.cgImage!, options: [:])
-            try handler.perform([request])
-        } catch let error as NSError {
-            print("⚠️ Vision Request Error: \(error.localizedDescription)")
-        }
-    }
-
-    private func performOCR(on image: UIImage, completion: @escaping (String) -> Void) {
-        guard let cgImage = image.cgImage else {
-            print("⚠️ 이미지 변환 실패")
-            completion("")
-            return
-        }
-
-        let request = VNRecognizeTextRequest { request, error in
-            if let error {
-                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
-                completion("")
-                return
-            }
-
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                print("⚠️ OCR 결과 없음")
-                completion("")
-                return
-            }
-
-            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
-                .joined(separator: " ")
-            print("✅ OCR 결과: \(recognizedText)")
-            completion(recognizedText)
-        }
-
-        // OCR 언어 설정 (한국어 및 영어)
-        request.recognitionLanguages = ["ko", "en"]
-        request.usesLanguageCorrection = true
-        request.minimumTextHeight = 0.002
-
-        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        do {
-            try requestHandler.perform([request])
-        } catch {
-            print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
-            completion("")
         }
     }
 }

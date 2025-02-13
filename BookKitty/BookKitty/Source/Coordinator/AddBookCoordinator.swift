@@ -4,6 +4,7 @@
 //
 // Created by 반성준 on 1/31/25.
 //
+import BookMatchKit
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -12,34 +13,36 @@ import UIKit
 final class AddBookCoordinator: Coordinator {
     // MARK: - Properties
 
-    // MARK: - Internal
-
     weak var finishDelegate: CoordinatorFinishDelegate?
-
     var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
 
     var addBookViewController: AddBookViewController
     var addBookViewModel: AddBookViewModel
+    var bookMatchKit: BookMatchKit // ✅ BookMatchKit 추가
 
     // MARK: - Private
 
     private let disposeBag = DisposeBag()
-    private let confirmButtonRelay =
-        PublishRelay<Void>() // :흰색_확인_표시: `confirmButton` 이벤트를 위한 Relay 추가
+    private let confirmButtonRelay = PublishRelay<Void>()
 
     // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
+        bookMatchKit = BookMatchKit(
+            naverClientId: "dummyClientId",
+            naverClientSecret: "dummyClientSecret"
+        ) // ✅ BookMatchKit 인스턴스 생성
         addBookViewModel = AddBookViewModel()
-        addBookViewController = AddBookViewController(viewModel: addBookViewModel)
+        addBookViewController = AddBookViewController(
+            viewModel: addBookViewModel,
+            bookMatchKit: bookMatchKit
+        ) // ✅ 올바르게 전달
     }
 
     // MARK: - Functions
-
-    // MARK: - Start
 
     func start() {
         showAddBookScreen()
