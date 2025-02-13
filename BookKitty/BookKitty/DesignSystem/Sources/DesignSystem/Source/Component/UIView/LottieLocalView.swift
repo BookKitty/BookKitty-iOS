@@ -13,6 +13,8 @@ import UIKit
 public enum LottieAnimationName {
     case loadingCircle
     case searchingBooks
+    case homeNew
+    case homeBooks
 }
 
 public class LottieLocalView: UIView {
@@ -32,6 +34,10 @@ public class LottieLocalView: UIView {
             animationName = "loading-circle"
         case .searchingBooks:
             animationName = "searching-books"
+        case .homeNew:
+            animationName = "home-new"
+        case .homeBooks:
+            animationName = "home-books"
         }
 
         let animationView = LottieAnimationView(name: animationName, bundle: .module)
