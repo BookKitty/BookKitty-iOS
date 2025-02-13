@@ -15,10 +15,9 @@ import Vision
 public final class BookMatchKit: BookMatchable {
     // MARK: - Properties
 
-    // MARK: - Private
-
     private let imageStrategy = VisionImageStrategy()
-    private let apiClient: APIClientProtocol
+    private let naverAPI: NaverAPI
+    private let imageDownloadAPI: ImageDownloadAPI
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
@@ -33,7 +32,8 @@ public final class BookMatchKit: BookMatchable {
             openAIApiKey: ""
         )
 
-        apiClient = DefaultAPIClient(configuration: config)
+        naverAPI = NaverAPI(configuration: config)
+        imageDownloadAPI = ImageDownloadAPI(configuration: config)
     }
 
     // MARK: - Functions
@@ -71,7 +71,7 @@ public final class BookMatchKit: BookMatchable {
                 return .never()
             }
 
-            return apiClient.downloadImage(from: book.image)
+            return imageDownloadAPI.downloadImage(from: book.image)
                 .catch { _ in
                     print("error in imageDownloadFailed")
                     return .error(BookMatchError.imageDownloadFailed)
@@ -261,7 +261,7 @@ public final class BookMatchKit: BookMatchable {
                             return .error(BookMatchError.noMatchFound)
                         }
 
-                        return apiClient.searchBooks(query: currentQuery, limit: 10)
+                        return naverAPI.searchBooks(query: currentQuery, limit: 10)
                     }
                     .subscribe(
                         onSuccess: { results in
