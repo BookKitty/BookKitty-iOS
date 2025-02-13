@@ -12,4 +12,3 @@ public struct RecommendationForQuestion: Codable {
         self.newBooks = newBooks
     }
 }
-

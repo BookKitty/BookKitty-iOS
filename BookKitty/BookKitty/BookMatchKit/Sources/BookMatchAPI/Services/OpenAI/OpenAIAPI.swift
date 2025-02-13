@@ -112,7 +112,10 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
         .map { response in
             guard let jsonString = response.choices.first?.message.content,
                   let jsonData = jsonString.data(using: .utf8),
-                  let result = try? JSONDecoder().decode(RecommendationFromOwnedRaw.self, from: jsonData)
+                  let result = try? JSONDecoder().decode(
+                      RecommendationFromOwnedRaw.self,
+                      from: jsonData
+                  )
             else {
                 throw BookMatchError.invalidGPTFormat
             }
