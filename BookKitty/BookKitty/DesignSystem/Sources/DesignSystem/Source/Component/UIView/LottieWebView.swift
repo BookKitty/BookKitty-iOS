@@ -1,5 +1,5 @@
 //
-//  LottieView.swift
+//  LottieWebView.swift
 //  DesignSystem
 //
 //  Created by MaxBook on 2/09/25.
@@ -10,7 +10,7 @@ import SnapKit
 import SwiftUI
 import UIKit
 
-public class LottieView: UIView {
+public class LottieWebView: UIView {
     // MARK: - Properties
 
     // MARK: Internal
@@ -43,7 +43,7 @@ public class LottieView: UIView {
 
 // MARK: - Setup UI
 
-extension LottieView {
+extension LottieWebView {
     private func setupSubviews() {
         addSubview(animationView)
     }

@@ -20,7 +20,6 @@ final class AddBookCoordinator: Coordinator {
 
     var addBookViewController: AddBookViewController
     var addBookViewModel: AddBookViewModel
-    var bookMatchKit: BookMatchKit // ✅ BookMatchKit 추가
 
     // MARK: - Private
 
@@ -31,14 +30,14 @@ final class AddBookCoordinator: Coordinator {
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-        bookMatchKit = BookMatchKit(
-            naverClientId: "dummyClientId",
-            naverClientSecret: "dummyClientSecret"
-        ) // ✅ BookMatchKit 인스턴스 생성
-        addBookViewModel = AddBookViewModel()
+
+        let repository = LocalBookRepository()
+
+        addBookViewModel = AddBookViewModel(
+            bookRepository: repository
+        )
         addBookViewController = AddBookViewController(
-            viewModel: addBookViewModel,
-            bookMatchKit: bookMatchKit
+            viewModel: addBookViewModel
         ) // ✅ 올바르게 전달
     }
 
@@ -57,17 +56,19 @@ extension AddBookCoordinator {
                 owner.finish()
             }).disposed(by: disposeBag)
 
-        addBookViewModel.navigateToReviewRelay
-            .withUnretained(self)
-            .subscribe(onNext: { coordinator, bookList in
-                coordinator.showReviewBookScene(bookList: bookList)
-            }).disposed(by: disposeBag)
-
         navigationController.pushViewController(addBookViewController, animated: true)
     }
 
-    private func showReviewBookScene(bookList: [Book]) {
-        let reviewViewModel = ReviewAddBookViewModel(initialBookList: bookList)
+    private func showReviewBookScene(bookList: [Book]) { // ✅ bookList 파라미터 유지
+        let bookMatchKit = BookMatchKit(
+            naverClientId: "your_client_id",
+            naverClientSecret: "your_client_secret"
+        ) // ✅ BookMatchKit 인스턴스 생성
+
+        let reviewViewModel = ReviewAddBookViewModel(
+            initialBookList: bookList, // ✅ bookList 전달
+            bookMatchKit: bookMatchKit
+        ) // ✅ reviewViewModel 생성
 
         reviewViewModel.navigateBackRelay
             .withUnretained(self)

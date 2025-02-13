@@ -9,8 +9,6 @@
 public struct APIConfiguration {
     // MARK: - Properties
 
-    // MARK: Public
-
     public let naverClientId: String
     public let naverClientSecret: String
     public let openAIApiKey: String

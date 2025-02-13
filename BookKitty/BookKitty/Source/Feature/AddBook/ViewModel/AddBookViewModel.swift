@@ -1,3 +1,4 @@
+import BookMatchCore
 import BookMatchKit
 import Foundation
 import RxCocoa
@@ -9,9 +10,11 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
     struct Input {
-        let captureButtonTapped: Observable<Void>
         let leftBarButtonTapTrigger: Observable<Void>
+
         let cameraPermissionCancelButtonTapTrigger: Observable<Void>
+
+        let capturedImage: Observable<UIImage>
     }
 
     struct Output {
@@ -25,14 +28,20 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Private
 
     let navigateBackRelay = PublishRelay<Void>()
-    let navigateToReviewRelay = PublishRelay<[Book]>()
-    let bookListRelay = BehaviorRelay<[Book]>(value: []) // 사진이 캡쳐된 이후, 캡처본에 대한 데이터 흐름을 담당하는 스트림입니다
 
     private let errorRelay = PublishRelay<Error>()
-    private let capturedTextDatasRelay = BehaviorRelay<[String]>(value: [])
+
+    private let bookRepository: BookRepository
+
+    // MARK: - Lifecycle
+
+    init(bookRepository: BookRepository) {
+        self.bookRepository = bookRepository
+    }
 
     // MARK: - Functions
 
+    @MainActor
     func transform(_ input: Input) -> Output {
         Observable.merge(
             input.leftBarButtonTapTrigger,
@@ -41,50 +50,48 @@ final class AddBookViewModel: ViewModelType {
         .bind(to: navigateBackRelay)
         .disposed(by: disposeBag)
 
-        input.captureButtonTapped
-            .subscribe(onNext: {
-                // TODO: VC에서 가져온 데이터 기반으로 OCR 데이터 Neo님과 상의해주세요.
-                // TODO: 정상적으로 책 데이터 추출되면 BookRepository로 책 추가한 이후에 navigateBackRelay.accept(()) 해주세요.
-                // TODO: 정삭적으로 책 데이터를 추출하지 못하면 Output으로 스트림 구축해서 accept 해주세요.
-            }).disposed(by: disposeBag)
+        input.capturedImage
+            .flatMapLatest { [weak self] image -> Observable<Book> in
+                guard let self else {
+                    return .empty()
+                }
+
+                let bookMatchKit = BookMatchKit(
+                    naverClientId: Environment().naverClientID,
+                    naverClientSecret: Environment().naverClientSecret
+                )
+
+                return bookMatchKit.matchBook(image: image)
+                    .map { bookItem in
+                        guard let bookItem else {
+                            throw BookMatchError.noMatchFound
+                        }
+                        return Book(
+                            isbn: bookItem.isbn,
+                            title: bookItem.title,
+                            author: bookItem.author,
+                            publisher: bookItem.publisher,
+                            thumbnailUrl: URL(string: bookItem.image),
+                            description: bookItem.description,
+                            price: bookItem.discount ?? "",
+                            pubDate: bookItem.pubdate ?? ""
+                        )
+                    }
+                    .asObservable()
+                    .catch { error in
+                        self.errorRelay.accept(error)
+                        self.navigateBackRelay.accept(())
+                        return .empty()
+                    }
+            }
+            .subscribe(onNext: { [weak self] book in
+                _ = self?.bookRepository.saveBook(book: book)
+                self?.navigateBackRelay.accept(())
+            })
+            .disposed(by: disposeBag)
 
         return Output(
             error: errorRelay.asObservable()
         )
-    }
-
-    /// AddBaseViewController 내부 handleCapturedImage 메서드 내부에서 해당 메서드 호출
-    func handleCapturedImage(from image: UIImage) {
-        recognizeText(from: image) { [weak self] recognizedText in
-            let bookTitles = recognizedText.components(separatedBy: "\n").filter { !$0.isEmpty }
-            let bookMatchKit = BookMatchKit(
-                naverClientId: "emT6GVaVUMCyF7CSqifr",
-                naverClientSecret: "eIjwLMH9ZS"
-            )
-            self?.capturedTextDatasRelay.accept(bookTitles)
-        }
-    }
-
-    private func recognizeText(from image: UIImage, completion: @escaping (String) -> Void) {
-        guard let cgImage = image.cgImage else {
-            return
-        }
-
-        let request = VNRecognizeTextRequest { request, _ in
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                return
-            }
-
-            let recognizedText = observations
-                .compactMap { $0.topCandidates(1).first?.string }
-                .joined(separator: "\n")
-
-            DispatchQueue.main.async {
-                completion(recognizedText)
-            }
-        }
-
-        let handler = VNImageRequestHandler(cgImage: cgImage)
-        try? handler.perform([request])
     }
 }
