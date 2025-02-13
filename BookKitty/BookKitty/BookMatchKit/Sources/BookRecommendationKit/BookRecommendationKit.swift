@@ -84,7 +84,7 @@ public final class BookRecommendationKit: BookRecommendable {
         -> Single<BookMatchModuleOutput> {
         openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
             .flatMap { [weak self] recommendation -> Single<(
-                recommendation: AiRecommendationForQuestion,
+                recommendation: RecommendationForQuestion,
                 books: [BookItem]
             )> in
                 guard let self else {
