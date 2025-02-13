@@ -23,7 +23,7 @@ class HomeViewController: BaseViewController {
     private let contentView = UIView()
 
     private let lottieView =
-        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
+        LottieWebView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
 
     private let bookSelectedRelay = PublishRelay<Book>()
 

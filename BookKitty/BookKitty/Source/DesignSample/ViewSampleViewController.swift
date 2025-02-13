@@ -25,7 +25,7 @@ class ViewSampleViewController: BaseViewController {
     let verticalScrollView = UIScrollView()
     let contentView = UIView()
     let lottieView =
-        LottieView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
+        LottieWebView(imageLink: "https://cdn.lottielab.com/l/9pByBsRpAhjWrh.json")
 
     let horizontalScrollView = UIScrollView()
     let horizontalStackView = UIStackView().then {
