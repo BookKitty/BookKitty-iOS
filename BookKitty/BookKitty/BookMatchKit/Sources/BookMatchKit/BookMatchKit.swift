@@ -4,12 +4,7 @@ import BookMatchCore
 import BookMatchStrategy
 import CoreFoundation
 import CoreML
-import DesignSystem
-import RxCocoa
-import RxCocoaRuntime
 import RxSwift
-import SnapKit
-import Then
 import UIKit
 import Vision
 
@@ -51,13 +46,23 @@ public final class BookMatchKit: BookMatchable {
     ///   - rawData: OCR로 인식된 텍스트 데이터 배열
     ///   - image: 도서 표지 이미지
     /// - Returns: 매칭된 도서 정보 또는 nil
-    public func matchBook(_ rawData: [[String]], image: UIImage) -> Single<BookItem?> {
-        let textData = rawData.flatMap { $0 }
-
-        let searchStream: Single<[BookItem]> = Single.deferred { [weak self] in
+    /// - Throws:초기 단어부터 검색된 결과가 나오지 않을때
+    public func matchBook(image: UIImage) -> Single<BookItem?> {
+        print("matchBook1")
+        let extractStream: Single<[String]> = Single.deferred { [weak self] in
             guard let self else {
                 return .just([])
             }
+
+            return extractText(from: image)
+        }
+
+        let searchBook = { [weak self] (textData: [String]) -> Single<[BookItem]> in
+            guard let self else {
+                return .just([])
+            }
+
+            print("searchBook, textData: ", textData)
             return fetchSearchResults(from: textData)
         }
 
@@ -67,31 +72,45 @@ public final class BookMatchKit: BookMatchable {
             }
 
             return apiClient.downloadImage(from: book.image)
+                .catch { _ in
+                    print("error in imageDownloadFailed")
+                    return .error(BookMatchError.imageDownloadFailed)
+                }
                 .flatMap { downloadedImage in
                     self.imageStrategy.calculateSimilarity(image, downloadedImage)
                         .map { (book, $0) }
+                        .catch { error in
+                            print("error in imageCalculationFailed")
+                            return .error(
+                                BookMatchError
+                                    .imageCalculationFailed(error.localizedDescription)
+                            )
+                        }
                 }
         }
 
-        return searchStream
+        return extractStream
+            .flatMap { textData -> Single<[BookItem]> in
+                print("matchBook2", textData)
+                return searchBook(textData)
+            }
             .flatMap { results -> Single<[BookItem]> in
+                print("matchBook3")
                 if results.isEmpty {
                     return .error(BookMatchError.noMatchFound)
                 }
+
                 return .just(results)
             }
             .flatMap { books in
-                Observable.from(books)
+                print("matchBook4")
+                return Observable.from(books)
                     .flatMap { book in processBook(book).asObservable() }
                     .toArray()
             }
-            .map { results in
+            .map { (results: [(BookItem, Double)]) -> BookItem? in
                 results.sorted { $0.1 > $1.1 }
                     .first?.0
-            }
-            .catch { error in
-                print("Error in matchBook: \(error)")
-                return .just(nil)
             }
     }
 
@@ -100,80 +119,11 @@ public final class BookMatchKit: BookMatchable {
     /// 이미지에서 텍스트를 추출하고, 추출된 텍스트를 반환합니다.
     /// - Parameter image: 텍스트를 추출할 이미지
     /// - Returns: 추출된 텍스트 배열
-    public func extractText(from image: UIImage) -> Single<[String]> {
+    private func extractText(from image: UIImage) -> Single<[String]> {
         Single.create { single in
             self.detectBookElements(in: image) { extractedTexts in
                 single(.success(extractedTexts))
             }
-            return Disposables.create()
-        }
-    }
-
-    /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
-    /// - Note:``matchBook(_:, image:)`` 메서드에 사용됩니다.
-    ///
-    /// - Parameters:
-    ///   - sourceBook: 검색할 도서의 기본 정보
-    /// - Returns: 검색된 도서 목록
-    /// - Throws: BookMatchError
-    private func fetchSearchResults(from textData: [String]) -> Single<[BookItem]> {
-        guard !textData.isEmpty else {
-            return .just([])
-        }
-
-        return Single<[BookItem]>.create { single in
-            var searchResults = [BookItem]()
-            var previousResults = [BookItem]()
-            var currentIndex = 0
-            var currentQuery = ""
-
-            func processNextQuery() {
-                guard currentIndex < textData.count else {
-                    single(.success(searchResults))
-                    return
-                }
-
-                if currentQuery.isEmpty {
-                    currentQuery = textData[currentIndex]
-                } else {
-                    currentQuery = [currentQuery, textData[currentIndex]].joined(separator: " ")
-                }
-
-                Single<Void>.just(())
-                    .delay(
-                        .milliseconds(500),
-                        scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
-                    )
-                    .flatMap { [weak self] _ -> Single<[BookItem]> in
-                        guard let self else {
-                            return .error(BookMatchError.noMatchFound)
-                        }
-                        return apiClient.searchBooks(query: currentQuery, limit: 10)
-                    }
-                    .subscribe(
-                        onSuccess: { results in
-                            if !results.isEmpty {
-                                previousResults = results
-                            }
-                            if results.count <= 3 {
-                                searchResults = previousResults
-                                single(.success(searchResults))
-                            } else if currentIndex == textData.count - 1 {
-                                searchResults = results.isEmpty ? previousResults : results
-                                single(.success(searchResults))
-                            } else {
-                                currentIndex += 1
-                                processNextQuery()
-                            }
-                        }, onFailure: { error in
-                            single(.failure(error))
-                        }
-                    )
-                    .disposed(by: self.disposeBag)
-            }
-
-            processNextQuery()
-
             return Disposables.create()
         }
     }
@@ -198,6 +148,8 @@ public final class BookMatchKit: BookMatchable {
                 return
             }
 
+            print("📚 감지된 객체 수: \(results.count)")
+
             var extractedTexts: [String] = []
             let dispatchGroup = DispatchGroup()
 
@@ -213,6 +165,7 @@ public final class BookMatchKit: BookMatchable {
             }
 
             dispatchGroup.notify(queue: .main) {
+                print("📑 최종 추출된 텍스트: \(extractedTexts)")
                 completion(extractedTexts)
             }
         }
@@ -267,20 +220,74 @@ public final class BookMatchKit: BookMatchable {
             completion("")
         }
     }
-}
 
-// MARK: - UIImage Extension (리사이즈 기능 추가)
+    /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
+    /// - Note:``matchBook(_:, image:)`` 메서드에 사용됩니다.
+    ///
+    /// - Parameters:
+    ///   - sourceBook: 검색할 도서의 기본 정보
+    /// - Returns: 검색된 도서 목록
+    /// - Throws: BookMatchError
+    private func fetchSearchResults(from textData: [String]) -> Single<[BookItem]> {
+        guard !textData.isEmpty else {
+            return .just([])
+        }
 
-extension UIImage {
-    @MainActor
-    func resized(toWidth width: CGFloat) -> UIImage? {
-        let scaleFactor = width / size.width
-        let canvasSize = CGSize(width: width, height: size.height * scaleFactor)
+        return Single<[BookItem]>.create { single in
+            var searchResults = [BookItem]()
+            var previousResults = [BookItem]()
+            var currentIndex = 0
+            var currentQuery = ""
 
-        UIGraphicsBeginImageContextWithOptions(canvasSize, false, UIScreen.main.scale)
-        defer { UIGraphicsEndImageContext() }
+            func processNextQuery() {
+                guard currentIndex < textData.count else {
+                    single(.success(searchResults))
+                    return
+                }
 
-        draw(in: CGRect(origin: .zero, size: canvasSize))
-        return UIGraphicsGetImageFromCurrentImageContext()
+                if currentQuery.isEmpty {
+                    currentQuery = textData[currentIndex]
+                } else {
+                    currentQuery = [currentQuery, textData[currentIndex]].joined(separator: " ")
+                }
+
+                Single<Void>.just(())
+                    .delay(
+                        .milliseconds(500),
+                        scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
+                    )
+                    .flatMap { [weak self] _ -> Single<[BookItem]> in
+                        guard let self else {
+                            return .error(BookMatchError.noMatchFound)
+                        }
+
+                        return apiClient.searchBooks(query: currentQuery, limit: 10)
+                    }
+                    .subscribe(
+                        onSuccess: { results in
+                            if !results.isEmpty {
+                                previousResults = results
+                            }
+                            if results.count <= 3 {
+                                searchResults = previousResults
+                                single(.success(searchResults))
+                            } else if currentIndex == textData.count - 1 {
+                                searchResults = results.isEmpty ? previousResults : results
+                                single(.success(searchResults))
+                            } else {
+                                currentIndex += 1
+                                processNextQuery()
+                            }
+                        }, onFailure: { error in
+                            single(.failure(error))
+                        }
+                    )
+                    .disposed(by: self.disposeBag)
+            }
+
+            processNextQuery()
+
+            return Disposables.create()
+        }
     }
 }
