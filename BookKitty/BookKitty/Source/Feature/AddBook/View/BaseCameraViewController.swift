@@ -18,6 +18,8 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
     var previewLayer: AVCaptureVideoPreviewLayer?
     var captureOutput = AVCapturePhotoOutput()
 
+    let cameraPermissionCancelRelay = PublishRelay<Void>()
+
     let cameraView = UIView().then { $0.backgroundColor = .black }
 
     var ocrTextHandler: ((String) -> Void)? // OCR 결과 전달용 클로저
@@ -38,6 +40,12 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
+            .subscribe(onNext: { [weak self] _ in
+                self?.appDidBecomActive()
+            }).disposed(by: disposeBag)
+
         checkCameraPermission { granted in
             if granted {
                 self.setupCamera()
@@ -92,6 +100,16 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
             .disposed(by: disposeBag)
     }
 
+    private func appDidBecomActive() {
+        checkCameraPermission { granted in
+            if granted {
+                self.setupCamera()
+            } else {
+                self.showPermissionAlert()
+            }
+        }
+    }
+
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -118,7 +136,9 @@ class BaseCameraViewController: BaseViewController, AVCapturePhotoCaptureDelegat
             }
         }
 
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { [weak self] _ in
+            self?.cameraPermissionCancelRelay.accept(())
+        }
 
         alert.addAction(settingsAction)
         alert.addAction(cancelAction)

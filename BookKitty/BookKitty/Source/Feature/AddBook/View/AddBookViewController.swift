@@ -137,7 +137,8 @@ final class AddBookViewController: BaseCameraViewController {
         let input = AddBookViewModel.Input(
             captureButtonTapped: captureButton.rx.tap.asObservable(),
             // TODO: catgureButton 눌렀을 때 데이터 viewModel로 넘겨주세요.
-            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
