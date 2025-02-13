@@ -22,7 +22,8 @@ class HomeViewController: BaseViewController {
     private let verticalScrollView = UIScrollView()
     private let contentView = UIView()
 
-    private let lottieView = LottieLocalView(lottieName: .homeBooks)
+    private let lottieViewWithBooks = LottieLocalView(lottieName: .homeBooks)
+    private let lottieViewWithoutBooks = LottieLocalView(lottieName: .homeNew)
 
     private let bookSelectedRelay = PublishRelay<Book>()
 
@@ -88,7 +89,8 @@ class HomeViewController: BaseViewController {
         verticalScrollView.addSubview(contentView)
 
         [
-            lottieView,
+            lottieViewWithBooks,
+            lottieViewWithoutBooks,
             recommendedBooksCollectionView,
             copyrightLabel,
         ].forEach { contentView.addSubview($0) }
@@ -104,14 +106,20 @@ class HomeViewController: BaseViewController {
             make.width.equalToSuperview()
         }
 
-        lottieView.snp.makeConstraints { make in
+        lottieViewWithBooks.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.horizontalEdges.equalToSuperview()
+            make.height.equalTo(640)
+        }
+
+        lottieViewWithoutBooks.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.horizontalEdges.equalToSuperview()
             make.height.equalTo(640)
         }
 
         recommendedBooksCollectionView.snp.makeConstraints { make in
-            make.top.equalTo(lottieView.snp.bottom)
+            make.top.equalTo(lottieViewWithBooks.snp.bottom)
             make.horizontalEdges.equalToSuperview()
             make.height.greaterThanOrEqualTo(448)
         }
@@ -132,6 +140,16 @@ class HomeViewController: BaseViewController {
         let output = viewModel.transform(input)
 
         output.recommendedBooks
+            .do(onNext: { [weak self] sections in
+                guard !sections.isEmpty else {
+                    return
+                }
+                if sections[0].items.isEmpty {
+                    self?.showLottieViewWithoutBooks()
+                } else {
+                    self?.showLottieViewWithBooks()
+                }
+            })
             .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
 
@@ -178,6 +196,20 @@ class HomeViewController: BaseViewController {
         section.orthogonalScrollingBehavior = .groupPaging
 
         return UICollectionViewCompositionalLayout(section: section)
+    }
+
+    private func showLottieViewWithBooks() {
+        lottieViewWithBooks.isHidden = false
+        lottieViewWithoutBooks.isHidden = true
+        lottieViewWithBooks.stop()
+        lottieViewWithBooks.play()
+    }
+
+    private func showLottieViewWithoutBooks() {
+        lottieViewWithBooks.isHidden = true
+        lottieViewWithoutBooks.isHidden = false
+        lottieViewWithBooks.stop()
+        lottieViewWithoutBooks.play()
     }
 }
 
