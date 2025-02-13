@@ -50,12 +50,12 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
     public func matchBook(image: UIImage) -> Single<BookItem?> {
         print("🛠 matchBook(image:) 실행됨") // ✅ matchBook 함수 실행 확인
 
-        let extractStream: Single<[String]> = Single.deferred { [weak self] in
-            guard let self else {
-                return .just([])
-            }
-            print("📌 OCR 실행 시도") // ✅ OCR 실행 직전 확인
-            return extractText(from: image)
+        let extractStream: Single<[String]> = Single.deferred {
+//            guard let self else {
+//                return .just([])
+//            }
+            print("📌 OCR 실행 시도")
+            return self.extractText(from: image)
                 .do(onSuccess: { text in
                     print("📑 OCR 추출 결과: \(text)")
                 }, onError: { error in
@@ -119,6 +119,7 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
             }
             .flatMap { books in
                 print("📌 matchBook4 실행됨, 유사도 비교 진행")
+
                 return Observable.from(books)
                     .flatMap { book in processBook(book).asObservable() }
                     .toArray()
@@ -342,7 +343,7 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
         request.minimumTextHeight = 0.005
 
         Task {
-            let resizedImage = await preprocessedImage.resized(toWidth: 1024) ?? preprocessedImage
+            let resizedImage = preprocessedImage.resized(toWidth: 1024) ?? preprocessedImage
             print("📏 이미지 리사이징 완료: \(resizedImage.size)")
 
             await MainActor.run {

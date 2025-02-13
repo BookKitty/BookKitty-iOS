@@ -2,7 +2,7 @@ import UIKit
 
 extension UIImage {
     @MainActor
-    func resized(toWidth width: CGFloat) -> UIImage? {
+    public func resized(toWidth width: CGFloat) -> UIImage? {
         let scaleFactor = width / size.width
         let canvasSize = CGSize(width: width, height: size.height * scaleFactor)
 
