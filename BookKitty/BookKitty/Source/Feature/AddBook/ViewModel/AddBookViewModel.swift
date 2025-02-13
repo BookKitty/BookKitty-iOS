@@ -11,6 +11,9 @@ final class AddBookViewModel: ViewModelType {
 
     struct Input {
         let leftBarButtonTapTrigger: Observable<Void>
+
+        let cameraPermissionCancelButtonTapTrigger: Observable<Void>
+
         let capturedImage: Observable<UIImage>
     }
 
@@ -40,9 +43,12 @@ final class AddBookViewModel: ViewModelType {
 
     @MainActor
     func transform(_ input: Input) -> Output {
-        input.leftBarButtonTapTrigger
-            .bind(to: navigateBackRelay)
-            .disposed(by: disposeBag)
+        Observable.merge(
+            input.leftBarButtonTapTrigger,
+            input.cameraPermissionCancelButtonTapTrigger
+        )
+        .bind(to: navigateBackRelay)
+        .disposed(by: disposeBag)
 
         input.capturedImage
             .flatMapLatest { [weak self] image -> Observable<Book> in

@@ -21,16 +21,14 @@ final class QuestionHistoryCell: UITableViewCell {
     private let containerView = UIView().then {
         $0.backgroundColor = Colors.background1
         $0.layer.cornerRadius = Vars.radiusMini
+        $0.clipsToBounds = true
     }
 
     private let dateLabel = CaptionLabel(weight: .regular).then {
         $0.textColor = Colors.fontSub1
     }
 
-    private let questionLabel = BodyLabel(weight: .extraBold)
-
-    private let answerLabel = BodyLabel(weight: .regular).then {
-        $0.lineBreakMode = .byTruncatingTail
+    private let questionLabel = BodyLabel(weight: .regular).then {
         $0.numberOfLines = 2
     }
 
@@ -67,7 +65,7 @@ final class QuestionHistoryCell: UITableViewCell {
 
         dateLabel.text = DateFormatter.shared.string(from: questionAnswer.createdAt)
         questionLabel.text = questionAnswer.userQuestion
-        answerLabel.text = questionAnswer.gptAnswer
+        questionLabel.lineBreakMode = .byTruncatingTail
 
         recommendedBooksStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
@@ -78,7 +76,7 @@ final class QuestionHistoryCell: UITableViewCell {
         for book in questionAnswer.recommendedBooks {
             let imageView = HeightFixedImageView(
                 imageUrl: book.thumbnailUrl?.absoluteString ?? "",
-                height: .regular
+                height: .small
             )
 
             imageView.setRadius(to: true)
@@ -97,7 +95,7 @@ final class QuestionHistoryCell: UITableViewCell {
 
         contentView.addSubview(containerView)
 
-        [dateLabel, questionLabel, answerLabel, recommendedBooksStackView]
+        [dateLabel, questionLabel, recommendedBooksStackView]
             .forEach { containerView.addSubview($0) }
     }
 
@@ -107,25 +105,20 @@ final class QuestionHistoryCell: UITableViewCell {
         }
 
         dateLabel.snp.makeConstraints {
-            $0.top.leading.trailing.equalToSuperview().inset(Vars.paddingSmall)
+            $0.top.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
+            $0.height.equalTo(18.0)
         }
 
         questionLabel.snp.makeConstraints {
-            $0.top.equalTo(dateLabel.snp.bottom).offset(Vars.spacing4)
-            $0.leading.trailing.equalToSuperview().inset(Vars.paddingSmall)
-        }
-
-        answerLabel.snp.makeConstraints {
-            $0.top.equalTo(questionLabel.snp.bottom).offset(Vars.spacing4)
-            $0.leading.trailing.equalToSuperview().inset(Vars.paddingSmall)
+            $0.top.equalTo(dateLabel.snp.bottom).offset(Vars.spacing12)
+            $0.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
         }
 
         recommendedBooksStackView.snp.makeConstraints { make in
-            make.top.equalTo(answerLabel.snp.bottom).offset(Vars.spacing12)
-            make.bottom.equalToSuperview().inset(Vars.paddingSmall)
+            make.top.equalTo(questionLabel.snp.bottom).offset(Vars.spacing24)
+            make.bottom.equalToSuperview().inset(Vars.paddingReg)
 
-            make.leading.equalToSuperview().inset(Vars.paddingSmall)
-            make.height.equalTo(Vars.imageFixedHeight + Vars.paddingSmall)
+            make.leading.equalToSuperview().inset(Vars.paddingReg)
         }
     }
 }

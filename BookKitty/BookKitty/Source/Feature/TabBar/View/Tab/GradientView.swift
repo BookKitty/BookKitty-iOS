@@ -53,8 +53,8 @@ final class GradientView: UIView {
 
         // 위쪽으로 흐려지는 효과 적용
         gradientLayer.colors = [
-            Colors.fontWhite.cgColor,
-            Colors.fontWhite.withAlphaComponent(0.0).cgColor,
+            Colors.background0.cgColor,
+            Colors.background0.withAlphaComponent(0.0).cgColor,
         ]
 
         gradientLayer.startPoint = CGPoint(x: 0.5, y: 0.22)

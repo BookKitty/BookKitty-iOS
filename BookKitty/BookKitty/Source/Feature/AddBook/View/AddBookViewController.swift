@@ -15,6 +15,7 @@ final class AddBookViewController: BaseViewController {
     private let cameraView = UIView().then { $0.backgroundColor = .black }
 
     private let capturedImageRelay = PublishRelay<UIImage>()
+    private let cameraPermissionCancelRelay = PublishRelay<Void>()
     private let viewModel: AddBookViewModel
 
     // MARK: - UI Components
@@ -55,6 +56,11 @@ final class AddBookViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
+            .subscribe(onNext: { [weak self] _ in
+                self?.appDidBecomActive()
+            }).disposed(by: disposeBag)
 
         checkCameraPermission { granted in
             if granted {
@@ -150,6 +156,7 @@ final class AddBookViewController: BaseViewController {
     override func bind() {
         let input = AddBookViewModel.Input(
             leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
             capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
         )
 
@@ -171,6 +178,16 @@ final class AddBookViewController: BaseViewController {
                 self?.capturePhoto()
             }
             .disposed(by: disposeBag)
+    }
+
+    private func appDidBecomActive() {
+        checkCameraPermission { granted in
+            if granted {
+                self.setupCamera()
+            } else {
+                self.showPermissionAlert()
+            }
+        }
     }
 }
 
@@ -221,7 +238,9 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             }
         }
 
-        let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+        let cancelAction = UIAlertAction(title: "취소", style: .cancel) { [weak self] _ in
+            self?.cameraPermissionCancelRelay.accept(())
+        }
 
         alert.addAction(settingsAction)
         alert.addAction(cancelAction)

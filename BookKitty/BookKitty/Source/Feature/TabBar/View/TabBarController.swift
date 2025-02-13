@@ -97,7 +97,7 @@ final class TabBarController: BaseViewController {
     override func configureLayout() {
         gradientView.snp.makeConstraints {
             $0.top.equalTo(tabBar.snp.top).offset(-Vars.spacing12)
-            $0.horizontalEdges.equalToSuperview().inset(Vars.paddingReg)
+            $0.horizontalEdges.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 

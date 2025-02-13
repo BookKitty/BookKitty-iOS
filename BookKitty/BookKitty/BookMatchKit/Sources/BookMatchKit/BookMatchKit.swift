@@ -87,7 +87,7 @@ public final class BookMatchKit: @preconcurrency BookMatchable {
             return imageDownloadAPI.downloadImage(from: book.image)
                 .catch { error in
                     print("⚠️ 이미지 다운로드 실패: \(error.localizedDescription)")
-                        
+
                     return .error(BookMatchError.imageDownloadFailed)
                 }
                 .flatMap { downloadedImage in

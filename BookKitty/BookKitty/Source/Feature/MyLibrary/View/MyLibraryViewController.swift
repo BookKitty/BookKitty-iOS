@@ -32,6 +32,7 @@ final class MyLibraryViewController: BaseViewController {
         frame: .zero,
         collectionViewLayout: makeCompositionalLayout()
     ).then {
+        $0.backgroundColor = .clear
         $0.delegate = self
         $0.register(
             MyLibraryCollectionViewCell.self,

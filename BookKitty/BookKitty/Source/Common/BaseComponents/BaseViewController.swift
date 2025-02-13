@@ -5,6 +5,7 @@
 //  Created by 권승용 on 1/23/25.
 //
 
+import DesignSystem
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -42,9 +43,9 @@ class BaseViewController: UIViewController {
     // MARK: - Functions
 
     /// 뷰 컨트롤러의 배경색을 설정하는 메서드입니다.
-    /// 기본값으로 systemBackground 색상이 설정됩니다. 추후 색상이 결정되면 변경할 예정입니다.
+    /// 하위 클래스에서 필요에 따라 오버라이드하여 구현합니다.
     func configureBackground() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = Colors.background0
     }
 
     /// 네비게이션 아이템을 설정하는 메서드입니다.
