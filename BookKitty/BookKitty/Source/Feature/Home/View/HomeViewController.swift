@@ -34,6 +34,7 @@ class HomeViewController: BaseViewController {
             frame: .zero,
             collectionViewLayout: makeCollectionViewLayout()
         )
+        collectionView.backgroundColor = Colors.background1
         collectionView.register(
             RecommendedBookCell.self,
             forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
