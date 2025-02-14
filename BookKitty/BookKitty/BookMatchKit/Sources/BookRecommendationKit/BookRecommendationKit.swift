@@ -21,6 +21,8 @@ public final class BookRecommendationKit: BookRecommendable {
     private let maxRetries: Int
     private let titleWeight: Double
 
+    // MARK: - Lifecycle
+
     public init(
         naverClientId: String,
         naverClientSecret: String,
@@ -83,12 +85,12 @@ public final class BookRecommendationKit: BookRecommendable {
     public func recommendBooks(for question: String, from ownedBooks: [OwnedBook])
         -> Single<BookMatchModuleOutput> {
         BookMatchLogger.recommendationStarted(question: question)
-            
+
         return openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
             .do(onSuccess: { result in
                 let resultString = """
-                보유 도서 기반 추천 목록: \(result.ownedBooks.map{$0.title})
-                미보유 도서 기반 추천 목록: \(result.newBooks.map{$0.title})
+                보유 도서 기반 추천 목록: \(result.ownedBooks.map(\.title))
+                미보유 도서 기반 추천 목록: \(result.newBooks.map(\.title))
                 """
 
                 BookMatchLogger.gptResponseReceived(result: resultString)
@@ -102,7 +104,7 @@ public final class BookRecommendationKit: BookRecommendable {
                         BookMatchError.referenceDeinitError,
                         context: "추천 절차"
                     )
-                    
+
                     return .error(BookMatchError.referenceDeinitError)
                 }
 
@@ -130,7 +132,7 @@ public final class BookRecommendationKit: BookRecommendable {
                         BookMatchError.referenceDeinitError,
                         context: "도서 매칭 절차"
                     )
-                    
+
                     return .error(BookMatchError.referenceDeinitError)
                 }
 
