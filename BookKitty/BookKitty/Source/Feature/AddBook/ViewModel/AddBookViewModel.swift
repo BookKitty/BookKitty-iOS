@@ -59,7 +59,7 @@ final class AddBookViewModel: ViewModelType {
                         do {
                             let book = try await self?.bookMatchKit.matchBook(image)
                             guard let book else {
-                                throw BookMatchError.bookNotFound
+                                throw AddBookError.bookNotFound
                             }
                             let finalBook = Book(
                                 isbn: book.isbn,
@@ -75,9 +75,13 @@ final class AddBookViewModel: ViewModelType {
 
                             observer.onNext(finalBook)
                             observer.onCompleted()
+                        } catch BookMatchError.networkError {
+                            observer.onError(NetworkError.networkUnstable)
+                        } catch BookMatchError.noMatchFound {
+                            observer.onError(AddBookError.bookNotFound)
                         } catch {
-                            observer.onError(BookMatchError.bookNotFound)
-                            return
+                            BookKittyLogger.error("Error: \(error.localizedDescription)")
+                            observer.onError(AddBookError.unknown)
                         }
                     }
 
@@ -90,7 +94,7 @@ final class AddBookViewModel: ViewModelType {
                 if isSaved {
                     owner.navigateBackRelay.accept(())
                 } else {
-                    owner.errorRelay.accept(BookMatchError.duplicatedBook)
+                    owner.errorRelay.accept(AddBookError.duplicatedBook)
                 }
             }, onError: { owner, error in
                 guard let error = error as? AlertPresentableError else {
