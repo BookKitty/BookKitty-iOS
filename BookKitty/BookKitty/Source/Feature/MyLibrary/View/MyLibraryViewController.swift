@@ -84,6 +84,24 @@ final class MyLibraryViewController: BaseViewController {
             .drive(myLibraryCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
 
+        output.bookList
+            .skip(1) // VM에 위치한 bookList(BehaviorRelay) 기본 빈 배열 무시
+            .map { sectionModelList -> UIView? in
+                if sectionModelList[0].items.isEmpty {
+                    let containerView = UIView()
+                    let emptyView = EmptyDataDescriptionView(with: .book)
+
+                    containerView.addSubview(emptyView)
+                    emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
+
+                    return containerView
+                } else {
+                    return nil // 아이템이 존재하면 backgroundView를 제거
+                }
+            }
+            .drive(myLibraryCollectionView.rx.backgroundView)
+            .disposed(by: disposeBag)
+
         myLibraryCollectionView.rx.itemSelected
             .withLatestFrom(output.bookList) { indexPath, sectionOfBooks in
                 let books = sectionOfBooks[0].items
