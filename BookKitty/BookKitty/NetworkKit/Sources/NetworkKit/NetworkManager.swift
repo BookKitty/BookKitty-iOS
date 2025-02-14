@@ -74,12 +74,12 @@ extension NetworkManager {
             observer(.failure(NetworkError.invalidURL))
             return nil
         }
-        
+
         NetworkEventLogger.requestDidFinish(request)
-        
+
         return request
     }
-    
+
     private func typeCastResponse<T: Endpoint>(
         data: Data?,
         response: URLResponse?,
@@ -90,12 +90,12 @@ extension NetworkManager {
             observer(.failure(NetworkError.responseTypeCastingFailed))
             return nil
         }
-        
+
         NetworkEventLogger.responseDidFinish(data, response)
-        
+
         return response
     }
-    
+
     /// response 처리
     private func handleResponse<T: Endpoint>(
         data: Data?,
@@ -106,7 +106,7 @@ extension NetworkManager {
         // status code에 따른 Result<Void, Error> 타입 반환
         let managedResult = handleStatusCode(response)
         switch managedResult {
-            // 200~299 범위 벗어나면 error 방출
+        // 200~299 범위 벗어나면 error 방출
         case let .failure(error):
             observer(.failure(error))
         case .success:
@@ -121,7 +121,7 @@ extension NetworkManager {
                 observer(.success(data as? T.Response))
                 return
             }
-            
+
             // data에 값이 있는 경우 디코딩 수행
             guard let responseData = try? JSONDecoder().decode(T.Response.self, from: data)
             else {

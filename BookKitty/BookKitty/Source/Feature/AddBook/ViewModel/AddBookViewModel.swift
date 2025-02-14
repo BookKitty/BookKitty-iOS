@@ -54,13 +54,13 @@ final class AddBookViewModel: ViewModelType {
                 guard let self else {
                     return .empty()
                 }
-                
+
                 return Observable.create { observer in
                     let bookMatchKit = BookMatchKit(
                         naverClientId: Environment().naverClientID,
                         naverClientSecret: Environment().naverClientSecret
                     )
-                    
+
                     Task {
                         do {
                             let book = try await bookMatchKit.matchBook(image)
@@ -77,7 +77,7 @@ final class AddBookViewModel: ViewModelType {
                                 price: book.discount ?? "",
                                 pubDate: book.pubdate ?? ""
                             )
-                            
+
                             observer.onNext(finalBook)
                             observer.onCompleted()
                         } catch {
@@ -85,7 +85,7 @@ final class AddBookViewModel: ViewModelType {
                             return
                         }
                     }
-                    
+
                     return Disposables.create()
                 }
             }
