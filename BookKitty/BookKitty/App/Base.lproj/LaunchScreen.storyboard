@@ -17,18 +17,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="책냥이 Book Kitty" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4fL-PV-Jh3">
-                                <rect key="frame" x="133" y="415.66666666666669" width="127" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchImage" translatesAutoresizingMaskIntoConstraints="NO" id="h7d-RK-NeM">
+                                <rect key="frame" x="140" y="306" width="113" height="240"/>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="4fL-PV-Jh3" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="Ajg-zM-swC"/>
-                            <constraint firstItem="4fL-PV-Jh3" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="qi6-zn-Q5y"/>
+                            <constraint firstItem="h7d-RK-NeM" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="cZn-R2-eGg"/>
+                            <constraint firstItem="h7d-RK-NeM" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="dwF-5a-MBd"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -38,6 +35,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="launchImage" width="113" height="240"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
