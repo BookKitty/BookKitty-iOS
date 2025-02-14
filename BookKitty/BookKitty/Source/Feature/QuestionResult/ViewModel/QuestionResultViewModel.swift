@@ -27,7 +27,7 @@ final class QuestionResultViewModel: ViewModelType {
         let recommendedBooks: Driver<[SectionOfBook]> // 추천된 책 목록
         let recommendationReason: Driver<String> // 추천 이유
         let requestFinished: PublishRelay<Void> // 요청 완료 (로딩 해제)
-        let error: Observable<Error> // 에러 처리
+        let error: Observable<AlertPresentableError> // 에러 처리
     }
 
     // MARK: - Properties
@@ -51,7 +51,7 @@ final class QuestionResultViewModel: ViewModelType {
     private let recommendedBooksRelay = BehaviorRelay<[SectionOfBook]>(value: [])
     private let recommendationReasonRelay = BehaviorRelay<String>(value: "")
     private let requestFinishedRelay = PublishRelay<Void>()
-    private let errorRelay = PublishRelay<Error>()
+    private let errorRelay = PublishRelay<AlertPresentableError>()
 
     // MARK: - Lifecycle
 
@@ -151,6 +151,17 @@ final class QuestionResultViewModel: ViewModelType {
                         )
                         .subscribe(onSuccess: { result in
                             observer.onNext((owner.userQuestion, result))
+                        }, onFailure: { error in
+                            guard let error = error as? BookMatchError else {
+                                return
+                            }
+
+                            switch error {
+                            case .networkError:
+                                owner.errorRelay.accept(NetworkError.networkUnstable)
+                            default:
+                                owner.errorRelay.accept(AddBookError.unknown)
+                            }
                         }) // 결과 방출
                     }
                     return Disposables.create {

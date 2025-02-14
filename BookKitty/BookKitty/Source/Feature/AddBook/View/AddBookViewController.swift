@@ -162,7 +162,7 @@ final class AddBookViewController: BaseViewController {
             .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, error in
                 owner.hideLoadingImage()
-                ErrorAlertController(presentableError: error).present(from: self)
+                ErrorAlertController(presentableError: error).present(from: owner)
             })
             .disposed(by: disposeBag)
 
