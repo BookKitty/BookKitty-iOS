@@ -1,8 +1,8 @@
 //
 //  NetworkEventLogger.swift
-//  Network
+//  NetworkKit
 //
-//  Created by 권승용 on 1/28/25.
+//  Created by 권승용 on 2/14/25.
 //
 
 import Foundation
@@ -29,16 +29,9 @@ enum NetworkEventLogger {
     static func requestDidFinish(_ request: URLRequest) {
         logger.debug(
             """
-            \n
-            -------------------------------------------------------
-                            🤙 Called Request Log
-            -------------------------------------------------------
-            \(request.description)
-            URL: \(request.url?.absoluteString ?? "")
-            Method: \(request.httpMethod ?? "")
-            Headers: \(request.allHTTPHeaderFields ?? [:])
             ------------------------------------------------------- 
-            Body: \(request.httpBody?.toPrettyString() ?? "{ \n }") 
+            🤙 API 호출 완료 / URL: \(request.url?.absoluteString ?? "")
+            ------------------------------------------------------- 
             """
         )
     }
@@ -50,12 +43,11 @@ enum NetworkEventLogger {
     static func responseDidFinish(_ data: Data?, _ response: HTTPURLResponse) {
         logger.debug(
             """
-            \n
             -------------------------------------------------------
-                           🛰️ Received Response Log
+            🛰️ API 응답 완료 / StatusCode: \(response.statusCode)
             -------------------------------------------------------
-            StatusCode: \(response.statusCode)
             Body: \(data?.toPrettyString() ?? "Empty")
+            -------------------------------------------------------
             """
         )
     }

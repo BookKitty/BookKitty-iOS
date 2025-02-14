@@ -46,7 +46,6 @@ public class VisionImageStrategy: SimilarityCalculatable {
 
                 single(.success(Double(similarity)))
             } catch {
-                print("유사도 연산 실패, \(error)")
                 single(.success(Double(-1.0)))
             }
 
@@ -72,11 +71,9 @@ public class VisionImageStrategy: SimilarityCalculatable {
         do {
             try requestHandler.perform([request])
         } catch {
-            print("VNImageRequestHandler failed: \(error)")
             throw error
         }
         guard let featurePrint = request.results?.first as? VNFeaturePrintObservation else {
-            print("Results: \(String(describing: request.results))")
             throw BookMatchError.imageCalculationFailed("FeaturePrint 생성 실패 1")
         }
 
