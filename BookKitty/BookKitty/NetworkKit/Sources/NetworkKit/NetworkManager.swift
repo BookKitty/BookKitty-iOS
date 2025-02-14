@@ -75,11 +75,13 @@ extension NetworkManager {
             return nil
         }
 
+        NetworkEventLogger.requestDidFinish(request)
+
         return request
     }
 
     private func typeCastResponse<T: Endpoint>(
-        data _: Data?,
+        data: Data?,
         response: URLResponse?,
         observer: (Result<T.Response?, any Error>) -> Void,
         _: T.Type
@@ -87,6 +89,10 @@ extension NetworkManager {
         guard let response = response as? HTTPURLResponse else {
             observer(.failure(NetworkError.responseTypeCastingFailed))
             return nil
+        }
+
+        if !(200 ... 299).contains(response.statusCode) {
+            NetworkEventLogger.responseDidFinish(data, response)
         }
 
         return response
