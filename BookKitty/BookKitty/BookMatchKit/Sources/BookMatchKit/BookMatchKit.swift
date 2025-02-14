@@ -62,7 +62,6 @@ public final class BookMatchKit: BookMatchable {
             let similarity = try await imageStrategy.calculateSimilarity(image, bookImage).value
 
             similarityResults.append((book, similarity))
-//            similarityResults.append((book, 0.0))
         }
 
         let sortedResults = similarityResults.sorted { $0.1 > $1.1 }
@@ -132,7 +131,6 @@ public final class BookMatchKit: BookMatchable {
         }
     }
 
-    /// 감지된 바운딩 박스를 확장하여 OCR 정확도를 높임
     /// 감지된 바운딩 박스를 확장하여 OCR 정확도를 높임
     private func expandBoundingBox(_ boundingBox: CGRect, factor: CGFloat) -> CGRect {
         let x = boundingBox.origin.x - (boundingBox.width * (factor - 1)) / 2
@@ -295,8 +293,16 @@ public final class BookMatchKit: BookMatchable {
                 return
             }
 
-            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
-            print("✅ OCR 인식된 텍스트: \(recognizedText)")
+            // 텍스트 크기 순서대로 정렬
+            let sortedObservations = observations.sorted { obs1, obs2 in
+                let size1 = obs1.boundingBox.width * obs1.boundingBox.height
+                let size2 = obs2.boundingBox.width * obs2.boundingBox.height
+                return size1 > size2 // 크기가 큰 순서대로 정렬
+            }
+
+            // 정렬된 텍스트 추출
+            let recognizedText = sortedObservations.compactMap { $0.topCandidates(1).first?.string }
+            print("✅ OCR 인식된 텍스트 (크기 순서대로): \(recognizedText)")
             completion(recognizedText)
         }
 
