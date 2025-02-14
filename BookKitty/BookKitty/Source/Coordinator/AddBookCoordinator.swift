@@ -32,9 +32,14 @@ final class AddBookCoordinator: Coordinator {
         self.navigationController = navigationController
 
         let repository = LocalBookRepository()
+        let bookMatchKit = BookMatchKit(
+            naverClientId: Environment().naverClientID,
+            naverClientSecret: Environment().naverClientSecret
+        )
 
         addBookViewModel = AddBookViewModel(
-            bookRepository: repository
+            bookRepository: repository,
+            bookMatchKit: bookMatchKit
         )
         addBookViewController = AddBookViewController(
             viewModel: addBookViewModel

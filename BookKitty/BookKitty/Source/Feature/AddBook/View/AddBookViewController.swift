@@ -69,8 +69,6 @@ final class AddBookViewController: BaseViewController {
                 self.showPermissionAlert()
             }
         }
-
-        bindUI()
     }
 
     override func viewDidLayoutSubviews() {
@@ -96,21 +94,19 @@ final class AddBookViewController: BaseViewController {
     // MARK: - UI Setup
 
     override func configureHierarchy() {
-        super.configureHierarchy()
-        view.backgroundColor = .white
+        [
+            navigationBar,
+            titleLabel,
+            cameraContainerView,
+            yellowInfoView,
+            captureButton,
+        ].forEach { view.addSubview($0) }
 
-        view.addSubview(navigationBar)
-        view.addSubview(titleLabel)
-        view.addSubview(cameraContainerView)
         cameraContainerView.addSubview(cameraView)
-        view.addSubview(yellowInfoView)
         yellowInfoView.addSubview(infoLabel)
-        view.addSubview(captureButton)
     }
 
     override func configureLayout() {
-        super.configureLayout()
-
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
             $0.horizontalEdges.equalToSuperview()
@@ -163,10 +159,13 @@ final class AddBookViewController: BaseViewController {
         let output = viewModel.transform(input)
 
         output.error
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { error in
-                print("⚠️ Error: \(error.localizedDescription)")
+                ErrorAlertController(presentableError: error).present(from: self)
             })
             .disposed(by: disposeBag)
+
+        bindUI()
     }
 
     // MARK: - Functions
