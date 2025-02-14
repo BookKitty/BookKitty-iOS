@@ -31,12 +31,8 @@ final class AddBookViewController: BaseViewController {
         $0.clipsToBounds = true
     }
 
-    private let yellowInfoView = UIView().then {
-        $0.backgroundColor = Colors.brandSub3
-    }
-
     private let infoLabel = BodyLabel().then {
-        $0.text = "책의 정보를 파악할 수 있는 책 한권의 겉면 혹은 여러 권의 책이 꽂혀 있는 책장의 사진을 찍어주세요."
+        $0.text = "책의 정보를 파악할 수 있는 겉면 사진을 찍어주세요."
         $0.textAlignment = .center
     }
 
@@ -102,13 +98,12 @@ final class AddBookViewController: BaseViewController {
             navigationBar,
             titleLabel,
             cameraContainerView,
-            yellowInfoView,
+            infoLabel,
             captureButton,
             loadingCircle,
         ].forEach { view.addSubview($0) }
 
         cameraContainerView.addSubview(cameraView)
-        yellowInfoView.addSubview(infoLabel)
     }
 
     override func configureLayout() {
@@ -133,26 +128,21 @@ final class AddBookViewController: BaseViewController {
             $0.edges.equalToSuperview()
         }
 
-        yellowInfoView.snp.makeConstraints {
+        infoLabel.snp.makeConstraints {
             $0.top.equalTo(cameraContainerView.snp.bottom)
             $0.centerX.equalToSuperview()
             $0.width.equalTo(402)
             $0.height.equalTo(85)
         }
 
-        infoLabel.snp.makeConstraints {
-            $0.center.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(Vars.paddingReg)
-        }
-
         captureButton.snp.makeConstraints {
-            $0.top.equalTo(yellowInfoView.snp.bottom).offset(Vars.spacing32)
+            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(Vars.viewSizeLarge)
         }
 
         loadingCircle.snp.makeConstraints {
-            $0.top.equalTo(yellowInfoView.snp.bottom).offset(Vars.spacing32)
+            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
             $0.centerX.equalToSuperview()
         }
     }
