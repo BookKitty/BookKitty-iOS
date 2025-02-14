@@ -136,6 +136,7 @@ final class NewQuestionViewController: BaseViewController {
 
     private func setupTabGesture() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
     }
@@ -209,6 +210,12 @@ extension NewQuestionViewController {
         submitButton.toggleRadius()
 
         UIView.animate(withDuration: duration) { self.view.layoutIfNeeded() }
+    }
+}
+
+extension NewQuestionViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        !(touch.view is UIButton)
     }
 }
 

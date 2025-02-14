@@ -8,7 +8,6 @@ struct ImageDownloadEndpoint: Endpoint {
 
     // MARK: - Properties
 
-
     var method = HTTPMethod.get
 
     // MARK: - Private
@@ -19,9 +18,9 @@ struct ImageDownloadEndpoint: Endpoint {
 
     // MARK: Endpoint Protocol
 
-    /// Cannot use instance member 'urlString' within property initializer; property initializers
-    /// run before 'self' is available
-    
+    // Cannot use instance member 'urlString' within property initializer; property initializers
+    // run before 'self' is available
+
     var baseURL: String {
         // URL에서 scheme과 host만 추출
         guard let url = URL(string: urlString),
@@ -31,9 +30,11 @@ struct ImageDownloadEndpoint: Endpoint {
         }
         return "\(scheme)://\(host)"
     }
-       
+
     var path: String {
-        guard let url = URL(string: urlString) else { return "" }
+        guard let url = URL(string: urlString) else {
+            return ""
+        }
         var pathWithQuery = url.path
         if let query = url.query {
             pathWithQuery += "?\(query)"
