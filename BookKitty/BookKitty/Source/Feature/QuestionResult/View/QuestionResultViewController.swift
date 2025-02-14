@@ -214,8 +214,8 @@ final class QuestionResultViewController: BaseViewController {
 
         output.error
             .withUnretained(self)
-            .subscribe(onNext: { error in
-                print("Error occurred : \(error)")
+            .subscribe(onNext: { owner, error in
+                ErrorAlertController(presentableError: error).present(from: owner)
             })
             .disposed(by: disposeBag)
 
