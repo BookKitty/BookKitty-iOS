@@ -8,7 +8,6 @@ struct ImageDownloadEndpoint: Endpoint {
 
     // MARK: - Properties
 
-    var path = ""
 
     var method = HTTPMethod.get
 
@@ -22,8 +21,24 @@ struct ImageDownloadEndpoint: Endpoint {
 
     /// Cannot use instance member 'urlString' within property initializer; property initializers
     /// run before 'self' is available
+    
     var baseURL: String {
-        urlString
+        // URL에서 scheme과 host만 추출
+        guard let url = URL(string: urlString),
+              let scheme = url.scheme,
+              let host = url.host else {
+            return urlString
+        }
+        return "\(scheme)://\(host)"
+    }
+       
+    var path: String {
+        guard let url = URL(string: urlString) else { return "" }
+        var pathWithQuery = url.path
+        if let query = url.query {
+            pathWithQuery += "?\(query)"
+        }
+        return pathWithQuery
     }
 
     var headerFields: [String: String] { [:] }
