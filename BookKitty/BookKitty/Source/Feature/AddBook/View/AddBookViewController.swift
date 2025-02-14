@@ -40,6 +40,10 @@ final class AddBookViewController: BaseViewController {
         $0.textAlignment = .center
     }
 
+    private let loadingCircle = LoadingCircleView(frame: .zero).then {
+        $0.isHidden = true
+    }
+
     private var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
 
     // MARK: - Lifecycle
@@ -100,6 +104,7 @@ final class AddBookViewController: BaseViewController {
             cameraContainerView,
             yellowInfoView,
             captureButton,
+            loadingCircle,
         ].forEach { view.addSubview($0) }
 
         cameraContainerView.addSubview(cameraView)
@@ -145,6 +150,11 @@ final class AddBookViewController: BaseViewController {
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(Vars.viewSizeLarge)
         }
+
+        loadingCircle.snp.makeConstraints {
+            $0.top.equalTo(yellowInfoView.snp.bottom).offset(Vars.spacing32)
+            $0.centerX.equalToSuperview()
+        }
     }
 
     // MARK: - ViewModel Binding
@@ -160,7 +170,8 @@ final class AddBookViewController: BaseViewController {
 
         output.error
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { error in
+            .subscribe(with: self, onNext: { owner, error in
+                owner.hideLoadingImage()
                 ErrorAlertController(presentableError: error).present(from: self)
             })
             .disposed(by: disposeBag)
@@ -173,7 +184,7 @@ final class AddBookViewController: BaseViewController {
     private func bindUI() {
         captureButton.rx.tap
             .bind { [weak self] in
-                print("촬영 버튼 눌림")
+                self?.showLoadingImage()
                 self?.capturePhoto()
             }
             .disposed(by: disposeBag)
@@ -187,6 +198,18 @@ final class AddBookViewController: BaseViewController {
                 self.showPermissionAlert()
             }
         }
+    }
+
+    private func showLoadingImage() {
+        captureButton.isHidden = true
+        loadingCircle.isHidden = false
+        loadingCircle.play()
+    }
+
+    private func hideLoadingImage() {
+        loadingCircle.isHidden = true
+        captureButton.isHidden = false
+        loadingCircle.stop()
     }
 }
 
