@@ -132,8 +132,8 @@ final class QuestionResultViewModel: ViewModelType {
         viewDidLoad
             .withUnretained(self)
             .flatMapLatest { owner, _ in
-                // 코어데이터에서 사용자가 소유한 책 가져오기 (예제 데이터)
-                let ownedBooks = owner.bookRepository.fetchBookList(offset: 0, limit: 15).map {
+                // 코어데이터에서 사용자가 소유한 전체 책 가져오기
+                let ownedBooks = owner.bookRepository.fetchBookList(offset: 0, limit: 0).map {
                     OwnedBook(
                         id: $0.isbn,
                         title: $0.title,
@@ -182,6 +182,7 @@ final class QuestionResultViewModel: ViewModelType {
                 author: $0.author,
                 publisher: $0.publisher,
                 thumbnailUrl: URL(string: $0.image),
+                isOwned: false,
                 description: $0.description,
                 price: $0.discount ?? "",
                 pubDate: $0.pubdate ?? ""

@@ -40,7 +40,7 @@ struct Book: IdentifiableType, Hashable {
         author: String,
         publisher: String,
         thumbnailUrl: URL?,
-        isOwned: Bool = false,
+        isOwned: Bool,
         bookInfoLink: String = "",
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
