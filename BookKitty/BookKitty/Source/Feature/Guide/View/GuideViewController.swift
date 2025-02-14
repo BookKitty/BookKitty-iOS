@@ -13,10 +13,12 @@ import UIKit
 final class GuideViewController: BaseViewController {
     // MARK: - Properties
 
+    // MARK: - Private
+
     /// 가이드 화면의 비즈니스 로직을 처리하는 뷰모델
     private let viewModel: GuideViewModel
 
-    // MARK: - Initialization
+    // MARK: - Lifecycle
 
     /// GuideViewModel을 주입받아 뷰컨트롤러를 초기화합니다.
     /// - Parameter viewModel: 가이드 화면의 비즈니스 로직을 처리할 뷰모델
@@ -30,6 +32,10 @@ final class GuideViewController: BaseViewController {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    // MARK: - Overridden Functions
+
+    // MARK: - Internal
 
     // MARK: - View Configuration
 

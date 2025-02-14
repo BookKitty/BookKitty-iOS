@@ -15,13 +15,9 @@ import RxSwift
 /// 2. Input을 Output으로 변환하는 방법
 /// 3. 에러 처리 방법
 final class GuideViewModel: ViewModelType {
-    private let addBookService: AddBookServiceable
-    private let bookRepository: DefaultBookRepository
+    // MARK: - Nested Types
 
-    init(addBookService: AddBookServiceable, bookRepository: DefaultBookRepository) {
-        self.addBookService = addBookService
-        self.bookRepository = bookRepository
-    }
+    // MARK: - Internal
 
     /// Input 구조체는 View로부터 ViewModel이 받을 수 있는 모든 입력을 정의합니다
     struct Input {
@@ -37,8 +33,24 @@ final class GuideViewModel: ViewModelType {
         var guideErrorOutput: PublishRelay<Error>
     }
 
+    // MARK: - Properties
+
     /// 구독을 관리하기 위한 DisposeBag
     let disposeBag = DisposeBag()
+
+    // MARK: - Private
+
+    private let addBookService: AddBookServiceable
+    private let bookRepository: BookRepository
+
+    // MARK: - Lifecycle
+
+    init(addBookService: AddBookServiceable, bookRepository: BookRepository) {
+        self.addBookService = addBookService
+        self.bookRepository = bookRepository
+    }
+
+    // MARK: - Functions
 
     /// 입력 이벤트를 출력 이벤트로 변환합니다
     /// - Parameter input: 모든 가능한 입력을 포함하는 Input 구조체

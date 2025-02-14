@@ -1,0 +1,29 @@
+# 비활성화 규칙
+disabled_rules:
+    - file_length                 # 파일 길이 제한 비활성화
+    - trailing_whitespace         # 줄 끝 공백 무시
+    - implicit_return             # return 사용 무시
+    - trailing_comma              # 마지막 콤마 있어도 됨
+    - explicit_enum_raw_value     # 열거형 원시값 명시적으로 안 넣어줘도 됨
+    - missing_docs                # public 또는 open 접근 제어자에 문서화 주석없어도 됨
+
+# 활성화할 옵트인 규칙
+opt_in_rules:
+    - explicit_enum_raw_value       # 열거형 원시 값 명시
+    - missing_docs                  # 문서 주석 필수
+    - force_unwrapping              # 강제 언래핑 방지
+
+# 네이밍 규칙
+identifier_name:
+    min_length: 3                   # 최소 3글자
+    max_length: 40                  # 최대 40글자
+    excluded:
+        - id
+        - x
+        - y
+        - i
+        - j
+        - m
+        - n
+        - k
+        - h

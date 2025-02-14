@@ -4,6 +4,18 @@
 
 ## User settings
 xcuserdata/
+xcuserdata/**/*
+project.xcworkspace/
+*.xcconfig
+
+.env
+.Trashes
+
+*.swp
+*.lock
+*~.nib
+
+*.xccheckout
 
 ## Obj-C/Swift specific
 *.hmap
@@ -30,6 +42,7 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+BookKitty/BuildTools/.swiftpm
 
 # CocoaPods
 #

@@ -11,14 +11,24 @@ import Foundation
 /// 이 클래스는 `AddBookServiceable` 프로토콜을 구현하며
 /// 시스템에 새로운 책을 추가하는 비즈니스 로직을 처리합니다.
 final class AddBookService: AddBookServiceable {
+    // MARK: - Properties
+
+    // MARK: - Private
+
     /// 책 관련 데이터 작업을 처리하는 저장소입니다.
     private let bookRepository: BookRepository
+
+    // MARK: - Lifecycle
 
     /// AddBookService의 새 인스턴스를 초기화합니다.
     /// - Parameter bookRepository: 책 데이터 작업을 처리할 저장소입니다.
     init(bookRepository: BookRepository) {
         self.bookRepository = bookRepository
     }
+
+    // MARK: - Functions
+
+    // MARK: - Internal
 
     /// 시스템에 새로운 책을 추가합니다.
     /// - Note: 이 메서드는 현재 비어있으며 구현이 필요합니다.

@@ -1,0 +1,42 @@
+# 기본 룰 아래 링크 참고
+# https://github.com/nicklockwood/SwiftFormat/blob/main/Rules.md#conditionalAssignment
+
+# format options
+--allman false
+--indent 4
+
+# file options
+--swiftversion 5.9 # this is used to specify the swift version so that the rules behave acordingly for that version of swift
+
+# rules
+--enable blankLinesBetweenImports
+--enable blockComments
+--enable docComments
+--enable isEmpty
+--enable opaqueGenericParameters
+--enable organizeDeclarations
+--enable propertyTypes
+--enable redundantProperty
+--enable wrapConditionalBodies
+--enable wrapEnumCases
+--enable wrapMultilineConditionalAssignment
+--enable wrapSwitchCases
+
+--disable conditionalAssignment
+--disable redundantRawValues
+--disable wrapMultilineStatementBraces
+
+# options
+--extensionacl on-declarations
+--propertytypes inferred
+--inferredtypes always
+--maxwidth 100
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--funcattributes prev-line
+--typeattributes prev-line
+--categorymark "MARK: - %c"
+--lifecycle viewDidLoad,viewWillAppear,viewIsAppearing,viewDidAppear,viewWillDisappear,viewDidDisappear,prepareForReuse,viewWillLayoutSubviews,viewDidLayoutSubviews,layoutSubviews,draw
+--organizationmode type
+
