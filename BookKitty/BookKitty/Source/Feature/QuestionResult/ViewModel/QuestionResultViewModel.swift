@@ -182,6 +182,7 @@ final class QuestionResultViewModel: ViewModelType {
                 author: $0.author,
                 publisher: $0.publisher,
                 thumbnailUrl: URL(string: $0.image),
+                isOwned: false,
                 description: $0.description,
                 price: $0.discount ?? "",
                 pubDate: $0.pubdate ?? ""

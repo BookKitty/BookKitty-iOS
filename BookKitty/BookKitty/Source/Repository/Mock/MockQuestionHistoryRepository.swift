@@ -34,7 +34,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "문학동네",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3245596/32455964233.20230822103854.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9788981171353",
@@ -43,7 +44,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "사람과책",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3245593/32455931661.20220527022757.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
                 Book(
                     isbn: "9791196914806",
@@ -52,7 +54,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "엘리",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3248052/32480522779.20231230070743.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
             ]
         ),
@@ -68,7 +71,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "문학동네",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3245596/32455964233.20230822103854.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9788950963262",
@@ -77,7 +81,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "아르테(arte)",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
             ]
         ),
@@ -93,7 +98,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "알에이치코리아",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3250617/32506170687.20230425164240.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9791196914806",
@@ -102,7 +108,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "엘리",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3248052/32480522779.20231230070743.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9788960776654",
@@ -111,7 +118,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "에이콘출판",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3244556/32445566826.20230711113711.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
                 Book(
                     isbn: "9788947529877",
@@ -120,7 +128,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "한국경제신문",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249205/32492052879.20220520205540.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
                 Book(
                     isbn: "9788996421221",
@@ -129,7 +138,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "파이카",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249273/32492733482.20220527030018.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
                 Book(
                     isbn: "9788966260577",
@@ -138,7 +148,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "인사이트",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3243612/32436122059.20230912084228.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
             ]
         ),
@@ -154,7 +165,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "한국경제신문",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249205/32492052879.20220520205540.jpg"
-                    )
+                    ),
+                    isOwned: true
                 ),
                 Book(
                     isbn: "9788996421221",
@@ -163,7 +175,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "파이카",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3249273/32492733482.20220527030018.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
                 Book(
                     isbn: "9788966260577",
@@ -172,7 +185,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
                     publisher: "인사이트",
                     thumbnailUrl: URL(
                         string: "https://shopping-phinf.pstatic.net/main_3243612/32436122059.20230912084228.jpg"
-                    )
+                    ),
+                    isOwned: false
                 ),
             ]
         ),
