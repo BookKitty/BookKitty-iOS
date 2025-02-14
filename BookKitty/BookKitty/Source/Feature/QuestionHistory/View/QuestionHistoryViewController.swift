@@ -74,6 +74,20 @@ final class QuestionHistoryViewController: BaseViewController {
                 cell.configure(with: item)
             }
             .disposed(by: disposeBag)
+
+        output.questions
+            .skip(1) // VM에 위치한 기본 빈 배열 무시
+            .filter(\.isEmpty)
+            .map { _ in
+                let containerView = UIView()
+                let emptyView = EmptyDataDescriptionView(with: .question)
+
+                containerView.addSubview(emptyView)
+                emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
+
+                return containerView
+            }.drive(questionTableView.rx.backgroundView)
+            .disposed(by: disposeBag)
     }
 
     override func configureHierarchy() {
