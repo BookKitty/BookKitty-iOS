@@ -29,18 +29,11 @@ class HomeViewController: BaseViewController {
 
     private let viewModel: HomeViewModel
 
-    private let copyrightLabel = CaptionLabel().then {
-        $0.text = "Developed by 권승용, 김형석, 반성준, 임성수, 전성규"
-        $0.textColor = Colors.fontSub1
-        $0.textAlignment = .center
-    }
-
     private lazy var recommendedBooksCollectionView: UICollectionView = {
         let collectionView = UICollectionView(
             frame: .zero,
             collectionViewLayout: makeCollectionViewLayout()
         )
-        collectionView.backgroundColor = Colors.brandSub2
         collectionView.register(
             RecommendedBookCell.self,
             forCellWithReuseIdentifier: RecommendedBookCell.reuseIdentifier
@@ -92,7 +85,6 @@ class HomeViewController: BaseViewController {
             lottieViewWithBooks,
             lottieViewWithoutBooks,
             recommendedBooksCollectionView,
-            copyrightLabel,
         ].forEach { contentView.addSubview($0) }
     }
 
@@ -122,12 +114,7 @@ class HomeViewController: BaseViewController {
             make.top.equalTo(lottieViewWithBooks.snp.bottom)
             make.horizontalEdges.equalToSuperview()
             make.height.greaterThanOrEqualTo(448)
-        }
-
-        copyrightLabel.snp.makeConstraints { make in
-            make.top.equalTo(recommendedBooksCollectionView.snp.bottom).offset(Vars.spacing72)
             make.bottom.equalToSuperview().inset(Vars.spacing72)
-            make.horizontalEdges.equalToSuperview().inset(Vars.paddingLarge)
         }
     }
 
@@ -141,13 +128,22 @@ class HomeViewController: BaseViewController {
 
         output.recommendedBooks
             .do(onNext: { [weak self] sections in
+                guard let self else {
+                    return
+                }
                 guard !sections.isEmpty else {
                     return
                 }
                 if sections[0].items.isEmpty {
-                    self?.showLottieViewWithoutBooks()
+                    showLottieViewWithoutBooks()
+                    recommendedBooksCollectionView.snp.updateConstraints { make in
+                        make.height.greaterThanOrEqualTo(0)
+                    }
                 } else {
-                    self?.showLottieViewWithBooks()
+                    showLottieViewWithBooks()
+                    recommendedBooksCollectionView.snp.updateConstraints { make in
+                        make.height.greaterThanOrEqualTo(448)
+                    }
                 }
             })
             .drive(recommendedBooksCollectionView.rx.items(dataSource: dataSource))
