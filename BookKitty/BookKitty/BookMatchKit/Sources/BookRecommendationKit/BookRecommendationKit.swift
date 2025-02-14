@@ -5,6 +5,7 @@ import CoreFoundation
 import RxSwift
 import UIKit
 
+@_exported import enum BookMatchCore.BookMatchError
 @_exported import struct BookMatchCore.OwnedBook
 
 /// 도서 매칭 및 추천 기능의 핵심 모듈입니다.
