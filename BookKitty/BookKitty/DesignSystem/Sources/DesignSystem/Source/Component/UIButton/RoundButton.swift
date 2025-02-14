@@ -58,8 +58,11 @@ extension RoundButton {
         config.titleAlignment = .center
         config.background.cornerRadius = Vars.radiusMini
 
+        let buttonColor: UIColor = isSecondary ? Colors.brandSub2 : Colors.brandSub
+
         config.baseForegroundColor = Colors.fontWhite
-        config.baseBackgroundColor = isSecondary ? Colors.brandSub2 : Colors.brandSub
+        config.baseBackgroundColor = buttonColor
+
         config.contentInsets = NSDirectionalEdgeInsets(
             top: Vars.spacing4,
             leading: Vars.paddingSmall,
@@ -67,7 +70,19 @@ extension RoundButton {
             trailing: Vars.paddingSmall
         )
 
+        configurationUpdateHandler = { _ in
+            switch self.state {
+            case .normal:
+                config.baseBackgroundColor = buttonColor
+            case .highlighted:
+                config.baseBackgroundColor = buttonColor.withAlphaComponent(0.8)
+            default:
+                config.baseBackgroundColor = buttonColor
+            }
+        }
+
         configuration = config
+        isUserInteractionEnabled = true
     }
 
     func setupLayouts() {
@@ -84,15 +99,17 @@ extension RoundButton {
     public func changeToDisabled() {
         var disabledConfig = configuration
         disabledConfig?.baseBackgroundColor = Colors.systemGray(.r100)
-        isEnabled = false
         configuration = disabledConfig
+
+        isUserInteractionEnabled = false
     }
 
     public func changeToEnabled() {
         var enabledConfig = configuration
         enabledConfig?.baseBackgroundColor = Colors.brandSub
-        isEnabled = true
         configuration = enabledConfig
+
+        isUserInteractionEnabled = true
     }
 
     public func toggleRadius() {

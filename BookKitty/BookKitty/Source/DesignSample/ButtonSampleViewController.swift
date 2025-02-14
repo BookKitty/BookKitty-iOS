@@ -62,7 +62,13 @@ extension ButtonSampleViewController {
         ].forEach { view.addSubview($0) }
     }
 
-    private func setupProperties() {}
+    private func setupProperties() {
+        view.backgroundColor = Colors.statusRed
+        confirmButton.applyButtonAction(action: {
+            print("tapped!")
+        })
+        disabledButton.applyButtonAction(action: { print("tapped!") })
+    }
 
     private func setupLayouts() {
         confirmButton.snp.makeConstraints { make in
