@@ -86,17 +86,20 @@ final class MyLibraryViewController: BaseViewController {
 
         output.bookList
             .skip(1) // VM에 위치한 bookList(BehaviorRelay) 기본 빈 배열 무시
-            .filter { sectionModelList -> Bool in
-                sectionModelList[0].items.isEmpty // items가 비어있을 때 필터링
-            }.map { _ in
-                let containerView = UIView()
-                let emptyView = EmptyDataDescriptionView(with: .book)
+            .map { sectionModelList -> UIView? in
+                if sectionModelList[0].items.isEmpty {
+                    let containerView = UIView()
+                    let emptyView = EmptyDataDescriptionView(with: .book)
 
-                containerView.addSubview(emptyView)
-                emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
+                    containerView.addSubview(emptyView)
+                    emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
 
-                return containerView
-            }.drive(myLibraryCollectionView.rx.backgroundView)
+                    return containerView
+                } else {
+                    return nil // 아이템이 존재하면 backgroundView를 제거
+                }
+            }
+            .drive(myLibraryCollectionView.rx.backgroundView)
             .disposed(by: disposeBag)
 
         myLibraryCollectionView.rx.itemSelected

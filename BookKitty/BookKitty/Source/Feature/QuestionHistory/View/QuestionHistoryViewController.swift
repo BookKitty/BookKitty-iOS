@@ -77,15 +77,18 @@ final class QuestionHistoryViewController: BaseViewController {
 
         output.questions
             .skip(1) // VM에 위치한 기본 빈 배열 무시
-            .filter(\.isEmpty)
-            .map { _ in
-                let containerView = UIView()
-                let emptyView = EmptyDataDescriptionView(with: .question)
+            .map { questions -> UIView? in
+                if questions.isEmpty {
+                    let containerView = UIView()
+                    let emptyView = EmptyDataDescriptionView(with: .question)
 
-                containerView.addSubview(emptyView)
-                emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
+                    containerView.addSubview(emptyView)
+                    emptyView.snp.makeConstraints { $0.center.equalToSuperview() }
 
-                return containerView
+                    return containerView
+                } else {
+                    return nil // 질문 목록이 있으면 배경 제거
+                }
             }.drive(questionTableView.rx.backgroundView)
             .disposed(by: disposeBag)
     }
