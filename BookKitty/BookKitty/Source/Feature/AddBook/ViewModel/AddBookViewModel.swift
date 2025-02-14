@@ -41,7 +41,6 @@ final class AddBookViewModel: ViewModelType {
 
     // MARK: - Functions
 
-    @MainActor
     func transform(_ input: Input) -> Output {
         Observable.merge(
             input.leftBarButtonTapTrigger,
@@ -55,35 +54,42 @@ final class AddBookViewModel: ViewModelType {
                 guard let self else {
                     return .empty()
                 }
-
-                let bookMatchKit = BookMatchKit(
-                    naverClientId: Environment().naverClientID,
-                    naverClientSecret: Environment().naverClientSecret
-                )
-
-                return bookMatchKit.matchBook(image: image)
-                    .map { bookItem in
-                        guard let bookItem else {
-                            throw BookMatchError.noMatchFound
+                
+                return Observable.create { observer in
+                    let bookMatchKit = BookMatchKit(
+                        naverClientId: Environment().naverClientID,
+                        naverClientSecret: Environment().naverClientSecret
+                    )
+                    
+                    Task {
+                        do {
+                            let book = try await bookMatchKit.matchBook(image)
+                            guard let book else {
+                                throw BookMatchError.noMatchFound
+                            }
+                            let finalBook = Book(
+                                isbn: book.isbn,
+                                title: book.title,
+                                author: book.author,
+                                publisher: book.publisher,
+                                thumbnailUrl: URL(string: book.image),
+                                description: book.description,
+                                price: book.discount ?? "",
+                                pubDate: book.pubdate ?? ""
+                            )
+                            
+                            observer.onNext(finalBook)
+                            observer.onCompleted()
+                        } catch {
+                            observer.onError(BookMatchError.noMatchFound)
+                            return
                         }
-                        return Book(
-                            isbn: bookItem.isbn,
-                            title: bookItem.title,
-                            author: bookItem.author,
-                            publisher: bookItem.publisher,
-                            thumbnailUrl: URL(string: bookItem.image),
-                            description: bookItem.description,
-                            price: bookItem.discount ?? "",
-                            pubDate: bookItem.pubdate ?? ""
-                        )
                     }
-                    .asObservable()
-                    .catch { error in
-                        self.errorRelay.accept(error)
-                        self.navigateBackRelay.accept(())
-                        return .empty()
-                    }
+                    
+                    return Disposables.create()
+                }
             }
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { [weak self] book in
                 _ = self?.bookRepository.saveBook(book: book)
                 self?.navigateBackRelay.accept(())
