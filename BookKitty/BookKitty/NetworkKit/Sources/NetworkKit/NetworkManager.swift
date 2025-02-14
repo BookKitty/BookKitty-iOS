@@ -91,7 +91,9 @@ extension NetworkManager {
             return nil
         }
 
-        NetworkEventLogger.responseDidFinish(data, response)
+        if !(200 ... 299).contains(response.statusCode) {
+            NetworkEventLogger.responseDidFinish(data, response)
+        }
 
         return response
     }

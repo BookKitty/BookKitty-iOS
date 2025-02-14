@@ -47,26 +47,36 @@ public final class BookMatchKit: BookMatchable {
     /// - Returns: 매칭된 도서 정보 또는 nil
     /// - Throws: 초기 단어부터 검색된 결과가 나오지 않을 때
     public func matchBook(_ image: UIImage) async throws -> BookItem? {
+        BookMatchLogger.matchingStarted()
+
         let textData = try await extractText(from: image)
         let searchResults = try await fetchSearchResults(from: textData)
 
         // 검색 결과가 있는 경우에만 유사도 계산 수행
         guard !searchResults.isEmpty else {
+            BookMatchLogger.errorOccurred(BookMatchError.noMatchFound, context: "Book Search")
             throw BookMatchError.noMatchFound
         }
+
+        BookMatchLogger.searchResultsReceived(count: searchResults.count)
 
         var similarityResults = [(BookItem, Double)]()
 
         for book in searchResults {
-            let bookImage = try await imageDownloadAPI.downloadImage(from: book.image).value
-            let similarity = try await imageStrategy.calculateSimilarity(image, bookImage).value
+            do {
+                let bookImage = try await imageDownloadAPI.downloadImage(from: book.image).value
+                let similarity = try await imageStrategy.calculateSimilarity(image, bookImage).value
 
-            similarityResults.append((book, similarity))
-//            similarityResults.append((book, 0.0))
+                similarityResults.append((book, similarity))
+                BookMatchLogger.similarityCalculated(bookTitle: book.title, score: similarity)
+            } catch {
+                BookMatchLogger.errorOccurred(error, context: "이미지 다운로드 및 유사도 측정")
+            }
         }
 
         let sortedResults = similarityResults.sorted { $0.1 > $1.1 }
 
+        BookMatchLogger.matchingCompleted(success: true, bookTitle: sortedResults[0].0.title)
         return sortedResults[0].0
     }
 
@@ -122,17 +132,14 @@ public final class BookMatchKit: BookMatchable {
     /// - Parameter image: 텍스트를 추출할 이미지
     /// - Returns: 추출된 텍스트 배열
     private func extractText(from image: UIImage) async throws -> [String] {
-        print("📌 extractText 실행됨!")
-
-        return await withCheckedContinuation { continuation in
+        await withCheckedContinuation { continuation in
             detectBookElements(in: image) { extractedTexts in
-                print("📌 detectBookElements 결과: \(extractedTexts)")
+                BookMatchLogger.textExtracted(words: extractedTexts)
                 continuation.resume(returning: extractedTexts)
             }
         }
     }
 
-    /// 감지된 바운딩 박스를 확장하여 OCR 정확도를 높임
     /// 감지된 바운딩 박스를 확장하여 OCR 정확도를 높임
     private func expandBoundingBox(_ boundingBox: CGRect, factor: CGFloat) -> CGRect {
         let x = boundingBox.origin.x - (boundingBox.width * (factor - 1)) / 2
@@ -151,7 +158,6 @@ public final class BookMatchKit: BookMatchable {
     /// 감지된 영역을 크롭하여 OCR 정확도를 높임
     private func cropImage(_ image: UIImage, to boundingBox: CGRect) -> UIImage {
         guard let cgImage = image.cgImage else {
-            print("⚠️ 원본 이미지의 CGImage를 가져올 수 없음, 원본 이미지 반환")
             return image
         }
         let width = CGFloat(cgImage.width)
@@ -165,7 +171,6 @@ public final class BookMatchKit: BookMatchable {
         )
 
         guard let croppedCGImage = cgImage.cropping(to: cropRect) else {
-            print("⚠️ 이미지 크롭 실패, 원본 이미지로 OCR 진행")
             return image
         }
         return UIImage(cgImage: croppedCGImage)
@@ -173,43 +178,33 @@ public final class BookMatchKit: BookMatchable {
 
     /// CoreML을 사용하여 책 제목을 인식 후 OCR 실행
     private func detectBookElements(in image: UIImage, completion: @escaping ([String]) -> Void) {
-        print("📌 detectBookElements 실행됨!")
-
         guard let model = try? VNCoreMLModel(for: MyObjectDetector5_1().model) else {
-            print("⚠️ CoreML 모델 로드 실패, OCR 강제 실행")
             performOCR(on: image, completion: completion)
             return
         }
 
         let request = VNCoreMLRequest(model: model) { request, error in
             if let error {
-                print("⚠️ Vision 요청 실패: \(error.localizedDescription), OCR 강제 실행")
                 self.performOCR(on: image, completion: completion)
                 return
             }
 
             guard let results = request.results as? [VNRecognizedObjectObservation] else {
-                print("⚠️ Vision 결과 없음, OCR 강제 실행")
                 self.performOCR(on: image, completion: completion)
                 return
             }
 
-            // ✅ Confidence Threshold 완화
             let filteredResults = results.filter { $0.confidence > 0.3 } // 신뢰도 30% 이상
             if filteredResults.isEmpty {
-                print("⚠️ 신뢰도 낮음, OCR 강제 실행")
                 self.performOCR(on: image, completion: completion)
                 return
             }
-
-            print("📚 감지된 객체 수 (Threshold 적용): \(filteredResults.count)")
 
             var extractedTexts: [String] = []
             let dispatchGroup = DispatchGroup()
 
             for observation in filteredResults {
                 let detectedLabel = observation.labels.first?.identifier ?? "Unknown"
-                print("🔎 감지된 객체: \(detectedLabel)")
 
                 if detectedLabel == "titles-or-authors" || detectedLabel == "book-title" {
                     dispatchGroup.enter()
@@ -217,11 +212,9 @@ public final class BookMatchKit: BookMatchable {
                     let expandedBox = self.expandBoundingBox(observation.boundingBox, factor: 1.2)
                     let croppedImage = self.cropImage(image, to: expandedBox)
 
-                    // ✅ 원본과 크롭된 이미지 모두 OCR 실행하여 더 좋은 결과 선택
                     self.performOCR(on: croppedImage) { croppedText in
                         self.performOCR(on: image) { originalText in
                             let finalText = croppedText.isEmpty ? originalText : croppedText
-                            print("✅ OCR 실행 완료, 최종 결과: \(finalText)")
                             extractedTexts.append(contentsOf: finalText)
                             dispatchGroup.leave()
                         }
@@ -230,9 +223,7 @@ public final class BookMatchKit: BookMatchable {
             }
 
             dispatchGroup.notify(queue: .main) {
-                print("📑 최종 OCR 텍스트: \(extractedTexts)")
                 if extractedTexts.isEmpty {
-                    print("⚠️ OCR 실패, 원본 이미지로 최종 OCR 실행")
                     self.performOCR(on: image, completion: completion)
                 } else {
                     completion(extractedTexts)
@@ -244,7 +235,6 @@ public final class BookMatchKit: BookMatchable {
             let handler = VNImageRequestHandler(cgImage: image.cgImage!, options: [:])
             try handler.perform([request])
         } catch let error as NSError {
-            print("⚠️ Vision Request Error: \(error.localizedDescription), OCR 강제 실행")
             performOCR(on: image, completion: completion)
         }
     }
@@ -272,31 +262,34 @@ public final class BookMatchKit: BookMatchable {
     }
 
     private func performOCR(on image: UIImage, completion: @escaping ([String]) -> Void) {
-        print("📌 performOCR 실행됨!")
-
         guard let preprocessedImage = convertToGrayscale(image),
               let cgImage = preprocessedImage.cgImage else {
-            print("⚠️ 대비 조정 실패, 원본 이미지 사용")
             completion([])
             return
         }
 
         let request = VNRecognizeTextRequest { request, error in
             if let error {
-                print("⚠️ OCR 오류 발생: \(error.localizedDescription)")
                 completion([])
                 return
             }
 
             guard let observations = request.results as? [VNRecognizedTextObservation],
                   !observations.isEmpty else {
-                print("⚠️ OCR 결과 없음")
                 completion([])
                 return
             }
 
-            let recognizedText = observations.compactMap { $0.topCandidates(1).first?.string }
-            print("✅ OCR 인식된 텍스트: \(recognizedText)")
+            // 텍스트 크기 순서대로 정렬
+            let sortedObservations = observations.sorted { obs1, obs2 in
+                let size1 = obs1.boundingBox.width * obs1.boundingBox.height
+                let size2 = obs2.boundingBox.width * obs2.boundingBox.height
+                return size1 > size2 // 크기가 큰 순서대로 정렬
+            }
+
+            // 정렬된 텍스트 추출
+            let recognizedText = sortedObservations.compactMap { $0.topCandidates(1).first?.string }
+            print("✅ OCR 인식된 텍스트 (크기 순서대로): \(recognizedText)")
             completion(recognizedText)
         }
 
@@ -309,10 +302,8 @@ public final class BookMatchKit: BookMatchable {
             options: [:]
         )
         do {
-            print("📝 OCR 실행 중...")
             try requestHandler.perform([request])
         } catch {
-            print("⚠️ OCR 요청 실패: \(error.localizedDescription)")
             completion([])
         }
     }

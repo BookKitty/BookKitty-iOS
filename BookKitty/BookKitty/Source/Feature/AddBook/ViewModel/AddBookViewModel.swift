@@ -11,14 +11,12 @@ final class AddBookViewModel: ViewModelType {
 
     struct Input {
         let leftBarButtonTapTrigger: Observable<Void>
-
         let cameraPermissionCancelButtonTapTrigger: Observable<Void>
-
         let capturedImage: Observable<UIImage>
     }
 
     struct Output {
-        let error: Observable<Error> // 에러 처리
+        let error: Observable<AlertPresentableError> // 에러 처리
     }
 
     // MARK: - Properties
@@ -29,14 +27,15 @@ final class AddBookViewModel: ViewModelType {
 
     let navigateBackRelay = PublishRelay<Void>()
 
-    private let errorRelay = PublishRelay<Error>()
-
+    private let errorRelay = PublishRelay<AlertPresentableError>()
     private let bookRepository: BookRepository
+    private let bookMatchKit: BookMatchable
 
     // MARK: - Lifecycle
 
-    init(bookRepository: BookRepository) {
+    init(bookRepository: BookRepository, bookMatchKit: BookMatchable) {
         self.bookRepository = bookRepository
+        self.bookMatchKit = bookMatchKit
     }
 
     // MARK: - Functions
@@ -51,21 +50,16 @@ final class AddBookViewModel: ViewModelType {
 
         input.capturedImage
             .flatMapLatest { [weak self] image -> Observable<Book> in
-                guard let self else {
+                guard self != nil else {
                     return .empty()
                 }
 
-                return Observable.create { observer in
-                    let bookMatchKit = BookMatchKit(
-                        naverClientId: Environment().naverClientID,
-                        naverClientSecret: Environment().naverClientSecret
-                    )
-
+                return Observable.create { [weak self] observer in
                     Task {
                         do {
-                            let book = try await bookMatchKit.matchBook(image)
+                            let book = try await self?.bookMatchKit.matchBook(image)
                             guard let book else {
-                                throw BookMatchError.noMatchFound
+                                throw AddBookError.bookNotFound
                             }
                             let finalBook = Book(
                                 isbn: book.isbn,
@@ -73,6 +67,7 @@ final class AddBookViewModel: ViewModelType {
                                 author: book.author,
                                 publisher: book.publisher,
                                 thumbnailUrl: URL(string: book.image),
+                                isOwned: true,
                                 description: book.description,
                                 price: book.discount ?? "",
                                 pubDate: book.pubdate ?? ""
@@ -80,9 +75,13 @@ final class AddBookViewModel: ViewModelType {
 
                             observer.onNext(finalBook)
                             observer.onCompleted()
+                        } catch BookMatchError.networkError {
+                            observer.onError(NetworkError.networkUnstable)
+                        } catch BookMatchError.noMatchFound {
+                            observer.onError(AddBookError.bookNotFound)
                         } catch {
-                            observer.onError(BookMatchError.noMatchFound)
-                            return
+                            BookKittyLogger.error("Error: \(error.localizedDescription)")
+                            observer.onError(AddBookError.unknown)
                         }
                     }
 
@@ -90,9 +89,19 @@ final class AddBookViewModel: ViewModelType {
                 }
             }
             .observe(on: MainScheduler.instance)
-            .subscribe(onNext: { [weak self] book in
-                _ = self?.bookRepository.saveBook(book: book)
-                self?.navigateBackRelay.accept(())
+            .subscribe(with: self, onNext: { owner, book in
+                let isSaved = owner.bookRepository.saveBook(book: book)
+                if isSaved {
+                    owner.navigateBackRelay.accept(())
+                } else {
+                    owner.errorRelay.accept(AddBookError.duplicatedBook)
+                }
+            }, onError: { owner, error in
+                guard let error = error as? AlertPresentableError else {
+                    BookKittyLogger.debug("error is not AlertPresentableError")
+                    return
+                }
+                owner.errorRelay.accept(error)
             })
             .disposed(by: disposeBag)
 

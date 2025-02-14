@@ -55,7 +55,9 @@ public final class BookRecommendationKit: BookRecommendable {
     ///   - ownedBooks: 사용자가 보유한 도서 목록
     /// - Returns: 추천된 도서 목록
     public func recommendBooks(from ownedBooks: [OwnedBook]) -> Single<[BookItem]> {
-        openAiAPI.getBookRecommendation(ownedBooks: ownedBooks)
+        BookMatchLogger.recommendationStarted(question: nil)
+
+        return openAiAPI.getBookRecommendation(ownedBooks: ownedBooks)
             .flatMap { [weak self] result -> Single<[BookItem]> in
                 guard let self else {
                     return .just([])
@@ -82,20 +84,34 @@ public final class BookRecommendationKit: BookRecommendable {
     /// - Throws: BookMatchError.questionShort (질문이 4글자 미만인 경우)
     public func recommendBooks(for question: String, from ownedBooks: [OwnedBook])
         -> Single<BookMatchModuleOutput> {
-        openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
+        BookMatchLogger.recommendationStarted(question: question)
+
+        return openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
+            .do(onSuccess: { result in
+                let resultString = """
+                보유 도서 기반 추천 목록: \(result.ownedBooks.map(\.title))
+                미보유 도서 기반 추천 목록: \(result.newBooks.map(\.title))
+                """
+
+                BookMatchLogger.gptResponseReceived(result: resultString)
+            })
             .flatMap { [weak self] recommendation -> Single<(
                 recommendation: RecommendationForQuestion,
                 books: [BookItem]
             )> in
                 guard let self else {
+                    BookMatchLogger.errorOccurred(
+                        BookMatchError.referenceDeinitError,
+                        context: "추천 절차"
+                    )
+
                     return .error(BookMatchError.referenceDeinitError)
                 }
 
                 var previousBooks = recommendation.newBooks
 
-                // 각 책에 대해 processBook을 실행하고 결과를 수집
                 return Observable.from(recommendation.newBooks)
-                    .concatMap { book -> Observable<BookItem?> in // 순차적 실행
+                    .concatMap { book -> Observable<BookItem?> in
                         self.matchToRealBook(
                             book: book,
                             question: question,
@@ -107,11 +123,16 @@ public final class BookRecommendationKit: BookRecommendable {
                         })
                     }
                     .compactMap { $0 }
-                    .toArray() // Single<[Element]> 로 타입 변환해줌!
+                    .toArray()
                     .map { (recommendation, $0) }
             }
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
+                    BookMatchLogger.errorOccurred(
+                        BookMatchError.referenceDeinitError,
+                        context: "도서 매칭 절차"
+                    )
+
                     return .error(BookMatchError.referenceDeinitError)
                 }
 
@@ -136,19 +157,30 @@ public final class BookRecommendationKit: BookRecommendable {
                     RawBook(title: $0.title, author: $0.author)
                 }
 
+                BookMatchLogger.descriptionStarted()
+
                 return openAiAPI.getDescription(
                     question: question,
                     books: ownedRaws + validNewRaws
                 )
                 .map { description in
-                    BookMatchModuleOutput(
+                    let newBooks = Array(Set(result.books))
+
+                    BookMatchLogger.recommendationCompleted(
+                        ownedCount: filteredOwnedBooks.count,
+                        newCount: newBooks.count
+                    )
+
+                    return BookMatchModuleOutput(
                         ownedISBNs: filteredOwnedBooks,
-                        newBooks: Array(Set(result.books)),
+                        newBooks: newBooks,
                         description: description
                     )
                 }
             }
             .catch { error in
+                BookMatchLogger.errorOccurred(error, context: "도서 추천")
+
                 if let bookMatchError = error as? BookMatchError {
                     switch bookMatchError {
                     case .invalidGPTFormat:
@@ -187,39 +219,47 @@ public final class BookRecommendationKit: BookRecommendable {
         question: String,
         previousBooks: [RawBook]
     ) -> Single<BookItem?> {
+        BookMatchLogger.bookConversionStarted(title: book.title, author: book.author)
+
         var retryCount = 0
         var currentBook = book
         var candidates = [(BookItem, Double)]()
 
         func tryMatch() -> Single<BookItem?> {
-            guard retryCount <= maxRetries else {
+            guard retryCount < maxRetries else {
                 candidates.sort(by: { $0.1 > $1.1 })
                 return .just(candidates.first?.0)
             }
 
-            return convertToRealBook(currentBook) // Single
+            return convertToRealBook(currentBook)
                 .flatMap { [weak self] result -> Single<BookItem?> in
                     guard let self else {
                         return .error(BookMatchError.invalidGPTFormat)
                     }
 
-                    if result.isMatching, let matchedBook = result.book {
-                        return .just(matchedBook)
-                    } else if !result.isMatching, let matchedBook = result.book {
-                        candidates.append((matchedBook, result.similarity))
-                        retryCount += 1
+                    if let matchedBook = result.book {
+                        if result.isMatching {
+                            return .just(matchedBook)
+                        } else {
+                            candidates.append((matchedBook, result.similarity))
+                            retryCount += 1
 
-                        return openAiAPI.getAdditionalBook(
-                            question: question,
-                            previousBooks: previousBooks + [currentBook]
-                        )
-                        .flatMap { newBook -> Single<BookItem?> in
-                            currentBook = newBook
-                            return tryMatch()
+                            BookMatchLogger.retryingBookMatch(
+                                attempt: retryCount,
+                                currentBook: matchedBook
+                            )
+
+                            return openAiAPI.getAdditionalBook(
+                                question: question,
+                                previousBooks: previousBooks + [currentBook]
+                            )
+                            .flatMap { newBook -> Single<BookItem?> in
+                                currentBook = newBook
+                                return tryMatch()
+                            }
                         }
                     } else {
-                        retryCount += 1
-                        return tryMatch()
+                        return .just(nil)
                     }
                 }
         }
@@ -275,37 +315,8 @@ public final class BookRecommendationKit: BookRecommendable {
     /// - Throws: BookMatchError
     private func convertToRealBook(_ input: RawBook)
         -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)> {
-        let searchStream: Single<[BookItem]> = Single.deferred { [weak self] in
-            guard let self else {
-                return .just([])
-            }
-            return searchOverallBooks(from: input)
-        }
-
-        let processSearchResult = { [weak self] (searchResult: BookItem) -> Observable<(
-            BookItem,
-            [Double]
-        )> in
-            guard let self else {
-                return .never()
-            }
-
-            let titleCalculation = titleStrategy
-                .calculateSimilarity(searchResult.title, input.title).asObservable()
-            let authorCalculation = authorStrategy.calculateSimilarity(
-                searchResult.author,
-                input.author
-            ).asObservable()
-
-            return Observable.zip(titleCalculation, authorCalculation)
-                .map { titleSimilarity, authorSimilarity in
-                    (searchResult, [titleSimilarity, authorSimilarity])
-                }
-        }
-
         // Results에 대한 병렬 처리가 필요하므로, Observable 스트림 생성 후, 최종 Single 반환 필요
-        return searchStream
-            // 빈 배열 반환되는 케이스 처리
+        searchOverallBooks(from: input)
             .flatMap { searchResults -> Single<[BookItem]> in
                 guard !searchResults.isEmpty else {
                     return .error(BookMatchError.noMatchFound)
@@ -315,8 +326,23 @@ public final class BookRecommendationKit: BookRecommendable {
             }
             .flatMap { searchResults in
                 Observable.from(searchResults)
-                    .flatMap { book -> Observable<(BookItem, [Double])> in
-                        processSearchResult(book)
+                    .flatMap { [weak self] book -> Observable<(BookItem, [Double])> in
+                        guard let self else {
+                            return .never()
+                        }
+
+                        let titleCalculation = titleStrategy.calculateSimilarity(
+                            book.title, input.title
+                        ).asObservable()
+
+                        let authorCalculation = authorStrategy.calculateSimilarity(
+                            book.author, input.author
+                        ).asObservable()
+
+                        return Observable.zip(titleCalculation, authorCalculation)
+                            .map { titleSimilarity, authorSimilarity in
+                                (book, [titleSimilarity, authorSimilarity])
+                            }
                     }
                     .toArray()
             }
