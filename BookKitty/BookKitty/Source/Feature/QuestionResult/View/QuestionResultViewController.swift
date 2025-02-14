@@ -107,6 +107,18 @@ final class QuestionResultViewController: BaseViewController {
         playLoadingAnimation()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        DispatchQueue.main.async {
+            let bottomOffset = CGPoint(
+                x: 0,
+                y: max(0, self.scrollView.contentSize.height - self.scrollView.bounds.height)
+            )
+            self.scrollView.setContentOffset(bottomOffset, animated: true)
+        }
+    }
+
     // MARK: - Overridden Functions
 
     override func configureHierarchy() {
