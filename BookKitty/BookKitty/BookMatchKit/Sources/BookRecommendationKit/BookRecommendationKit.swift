@@ -13,9 +13,6 @@ import UIKit
 public final class BookRecommendationKit: BookRecommendable {
     // MARK: - Properties
 
-    private let titleStrategy = LevenshteinStrategyWithNoParenthesis()
-    private let authorStrategy = LevenshteinStrategy()
-
     private let naverAPI: NaverAPI
     private let openAiAPI: OpenAIAPI
     private let similiarityThreshold: [Double]
@@ -101,7 +98,7 @@ public final class BookRecommendationKit: BookRecommendable {
                 books: [BookItem]
             )> in
                 guard let self else {
-                    BookMatchLogger.errorOccurred(
+                    BookMatchLogger.error(
                         BookMatchError.deinitError,
                         context: "추천 절차"
                     )
@@ -129,7 +126,7 @@ public final class BookRecommendationKit: BookRecommendable {
             }
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
-                    BookMatchLogger.errorOccurred(
+                    BookMatchLogger.error(
                         BookMatchError.deinitError,
                         context: "도서 매칭 절차"
                     )
@@ -180,7 +177,7 @@ public final class BookRecommendationKit: BookRecommendable {
                 }
             }
             .catch { error in
-                BookMatchLogger.errorOccurred(error, context: "도서 추천")
+                BookMatchLogger.error(error, context: "도서 추천")
 
                 if let bookMatchError = error as? BookMatchError {
                     switch bookMatchError {
@@ -318,34 +315,23 @@ public final class BookRecommendationKit: BookRecommendable {
         -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)> {
         // Results에 대한 병렬 처리가 필요하므로, Observable 스트림 생성 후, 최종 Single 반환 필요
         searchOverallBooks(from: input)
-            .flatMap { searchResults -> Single<[BookItem]> in
+            .flatMap { searchResults -> Single<[(BookItem, [Double])]> in
                 guard !searchResults.isEmpty else {
                     return .error(BookMatchError.noMatchFound)
                 }
 
-                return .just(searchResults)
-            }
-            .flatMap { searchResults in
-                Observable.from(searchResults)
-                    .flatMap { [weak self] book -> Observable<(BookItem, [Double])> in
-                        guard let self else {
-                            return .never()
-                        }
+                let result = searchResults.map { book in
+                    let titleSimilarity = LevenshteinStrategyNoParenthesis.calculateSimilarity(
+                        book.title, input.title
+                    )
 
-                        let titleCalculation = titleStrategy.calculateSimilarity(
-                            book.title, input.title
-                        ).asObservable()
+                    let authorSimilarity = LevenshteinStrategy.calculateSimilarity(
+                        book.author, input.author
+                    )
+                    return (book, [titleSimilarity, authorSimilarity])
+                }
 
-                        let authorCalculation = authorStrategy.calculateSimilarity(
-                            book.author, input.author
-                        ).asObservable()
-
-                        return Observable.zip(titleCalculation, authorCalculation)
-                            .map { titleSimilarity, authorSimilarity in
-                                (book, [titleSimilarity, authorSimilarity])
-                            }
-                    }
-                    .toArray()
+                return .just(result)
             }
             .map { [weak self] results -> (isMatching: Bool, book: BookItem?, similarity: Double) in
                 guard let self else {
