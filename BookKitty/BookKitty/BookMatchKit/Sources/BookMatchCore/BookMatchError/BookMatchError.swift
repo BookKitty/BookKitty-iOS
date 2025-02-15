@@ -6,7 +6,7 @@ public enum BookMatchError: Error {
     case rateLimitExceeded
     case imageCalculationFailed(String)
     case imageDownloadFailed
-    case referenceDeinitError
+    case deinitError
     case error(String)
 
     // MARK: - Computed Properties
@@ -27,7 +27,7 @@ public enum BookMatchError: Error {
             return "이미지 유사도 연산에 실패했습니다.\n잠시 후 다시 시도해주세요"
         case .imageDownloadFailed:
             return "이미지 다운로드 실패"
-        case .referenceDeinitError:
+        case .deinitError:
             return "일시적인 오류입니다.\n잠시 후 다시 시도해주세요"
         case let .error(error):
             return "일시적인 오류입니다.\n\(error)"

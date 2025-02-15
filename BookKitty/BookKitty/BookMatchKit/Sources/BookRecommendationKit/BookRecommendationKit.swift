@@ -102,11 +102,11 @@ public final class BookRecommendationKit: BookRecommendable {
             )> in
                 guard let self else {
                     BookMatchLogger.errorOccurred(
-                        BookMatchError.referenceDeinitError,
+                        BookMatchError.deinitError,
                         context: "추천 절차"
                     )
 
-                    return .error(BookMatchError.referenceDeinitError)
+                    return .error(BookMatchError.deinitError)
                 }
 
                 var previousBooks = recommendation.newBooks
@@ -130,11 +130,11 @@ public final class BookRecommendationKit: BookRecommendable {
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
                     BookMatchLogger.errorOccurred(
-                        BookMatchError.referenceDeinitError,
+                        BookMatchError.deinitError,
                         context: "도서 매칭 절차"
                     )
 
-                    return .error(BookMatchError.referenceDeinitError)
+                    return .error(BookMatchError.deinitError)
                 }
 
                 let ownedRaws = result.recommendation.ownedBooks.map {
@@ -188,8 +188,8 @@ public final class BookRecommendationKit: BookRecommendable {
                         return .error(BookMatchError.invalidGPTFormat)
                     case .networkError:
                         return .error(BookMatchError.networkError)
-                    case .referenceDeinitError:
-                        return .error(BookMatchError.referenceDeinitError)
+                    case .deinitError:
+                        return .error(BookMatchError.deinitError)
                     default:
                         return .just(
                             BookMatchModuleOutput(

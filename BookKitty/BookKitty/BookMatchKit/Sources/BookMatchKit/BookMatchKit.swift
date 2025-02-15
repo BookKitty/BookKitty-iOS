@@ -46,38 +46,66 @@ public final class BookMatchKit: BookMatchable {
     ///   - image: 도서 표지 이미지
     /// - Returns: 매칭된 도서 정보 또는 nil
     /// - Throws: 초기 단어부터 검색된 결과가 나오지 않을 때
-    public func matchBook(_ image: UIImage) async throws -> BookItem? {
+    public func matchBook(_ image: UIImage) -> Single<BookItem> {
         BookMatchLogger.matchingStarted()
 
-        let textData = try await extractText(from: image)
-        let searchResults = try await fetchSearchResults(from: textData)
-
-        // 검색 결과가 있는 경우에만 유사도 계산 수행
-        guard !searchResults.isEmpty else {
-            BookMatchLogger.errorOccurred(BookMatchError.noMatchFound, context: "Book Search")
-            throw BookMatchError.noMatchFound
-        }
-
-        BookMatchLogger.searchResultsReceived(count: searchResults.count)
-
-        var similarityResults = [(BookItem, Double)]()
-
-        for book in searchResults {
-            do {
-                let bookImage = try await imageDownloadAPI.downloadImage(from: book.image).value
-                let similarity = try await imageStrategy.calculateSimilarity(image, bookImage).value
-
-                similarityResults.append((book, similarity))
-                BookMatchLogger.similarityCalculated(bookTitle: book.title, score: similarity)
-            } catch {
-                BookMatchLogger.errorOccurred(error, context: "이미지 다운로드 및 유사도 측정")
+        return extractText(from: image)
+            .flatMap { [weak self] textData -> Single<[BookItem]> in
+                guard let self else {
+                    return .error(BookMatchError.deinitError)
+                }
+                return fetchSearchResults(from: textData)
             }
-        }
+            .flatMap { results -> Single<[BookItem]> in
+                if results.isEmpty {
+                    BookMatchLogger.errorOccurred(
+                        BookMatchError.noMatchFound,
+                        context: "Book Search"
+                    )
+                    return .error(BookMatchError.noMatchFound)
+                }
 
-        let sortedResults = similarityResults.sorted { $0.1 > $1.1 }
+                BookMatchLogger.searchResultsReceived(count: results.count)
+                return .just(results)
+            }
+            // - Note: 여기서 books는 비어있을 수 없습니다.
+            .flatMap { books in
+                Observable.from(books)
+                    .flatMap { [weak self] book -> Single<(BookItem, Double)> in
+                        guard let self else {
+                            return .error(BookMatchError.deinitError)
+                        }
 
-        BookMatchLogger.matchingCompleted(success: true, bookTitle: sortedResults[0].0.title)
-        return sortedResults[0].0
+                        return imageDownloadAPI.downloadImage(from: book.image)
+                            .catch { _ in
+                                .error(BookMatchError.imageDownloadFailed)
+                            }
+                            .flatMap { [weak self] downloadedImage -> Single<(BookItem, Double)> in
+                                guard let self else {
+                                    return .error(BookMatchError.deinitError)
+                                }
+
+                                return imageStrategy.calculateSimilarity(image, downloadedImage)
+                                    .map {
+                                        BookMatchLogger.similarityCalculated(
+                                            bookTitle: book.title,
+                                            score: $0
+                                        )
+                                        return (book, $0)
+                                    }
+                            }
+                    }
+                    .asObservable()
+                    .toArray()
+            }
+            .map { (results: [(BookItem, Double)]) -> BookItem in
+                guard let bestMatchedBook = results.sorted(by: { $0.1 > $1.1 }).first?.0 else {
+                    throw BookMatchError.noMatchFound
+                }
+
+                BookMatchLogger.matchingCompleted(success: true, bookTitle: bestMatchedBook.title)
+                return bestMatchedBook
+            }
     }
 
     /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
@@ -87,43 +115,67 @@ public final class BookMatchKit: BookMatchable {
     ///   - sourceBook: 검색할 도서의 기본 정보
     /// - Returns: 검색된 도서 목록
     /// - Throws: BookMatchError
-    private func fetchSearchResults(from textData: [String]) async throws -> [BookItem] {
-        var searchResults = [BookItem]()
-        var previousResults = [BookItem]()
-        var currentIndex = 0
-        var currentQuery = ""
-
-        while currentIndex < textData.count {
-            if currentQuery.isEmpty {
-                currentQuery = textData[currentIndex]
-            } else {
-                currentQuery = [currentQuery, textData[currentIndex]].joined(separator: " ")
-            }
-
-            try await Task.sleep(nanoseconds: 500_000_000) // Rate limit 방지
-            let results = try await naverAPI.searchBooks(query: currentQuery, limit: 10).value
-
-            // 이전 검색 결과 저장
-            if !results.isEmpty {
-                previousResults = results
-            }
-
-            // 검색 결과가 3개 이하면 최적의 쿼리로 판단하고 중단
-            if results.count <= 3 {
-                searchResults = previousResults // 이전 검색 결과 사용
-                break
-            }
-
-            // 마지막 단어 그룹까지 도달했는데도 3개 이하가 안 된 경우
-            if currentIndex == textData.count - 1 {
-                searchResults = results.isEmpty ? previousResults : results
-                break
-            }
-
-            currentIndex += 1
+    private func fetchSearchResults(from textData: [String]) -> Single<[BookItem]> {
+        guard !textData.isEmpty else {
+            return .just([])
         }
 
-        return searchResults
+        return Single<[BookItem]>.create { single in
+            var searchResults = [BookItem]()
+            var previousResults = [BookItem]()
+            var currentIndex = 0
+            var currentQuery = ""
+
+            func processNextQuery() {
+                guard currentIndex < textData.count else {
+                    single(.success(searchResults))
+                    return
+                }
+
+                if currentQuery.isEmpty {
+                    currentQuery = textData[currentIndex]
+                } else {
+                    currentQuery = [currentQuery, textData[currentIndex]].joined(separator: " ")
+                }
+
+                Single<Void>.just(())
+                    .delay(
+                        .milliseconds(500),
+                        scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
+                    )
+                    .flatMap { [weak self] _ -> Single<[BookItem]> in
+                        guard let self else {
+                            return .error(BookMatchError.deinitError)
+                        }
+
+                        return naverAPI.searchBooks(query: currentQuery, limit: 10)
+                    }
+                    .subscribe(
+                        onSuccess: { results in
+                            if !results.isEmpty {
+                                previousResults = results
+                            }
+                            if results.count <= 3 {
+                                searchResults = previousResults
+                                single(.success(searchResults))
+                            } else if currentIndex == textData.count - 1 {
+                                searchResults = results.isEmpty ? previousResults : results
+                                single(.success(searchResults))
+                            } else {
+                                currentIndex += 1
+                                processNextQuery()
+                            }
+                        }, onFailure: { error in
+                            single(.failure(error))
+                        }
+                    )
+                    .disposed(by: self.disposeBag)
+            }
+
+            processNextQuery()
+
+            return Disposables.create()
+        }
     }
 
     // MARK: - OCR Logic
@@ -131,12 +183,12 @@ public final class BookMatchKit: BookMatchable {
     /// 이미지에서 텍스트를 추출하고, 추출된 텍스트를 반환합니다.
     /// - Parameter image: 텍스트를 추출할 이미지
     /// - Returns: 추출된 텍스트 배열
-    private func extractText(from image: UIImage) async throws -> [String] {
-        await withCheckedContinuation { continuation in
-            detectBookElements(in: image) { extractedTexts in
-                BookMatchLogger.textExtracted(words: extractedTexts)
-                continuation.resume(returning: extractedTexts)
+    private func extractText(from image: UIImage) -> Single<[String]> {
+        Single.create { single in
+            self.detectBookElements(in: image) { extractedTexts in
+                single(.success(extractedTexts))
             }
+            return Disposables.create()
         }
     }
 

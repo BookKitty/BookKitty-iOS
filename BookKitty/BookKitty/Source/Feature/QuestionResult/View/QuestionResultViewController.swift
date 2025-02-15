@@ -226,6 +226,7 @@ final class QuestionResultViewController: BaseViewController {
 
         output.error
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { owner, error in
                 ErrorAlertController(presentableError: error).present(from: owner)
             })

@@ -3,5 +3,5 @@ import RxSwift
 import UIKit
 
 public protocol BookMatchable {
-    func matchBook(_ image: UIImage) async throws -> BookItem?
+    func matchBook(_ image: UIImage) -> Single<BookItem>
 }
