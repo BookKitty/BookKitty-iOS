@@ -15,6 +15,8 @@
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
 		60A1CC0E2D54A2DB00091568 /* BookRecommendationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */; };
 		60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F1CE8B2D53715B00E3F881 /* BookMatchKit */; };
+		E5A6B99D2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
+		E5A6B99E2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
 		E5FC698C2D52414B002875FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5FC698B2D52414B002875FD /* SnapKit */; };
 		E93048662D559553008E9467 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E93048652D559553008E9467 /* RxCocoa */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
@@ -36,6 +38,7 @@
 		60CC57BC2D4B157000DE3ACB /* BookKittyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BookKittyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60CCD9462D432621001FEAE3 /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		60CCD95F2D4337DA001FEAE3 /* config.swiftformat */ = {isa = PBXFileReference; lastKnownFileType = text; path = config.swiftformat; sourceTree = "<group>"; };
+		E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -104,6 +107,7 @@
 				60CC57BD2D4B157000DE3ACB /* BookKittyTests */,
 				606DA50D2D42542700C7FAA3 /* Frameworks */,
 				60551C662D40E6E800CFC16A /* Products */,
+				E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */,
 			);
 			sourceTree = "<group>";
 		};
@@ -231,6 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5A6B99D2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +243,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5A6B99E2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,7 +306,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = H856SYKNM8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -316,7 +322,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKitty;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -338,7 +343,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = H856SYKNM8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -354,7 +359,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKitty;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -501,7 +505,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -520,7 +523,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.BookshelfML.BookKittyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
