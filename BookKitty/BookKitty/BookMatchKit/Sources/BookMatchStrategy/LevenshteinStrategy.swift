@@ -2,30 +2,33 @@ import BookMatchCore
 import RxSwift
 
 public struct LevenshteinStrategy: SimilarityCalculatable {
+    // MARK: - Nested Types
+
     public typealias T = String
-    
+
+    // MARK: - Static Functions
+
     public static func calculateSimilarity(_ str1: String, _ str2: String) -> Double {
         let sourceChars = Array(str1)
         let targetChars = Array(str2)
         let sourceLength = sourceChars.count
         let targetLength = targetChars.count
-        
+
         // 빈 문자열 처리
         if sourceLength == 0 {
             return Double(targetLength)
         }
-        
+
         if targetLength == 0 {
             return Double(sourceLength)
         }
-        
-        
+
         // 거리 계산을 위한 2차원 배열
         var matrix = Array(
             repeating: Array(repeating: 0, count: targetLength + 1),
             count: sourceLength + 1
         )
-        
+
         // 첫 행과 열 초기화
         for i in 0 ... sourceLength {
             matrix[i][0] = i
@@ -33,7 +36,7 @@ public struct LevenshteinStrategy: SimilarityCalculatable {
         for j in 0 ... targetLength {
             matrix[0][j] = j
         }
-        
+
         // 행렬 채우기
         for i in 1 ... sourceLength {
             for j in 1 ... targetLength {
@@ -45,12 +48,10 @@ public struct LevenshteinStrategy: SimilarityCalculatable {
                 )
             }
         }
-        
+
         // 거리를 유사도 점수(0~1)로 변환
         let distance = Double(matrix[sourceLength][targetLength])
         let maxLength = Double(max(sourceLength, targetLength))
-        let similarity = 1 - (distance / maxLength)
-        
-        return similarity
+        return 1 - (distance / maxLength)
     }
 }

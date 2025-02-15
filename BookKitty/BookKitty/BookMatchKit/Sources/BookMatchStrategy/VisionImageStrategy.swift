@@ -6,7 +6,11 @@ import Vision
 /// 도서 표지 이미지 간의 유사도를 계산하는 구조체입니다.
 /// Vision 프레임워크를 사용하여 이미지의 특징점을 추출하고 비교합니다.
 public struct ImageVisionStrategy: SimilarityCalculatable {
+    // MARK: - Nested Types
+
     public typealias T = UIImage
+
+    // MARK: - Static Functions
 
     /// 두 이미지 간의 `유사도를 계산`합니다.
     ///
@@ -16,17 +20,17 @@ public struct ImageVisionStrategy: SimilarityCalculatable {
     /// - Returns: 0부터 100 사이의 유사도 점수 (높을수록 유사)
     public static func calculateSimilarity(_ image1: UIImage, _ image2: UIImage) -> Double {
         let context = CIContext()
-        
-        let processedImage1 = preprocessImage(image1,context)
-        let processedImage2 = preprocessImage(image2,context)
-        
+
+        let processedImage1 = preprocessImage(image1, context)
+        let processedImage2 = preprocessImage(image2, context)
+
         do {
             let featurePrint1 = try extractFeaturePrint(from: processedImage1)
             let featurePrint2 = try extractFeaturePrint(from: processedImage2)
-            
+
             var distance: Float = 0.0
             try featurePrint1.computeDistance(&distance, to: featurePrint2)
-            
+
             return Double(max(0, min(1, 2.5 - distance * 2.5)))
         } catch {
             return -1.0
@@ -66,7 +70,7 @@ public struct ImageVisionStrategy: SimilarityCalculatable {
     /// - Parameters:
     ///   - image: 전처리할 이미지
     /// - Returns: 전처리된 이미지
-    private static func preprocessImage(_ image: UIImage, _ context:CIContext) -> UIImage {
+    private static func preprocessImage(_ image: UIImage, _ context: CIContext) -> UIImage {
         guard let ciImage = CIImage(image: image) else {
             return image
         }
