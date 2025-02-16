@@ -3,19 +3,19 @@ import BookMatchCore
 import BookMatchStrategy
 import RxSwift
 
-protocol BookMatchable {
-    func matchToRealBookWithRetry(
+protocol BookValidatable {
+    func findMatchingBookWithRetry(
         book: RawBook,
         question: String,
         previousBooks: [RawBook],
         openAiAPI: OpenAIAPI
     ) -> Single<BookItem?>
 
-    func matchToRealBook(_ input: RawBook)
+    func validateRecommendedBook(_ input: RawBook)
         -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)>
 }
 
-public final class BookMatchingService: BookMatchable {
+public final class BookValidationService: BookValidatable {
     // MARK: - Properties
 
     private let similiarityThreshold: [Double]
@@ -51,7 +51,7 @@ public final class BookMatchingService: BookMatchable {
     /// - Returns: 매칭된 도서 정보를 포함한 Single 스트림
     ///           성공적으로 매칭된 경우 해당 도서,
     ///           실패한 경우 후보군 중 최상위 도서 또는 nil 반환
-    public func matchToRealBookWithRetry(
+    public func findMatchingBookWithRetry(
         book: RawBook,
         question: String,
         previousBooks: [RawBook],
@@ -69,7 +69,7 @@ public final class BookMatchingService: BookMatchable {
                 return .just(candidates.first?.0)
             }
 
-            return matchToRealBook(currentBook)
+            return validateRecommendedBook(currentBook)
                 // `flatMap` - 매칭 결과 처리 및 재시도 로직
                 // - Note: 도서 매칭 결과에 따른 후속 처리를 결정할 때 사용.
                 //         1. 매칭 성공 시 해당 도서 반환
@@ -112,10 +112,10 @@ public final class BookMatchingService: BookMatchable {
     ///   - input: 변환할 기본 도서 정보
     /// - Returns: 매칭 결과, 찾은 도서 정보, 유사도 점수를 포함한 튜플
     /// - Throws: BookMatchError
-    public func matchToRealBook(_ input: RawBook)
+    public func validateRecommendedBook(_ input: RawBook)
         -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)> {
         // Results에 대한 병렬 처리가 필요하므로, Observable 스트림 생성 후, 최종 Single 반환 필요
-        searchService.searchOverallBooks(from: input)
+        searchService.searchByTitleAndAuthor(from: input)
             // `flatMap` - 검색 결과 변환 및 유사도 계산
             // - Note: 검색된 도서들의 유사도를 계산하여 새로운 스트림으로 변환할 때 사용.
             //         1. 검색 결과가 비어있는지 확인
@@ -174,7 +174,7 @@ public final class BookMatchingService: BookMatchable {
     }
 }
 
-extension BookMatchingService {
+extension BookValidationService {
     private func weightedTotalScore(_ similarities: [Double]) -> Double {
         let weights = [titleWeight, 1.0 - titleWeight]
 
