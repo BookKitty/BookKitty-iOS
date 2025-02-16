@@ -8,14 +8,13 @@ import UIKit
 
 /// 도서 `매칭` 기능의 핵심 모듈입니다.
 /// 사용자의 요청을 처리하고, 도서 검색, `매칭` 기능을 조율합니다.
-public final class BookMatchKit: BookMatchable {
+public final class BookOCRKit: BookMatchable {
     // MARK: - Properties
 
-    private let naverAPI: NaverAPI
     private let imageDownloadAPI: ImageDownloadAPI
 
-    private let textExtractingService = TextExtractingService()
-    private let disposeBag = DisposeBag()
+    private let searchService: BookSearchable
+    private let textExtractionService = TextExtractionService()
 
     // MARK: - Lifecycle
 
@@ -29,8 +28,10 @@ public final class BookMatchKit: BookMatchable {
             openAIApiKey: ""
         )
 
-        naverAPI = NaverAPI(configuration: config)
+        let naverAPI = NaverAPI(configuration: config)
+
         imageDownloadAPI = ImageDownloadAPI(configuration: config)
+        searchService = BookSearchService(naverAPI: naverAPI)
     }
 
     // MARK: - Functions
@@ -43,10 +44,10 @@ public final class BookMatchKit: BookMatchable {
     ///   - image: 도서 표지 이미지
     /// - Returns: 매칭된 도서 정보 또는 nil
     /// - Throws: 초기 단어부터 검색된 결과가 나오지 않을 때
-    public func matchBook(_ image: UIImage) -> Single<BookItem> {
+    public func recognizeBookFromImage(_ image: UIImage) -> Single<BookItem> {
         BookMatchLogger.matchingStarted()
 
-        return textExtractingService.extractText(from: image)
+        return textExtractionService.extractText(from: image)
             // `flatMap` - 텍스트 추출 결과를 도서 검색 결과로 변환
             // - Note: OCR로 추출된 텍스트를 사용하여 `도서 검색을 수행`할 때 사용.
             //         텍스트 배열을 받아서 새로운 Single<[BookItem]> 스트림을 생성.
@@ -56,7 +57,7 @@ public final class BookMatchKit: BookMatchable {
                     return .error(BookMatchError.deinitError)
                 }
 
-                return fetchSearchResults(from: textData)
+                return searchService.searchProgressively(from: textData)
                     .flatMap { results in
                         guard !results.isEmpty else { // 유의미한 책 검색결과가 나오지 않았을 경우, 에러를 반환합니다
                             BookMatchLogger.error(
@@ -114,74 +115,5 @@ public final class BookMatchKit: BookMatchable {
                 BookMatchLogger.matchingCompleted(success: true, bookTitle: bestMatchedBook.title)
                 return bestMatchedBook
             }
-    }
-
-    /// `OCR로 검출된 텍스트 배열`로 도서를 검색합니다.
-    /// - Note:``matchBook(_:, image:)`` 메서드에 사용됩니다.
-    ///
-    /// - Parameters:
-    ///   - sourceBook: 검색할 도서의 기본 정보
-    /// - Returns: 검색된 도서 목록
-    /// - Throws: BookMatchError
-    private func fetchSearchResults(from textData: [String]) -> Single<[BookItem]> {
-        guard !textData.isEmpty else {
-            return .just([])
-        }
-
-        return Single<[BookItem]>.create { single in
-            var searchResults = [BookItem]()
-            var previousResults = [BookItem]()
-            var currentIndex = 0
-            var currentQuery = ""
-
-            func processNextQuery() {
-                guard currentIndex < textData.count else {
-                    single(.success(searchResults))
-                    return
-                }
-
-                if currentQuery.isEmpty {
-                    currentQuery = textData[currentIndex]
-                } else {
-                    currentQuery = [currentQuery, textData[currentIndex]].joined(separator: " ")
-                }
-
-                // `delay` - API 호출 간 지연 시간 추가
-                // - Note: 연속적인 API 호출 시 서버 부하를 줄이기 위해 사용.
-                //         백그라운드 스레드에서 500ms 지연 후 다음 요청 실행.
-                return self.naverAPI.searchBooks(query: currentQuery, limit: 10)
-                    .delay(
-                        .milliseconds(500),
-                        scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
-                    )
-                    // `subscribe` - 검색 결과 처리 및 다음 검색 준비
-                    // - Note: 검색 결과를 받아 처리하고 조건에 따라 다음 검색을 수행하거나 최종 결과를 반환할 때 사용.
-                    //         성공/실패 케이스를 각각 처리하고 disposeBag으로 구독 해제 보장.
-                    .subscribe(
-                        onSuccess: { results in
-                            if !results.isEmpty {
-                                previousResults = results
-                            }
-                            if results.count <= 3 {
-                                searchResults = previousResults
-                                single(.success(searchResults))
-                            } else if currentIndex == textData.count - 1 {
-                                searchResults = results.isEmpty ? previousResults : results
-                                single(.success(searchResults))
-                            } else {
-                                currentIndex += 1
-                                processNextQuery()
-                            }
-                        }, onFailure: { error in
-                            single(.failure(error))
-                        }
-                    )
-                    .disposed(by: self.disposeBag)
-            }
-
-            processNextQuery()
-
-            return Disposables.create()
-        }
     }
 }

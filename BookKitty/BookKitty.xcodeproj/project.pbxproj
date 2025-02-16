@@ -14,9 +14,9 @@
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
 		60A1CC0E2D54A2DB00091568 /* BookRecommendationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */; };
-		60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F1CE8B2D53715B00E3F881 /* BookMatchKit */; };
 		E5A6B99D2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
 		E5A6B99E2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
+		E5DE19642D62A7D3007D37E2 /* BookOCRKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5DE19632D62A7D3007D37E2 /* BookOCRKit */; };
 		E5FC698C2D52414B002875FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5FC698B2D52414B002875FD /* SnapKit */; };
 		E93048662D559553008E9467 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E93048652D559553008E9467 /* RxCocoa */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
@@ -75,10 +75,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60F1CE8C2D53715B00E3F881 /* BookMatchKit in Frameworks */,
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
 				E93048662D559553008E9467 /* RxCocoa in Frameworks */,
 				E5FC698C2D52414B002875FD /* SnapKit in Frameworks */,
+				E5DE19642D62A7D3007D37E2 /* BookOCRKit in Frameworks */,
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */,
 				60A1CC0E2D54A2DB00091568 /* BookRecommendationKit in Frameworks */,
@@ -154,9 +154,9 @@
 				606DA2442D42076100C7FAA3 /* Then */,
 				606DA2472D42079900C7FAA3 /* Differentiator */,
 				E5FC698B2D52414B002875FD /* SnapKit */,
-				60F1CE8B2D53715B00E3F881 /* BookMatchKit */,
 				60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */,
 				E93048652D559553008E9467 /* RxCocoa */,
+				E5DE19632D62A7D3007D37E2 /* BookOCRKit */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -629,9 +629,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = BookRecommendationKit;
 		};
-		60F1CE8B2D53715B00E3F881 /* BookMatchKit */ = {
+		E5DE19632D62A7D3007D37E2 /* BookOCRKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = BookMatchKit;
+			productName = BookOCRKit;
 		};
 		E5FC698B2D52414B002875FD /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

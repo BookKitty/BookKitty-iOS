@@ -4,7 +4,7 @@
 //
 // Created by 반성준 on 1/31/25.
 //
-import BookMatchKit
+import BookOCRKit
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -32,14 +32,14 @@ final class AddBookCoordinator: Coordinator {
         self.navigationController = navigationController
 
         let repository = LocalBookRepository()
-        let bookMatchKit = BookMatchKit(
+        let bookOCRKit = BookOCRKit(
             naverClientId: Environment().naverClientID,
             naverClientSecret: Environment().naverClientSecret
         )
 
         addBookViewModel = AddBookViewModel(
             bookRepository: repository,
-            bookMatchKit: bookMatchKit
+            bookOCRKit: bookOCRKit
         )
         addBookViewController = AddBookViewController(
             viewModel: addBookViewModel

@@ -1,5 +1,5 @@
 import BookMatchCore
-import BookMatchKit
+import BookOCRKit
 import Foundation
 import RxCocoa
 import RxSwift
@@ -29,13 +29,13 @@ final class AddBookViewModel: ViewModelType {
 
     private let errorRelay = PublishRelay<AlertPresentableError>()
     private let bookRepository: BookRepository
-    private let bookMatchKit: BookMatchable
+    private let bookOCRKit: BookMatchable
 
     // MARK: - Lifecycle
 
-    init(bookRepository: BookRepository, bookMatchKit: BookMatchable) {
+    init(bookRepository: BookRepository, bookOCRKit: BookMatchable) {
         self.bookRepository = bookRepository
-        self.bookMatchKit = bookMatchKit
+        self.bookOCRKit = bookOCRKit
     }
 
     // MARK: - Functions
@@ -55,7 +55,7 @@ final class AddBookViewModel: ViewModelType {
                 }
 
                 return Observable.create { observer in
-                    let disposable = self?.bookMatchKit.matchBook(image)
+                    let disposable = self?.bookOCRKit.recognizeBookFromImage(image)
                         .subscribe(
                             onSuccess: { book in
                                 let finalBook = Book(
