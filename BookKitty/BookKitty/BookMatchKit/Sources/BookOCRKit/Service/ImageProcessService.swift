@@ -1,6 +1,6 @@
 import UIKit
 
-public class ImageProcessingService: ImageProcessable {
+public class ImageProcessService: ImageProcessable {
     // MARK: - Lifecycle
 
     public init() {}

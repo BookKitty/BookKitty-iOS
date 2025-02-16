@@ -3,10 +3,10 @@ import RxSwift
 import UIKit
 import Vision
 
-final class TextExtractingService: TextExtractable {
+final class TextExtractionService: TextExtractable {
     // MARK: - Properties
 
-    private let imageProcessingService: ImageProcessable = ImageProcessingService()
+    private let imageProcessService: ImageProcessable = ImageProcessService()
 
     // MARK: - Functions
 
@@ -41,11 +41,11 @@ final class TextExtractingService: TextExtractable {
                         guard let self else {
                             return .error(BookMatchError.deinitError)
                         }
-                        let expandedBox = imageProcessingService.expandBoundingBox(
+                        let expandedBox = imageProcessService.expandBoundingBox(
                             observation.boundingBox,
                             factor: 1.2
                         )
-                        let croppedImage = imageProcessingService.cropImage(image, to: expandedBox)
+                        let croppedImage = imageProcessService.cropImage(image, to: expandedBox)
 
                         // 크롭된 이미지와 원본 이미지에 대한 OCR 순차 처리
                         return performOCR(on: croppedImage)
@@ -62,6 +62,8 @@ final class TextExtractingService: TextExtractable {
                         guard !texts.isEmpty else {
                             return .error(BookMatchError.CoreMLError("No Result from CoreML"))
                         }
+
+                        BookMatchLogger.textsExtracted(texts)
                         return .just(texts)
                     }
             }
@@ -122,7 +124,7 @@ final class TextExtractingService: TextExtractable {
         // - Note: Vision 프레임워크의 텍스트 인식 프로세스를 RxSwift Single로 변환.
         //         에러 발생 시 이전 코드와 동일하게 빈 배열 반환.
         Single<[String]>.create { single in
-            guard let cgImage = self.imageProcessingService.convertToGrayscale(image)?.cgImage
+            guard let cgImage = self.imageProcessService.convertToGrayscale(image)?.cgImage
             else {
                 single(.failure(BookMatchError.OCRError("convertToGrayscale Failed")))
                 return Disposables.create()
@@ -158,7 +160,6 @@ final class TextExtractingService: TextExtractable {
                 }
 
                 BookMatchLogger.textExtracted(recognizedText)
-
                 single(.success(recognizedText))
             }
 
