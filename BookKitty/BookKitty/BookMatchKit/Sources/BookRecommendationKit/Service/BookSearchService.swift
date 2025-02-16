@@ -31,7 +31,10 @@ public final class BookSearchService {
             // `delay` - API 호출 지연
             // - Note: 연속적인 API 호출 사이에 지연을 추가할 때 사용.
             //         서버 부하를 줄이고 안정적인 검색 수행을 위해 500ms 지연 추가.
-            .delay(.milliseconds(500), scheduler: MainScheduler.instance)
+            .delay(
+                .milliseconds(500),
+                scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
+            )
             // `flatMap` - 병렬 검색 수행
             // - Note: 제목과 저자 검색을 동시에 수행할 때 사용.
             //         두 검색을 병렬로 처리하여 성능 최적화.
