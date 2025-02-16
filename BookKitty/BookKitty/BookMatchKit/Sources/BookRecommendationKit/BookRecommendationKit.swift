@@ -186,10 +186,9 @@ public final class BookRecommendationKit: BookRecommendable {
             }
             // `flatMap` - 매칭된 도서 정보를 최종 모듈 출력으로 변환
             // - Note: 매칭 결과와 GPT 설명을 결합하여 최종 출력을 생성할 때 사용.
-            //         1. 메모리 관리를 위해 weak self 패턴 적용
-            //         2. 추천된 보유 도서들을 실제 보유 도서와 매칭하여 ISBN 추출
-            //         3. GPT에 추천 도서 설명을 요청하여 결합
-            //         4. BookMatchModuleOutput 형식으로 최종 변환
+            //         1. 추천된 보유 도서들을 실제 보유 도서와 매칭하여 ISBN 추출
+            //         2. GPT에 추천 도서 설명을 요청하여 결합
+            //         3. BookMatchModuleOutput 형식으로 최종 변환
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
                     BookMatchLogger.error(
@@ -205,12 +204,6 @@ public final class BookRecommendationKit: BookRecommendable {
                 }
 
                 let filteredOwnedBooks = result.recommendation.ownedBooks
-                    // `compactMap` - 추천된 도서의 ISBN 매핑 및 필터링
-                    // - Note: 추천된 도서와 실제 보유 도서를 매칭하여 ISBN을 추출할 때 사용.
-                    //         1. 각 추천 도서에 대해 실제 보유 도서와 제목/저자 일치 여부 확인
-                    //         2. 일치하는 도서가 있으면 해당 도서의 ISBN 반환
-                    //         3. 일치하는 도서가 없으면 nil 반환하여 자동으로 필터링
-                    //         4. 최종적으로 실제 보유 중인 도서의 ISBN만 남김
                     .compactMap { recommendedBook in
                         if let validOwnedBook = ownedBooks
                             .first(where: {
