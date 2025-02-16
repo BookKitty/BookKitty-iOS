@@ -15,7 +15,7 @@ public enum BookMatchLogger {
         logger.info("📚 도서매칭 시작")
     }
 
-    public static func textExtracted(words: [String]) {
+    public static func textExtracted(_ words: [String]) {
         logger.info("📝 OCR 텍스트 추출 완료: \(words.joined(separator: ", "))")
     }
 
@@ -70,7 +70,11 @@ public enum BookMatchLogger {
 
     // MARK: - Error Logging
 
-    public static func errorOccurred(_ error: Error, context: String) {
-        logger.error("❌ Error in \(context): \(error.localizedDescription)")
+    public static func error(_ error: Error, context: String) {
+        if let error = error as? BookMatchError {
+            logger.error("❌ Error in \(context): \(error.description)")
+        } else {
+            logger.error("❌ Error in \(context): \(error.localizedDescription)")
+        }
     }
 }

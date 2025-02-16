@@ -32,17 +32,7 @@ public final class ImageDownloadAPI: BaseAPIClient, ImageDownloadable {
                 return image
             }
             .catch { error in
-                if let networkError = error as? NetworkError {
-                    switch networkError {
-                    case .invalidURL:
-                        return .error(BookMatchError.imageDownloadFailed)
-                    case .decodingFailed:
-                        return .error(BookMatchError.networkError)
-                    default:
-                        return .error(BookMatchError.error(networkError.localizedDescription))
-                    }
-                }
-                return .error(error)
+                .error(BookMatchError.imageDownloadFailed(error.localizedDescription))
             }
     }
 }

@@ -54,38 +54,42 @@ final class AddBookViewModel: ViewModelType {
                     return .empty()
                 }
 
-                return Observable.create { [weak self] observer in
-                    Task {
-                        do {
-                            let book = try await self?.bookMatchKit.matchBook(image)
-                            guard let book else {
-                                throw AddBookError.bookNotFound
+                return Observable.create { observer in
+                    let disposable = self?.bookMatchKit.matchBook(image)
+                        .subscribe(
+                            onSuccess: { book in
+                                let finalBook = Book(
+                                    isbn: book.isbn,
+                                    title: book.title,
+                                    author: book.author,
+                                    publisher: book.publisher,
+                                    thumbnailUrl: URL(string: book.image),
+                                    isOwned: true,
+                                    description: book.description,
+                                    price: book.discount ?? "",
+                                    pubDate: book.pubdate ?? ""
+                                )
+
+                                observer.onNext(finalBook)
+                                observer.onCompleted()
+
+                            },
+                            onFailure: { error in
+                                switch error {
+                                case BookMatchError.networkError:
+                                    observer.onError(NetworkError.networkUnstable)
+                                case BookMatchError.noMatchFound:
+                                    observer.onError(AddBookError.bookNotFound)
+                                default:
+                                    BookKittyLogger.error("Error: \(error.localizedDescription)")
+                                    observer.onError(AddBookError.unknown)
+                                }
                             }
-                            let finalBook = Book(
-                                isbn: book.isbn,
-                                title: book.title,
-                                author: book.author,
-                                publisher: book.publisher,
-                                thumbnailUrl: URL(string: book.image),
-                                isOwned: true,
-                                description: book.description,
-                                price: book.discount ?? "",
-                                pubDate: book.pubdate ?? ""
-                            )
+                        )
 
-                            observer.onNext(finalBook)
-                            observer.onCompleted()
-                        } catch BookMatchError.networkError {
-                            observer.onError(NetworkError.networkUnstable)
-                        } catch BookMatchError.noMatchFound {
-                            observer.onError(AddBookError.bookNotFound)
-                        } catch {
-                            BookKittyLogger.error("Error: \(error.localizedDescription)")
-                            observer.onError(AddBookError.unknown)
-                        }
+                    return Disposables.create {
+                        disposable?.dispose()
                     }
-
-                    return Disposables.create()
                 }
             }
             .observe(on: MainScheduler.instance)
