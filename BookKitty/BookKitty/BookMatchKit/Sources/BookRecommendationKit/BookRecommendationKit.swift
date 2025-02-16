@@ -14,7 +14,7 @@ public final class BookRecommendationKit: BookRecommendable {
     // MARK: - Properties
 
     private let openAiAPI: OpenAIAPI
-    private let matchingService: BookMatchingService
+    private let validationService: BookValidationService
 
     // MARK: - Lifecycle
 
@@ -32,11 +32,11 @@ public final class BookRecommendationKit: BookRecommendable {
             openAIApiKey: openAIApiKey
         )
 
-        openAiAPI = OpenAIAPI(configuration: apiConfig)
-
         let naverAPI = NaverAPI(configuration: apiConfig)
 
-        matchingService = BookMatchingService(
+        openAiAPI = OpenAIAPI(configuration: apiConfig)
+
+        validationService = BookValidationService(
             similiarityThreshold: similiarityThreshold,
             maxRetries: maxRetries,
             titleWeight: titleWeight,
@@ -74,7 +74,7 @@ public final class BookRecommendationKit: BookRecommendable {
                     // - Note: 각 추천 도서를 실제 도서 정보로 변환할 때 사용.
                     //         matchToRealBook 메서드를 통해 각 도서를 실제 존재하는 도서와 매칭.
                     .flatMap { book -> Single<BookItem?> in
-                        self.matchingService.matchToRealBook(book)
+                        self.validationService.validateRecommendedBook(book)
                             .map { result -> BookItem? in
                                 if let matchedBook = result.book {
                                     return matchedBook
@@ -157,7 +157,7 @@ public final class BookRecommendationKit: BookRecommendable {
                     //         ``matchToRealBook()`` -> previousBooks 갱신 -> ``matchToRealBook()`` ->
                     // previousBooks 갱신...
                     .concatMap { book -> Observable<BookItem?> in
-                        self.matchingService.matchToRealBookWithRetry(
+                        self.validationService.findMatchingBookWithRetry(
                             book: book,
                             question: question,
                             previousBooks: previousBooks,
