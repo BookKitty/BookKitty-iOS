@@ -75,6 +75,12 @@ public final class BookRecommendationKit: BookRecommendable {
                     //         matchToRealBook 메서드를 통해 각 도서를 실제 존재하는 도서와 매칭.
                     .flatMap { book -> Single<BookItem?> in
                         self.matchingService.matchToRealBook(book)
+                            .map { result -> BookItem? in
+                                if let matchedBook = result.book {
+                                    return matchedBook
+                                }
+                                return nil
+                            }
                     }
                     // `compactMap` - nil 값 제거
                     //
@@ -151,7 +157,7 @@ public final class BookRecommendationKit: BookRecommendable {
                     //         ``matchToRealBook()`` -> previousBooks 갱신 -> ``matchToRealBook()`` ->
                     // previousBooks 갱신...
                     .concatMap { book -> Observable<BookItem?> in
-                        self.matchingService.matchToRealBook(
+                        self.matchingService.matchToRealBookWithRetry(
                             book: book,
                             question: question,
                             previousBooks: previousBooks,

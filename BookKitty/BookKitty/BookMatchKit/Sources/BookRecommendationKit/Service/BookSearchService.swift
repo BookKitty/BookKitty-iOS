@@ -59,10 +59,11 @@ public final class BookSearchService {
                         return searchedResults
                     }
             }
+            .asSingle()
             // `flatMap` - 추가 검색 조건 처리
             // - Note: 검색 결과가 없을 때 대체 검색을 수행할 때 사용.
             //         부제목을 제외한 메인 제목으로 재검색 수행.
-            .flatMap { searchedResults -> Observable<[BookItem]> in
+            .flatMap { searchedResults -> Single<[BookItem]> in
                 let subTitleDivider = [":", "|", "-"]
                 // If no results and title contains divider, try searching with main title only
                 if searchedResults.isEmpty,
@@ -70,11 +71,9 @@ public final class BookSearchService {
                    let divider = subTitleDivider.first(where: { sourceBook.title.contains($0) }),
                    let title = sourceBook.title.split(separator: divider).first {
                     return self.naverAPI.searchBooks(query: String(title), limit: 10)
-                        .asObservable()
                 }
 
                 return .just(searchedResults)
             }
-            .asSingle()
     }
 }

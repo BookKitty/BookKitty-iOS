@@ -4,14 +4,15 @@ import BookMatchStrategy
 import RxSwift
 
 protocol BookMatchable {
-    func matchToRealBook(
+    func matchToRealBookWithRetry(
         book: RawBook,
         question: String,
         previousBooks: [RawBook],
         openAiAPI: OpenAIAPI
-    )
-        -> Single<BookItem?>
-    func matchToRealBook(_ book: RawBook) -> Single<BookItem?>
+    ) -> Single<BookItem?>
+
+    func matchToRealBook(_ input: RawBook)
+        -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)>
 }
 
 public final class BookMatchingService: BookMatchable {
@@ -39,17 +40,18 @@ public final class BookMatchingService: BookMatchable {
     // MARK: - Functions
 
     /// ``recommendBooks(for: _, from: _)``메서드에 사용됩니다,
-    /// 단일 도서에 대해 매칭을 시도하고, 매칭 실패시 추가 도서를 요청하여 재시도합니다.
+    /// 단일 도서에 대해 매칭을 시도하고, 매칭 실패시 `추가 도서를 요청`하여 재시도합니다.
     /// 모든 재시도가 실패하면 수집된 후보군 중 가장 유사도가 높은 도서를 반환합니다.
     ///
     /// - Parameters:
     ///   - book: 매칭을 시도할 기본 도서 정보
     ///   - question: 사용자의 도서 추천 요청 질문
     ///   - previousBooks: 이전에 시도된 도서들의 목록
+    ///   - openAiAPI: 추가 도서 요청을 위한 openAI 클라이언트
     /// - Returns: 매칭된 도서 정보를 포함한 Single 스트림
     ///           성공적으로 매칭된 경우 해당 도서,
     ///           실패한 경우 후보군 중 최상위 도서 또는 nil 반환
-    public func matchToRealBook(
+    public func matchToRealBookWithRetry(
         book: RawBook,
         question: String,
         previousBooks: [RawBook],
@@ -67,13 +69,12 @@ public final class BookMatchingService: BookMatchable {
                 return .just(candidates.first?.0)
             }
 
-            return convertToRealBook(currentBook)
+            return matchToRealBook(currentBook)
                 // `flatMap` - 매칭 결과 처리 및 재시도 로직
                 // - Note: 도서 매칭 결과에 따른 후속 처리를 결정할 때 사용.
                 //         1. 매칭 성공 시 해당 도서 반환
                 //         2. 부분 매칭 시 후보 목록에 추가하고 새로운 도서 요청
                 //         3. 매칭 실패 시 nil 반환
-                //         4. 메모리 관리를 위한 weak self 패턴 적용
                 .flatMap { result -> Single<BookItem?> in
                     if let matchedBook = result.book {
                         if result.isMatching {
@@ -106,63 +107,12 @@ public final class BookMatchingService: BookMatchable {
     }
 
     /// ``recommendBooks(from:_)``메서드에 사용됩니다,
-    /// 단일 도서에 대해 매칭을 시도하고 후보군을 관리합니다.
-    /// 매칭 시도가 실패할 경우, 후보군 중 가장 유사도가 높은 도서를 반환합니다.
-    ///
-    /// - Parameter book: 매칭을 시도할 기본 도서 정보
-    /// - Returns: 매칭된 도서 정보를 포함한 Single 스트림. 매칭 실패시 후보군의 최상위 도서 또는 nil 반환
-    public func matchToRealBook(_ book: RawBook) -> Single<BookItem?> {
-        var retryCount = 0
-        var candidates = [(BookItem, Double)]()
-
-        func tryMatch() -> Single<BookItem?> {
-            guard retryCount <= maxRetries else {
-                candidates.sort(by: { $0.1 > $1.1 })
-                return .just(candidates.first?.0)
-            }
-
-            return convertToRealBook(book)
-                // `map` - 매칭 결과 변환
-                // - Note: 도서 매칭 결과를 처리할 때 사용.
-                //         매칭 성공/실패 여부에 따라 적절한 결과 값 반환.
-                //         1. 매칭 성공: 해당 도서 반환
-                //         2. 매칭 실패: 후보 목록에 추가하고 nil 반환
-                //         3. 완전 실패: retry count 증가하고 nil 반환
-                .map { result -> BookItem? in
-                    if result.isMatching, let matchedBook = result.book {
-                        return matchedBook
-                    } else if let matchedBook = result.book {
-                        candidates.append((matchedBook, result.similarity))
-                        retryCount += 1
-                        return nil
-                    } else {
-                        retryCount += 1
-                        return nil
-                    }
-                }
-                // `flatMap` - 재귀적 매칭 처리
-                // - Note: 매칭 결과에 따른 후속 작업을 결정할 때 사용.
-                //         1. 매칭 성공: 해당 도서를 스트림으로 전달
-                //         2. 매칭 실패: 재귀적으로 다시 매칭 시도
-                .flatMap { matchedBook -> Single<BookItem?> in
-                    if let matchedBook {
-                        return .just(matchedBook)
-                    }
-                    return tryMatch()
-                }
-        }
-
-        return tryMatch()
-    }
-}
-
-extension BookMatchingService {
     /// RawBook을 실제 BookItem으로 변환합니다.
     /// - Parameters:
     ///   - input: 변환할 기본 도서 정보
     /// - Returns: 매칭 결과, 찾은 도서 정보, 유사도 점수를 포함한 튜플
     /// - Throws: BookMatchError
-    private func convertToRealBook(_ input: RawBook)
+    public func matchToRealBook(_ input: RawBook)
         -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)> {
         // Results에 대한 병렬 처리가 필요하므로, Observable 스트림 생성 후, 최종 Single 반환 필요
         searchService.searchOverallBooks(from: input)
@@ -222,7 +172,9 @@ extension BookMatchingService {
                 .just((isMatching: false, book: nil, similarity: 0.0))
             }
     }
+}
 
+extension BookMatchingService {
     private func weightedTotalScore(_ similarities: [Double]) -> Double {
         let weights = [titleWeight, 1.0 - titleWeight]
 
