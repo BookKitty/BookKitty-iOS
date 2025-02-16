@@ -24,16 +24,20 @@ final class AddBookViewController: BaseViewController {
 
     private let titleLabel = Headline3Label(weight: .extraBold).then {
         $0.text = "새로운 책 추가하기"
+        $0.adjustsFontSizeToFitWidth = true
+        $0.minimumScaleFactor = 0.5
     }
 
     private let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.clipsToBounds = true
+        $0.layer.cornerRadius = 20
     }
 
     private let infoLabel = BodyLabel().then {
         $0.text = "책의 정보를 파악할 수 있는 겉면 사진을 찍어주세요."
         $0.textAlignment = .center
+        $0.numberOfLines = 2
     }
 
     private let loadingCircle = LoadingCircleView(frame: .zero).then {
@@ -56,36 +60,31 @@ final class AddBookViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupAdaptiveLayout()
+        setupCameraNotifications()
 
-        NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
-            .subscribe(onNext: { [weak self] _ in
-                self?.appDidBecomActive()
-            }).disposed(by: disposeBag)
+        checkCameraPermission { [weak self] granted in
+            guard let self else {
+                return
+            }
 
-        checkCameraPermission { granted in
-            if granted {
-                self.setupCamera()
-            } else {
-                self.showPermissionAlert()
+            DispatchQueue.main.async {
+                if granted {
+                    self.setupCamera()
+                } else {
+                    self.showPermissionAlert()
+                }
             }
         }
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
-        }
+        updatePreviewLayerFrame()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
-        }
-    }
-
-    override func viewDidDisappear(_: Bool) {
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         captureSession.stopRunning()
     }
 
@@ -94,34 +93,42 @@ final class AddBookViewController: BaseViewController {
     // MARK: - UI Setup
 
     override func configureHierarchy() {
-        [
+        for item in [
             navigationBar,
             titleLabel,
             cameraContainerView,
             infoLabel,
             captureButton,
             loadingCircle,
-        ].forEach { view.addSubview($0) }
-
+        ] {
+            view.addSubview(item)
+        }
         cameraContainerView.addSubview(cameraView)
     }
 
     override func configureLayout() {
         navigationBar.snp.makeConstraints {
             $0.top.equalTo(view.safeAreaLayoutGuide)
-            $0.horizontalEdges.equalToSuperview()
-            $0.height.equalTo(Vars.viewSizeReg)
+            $0.leading.trailing.equalToSuperview()
+            $0.height.equalTo(44)
         }
 
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.spacing32)
-            $0.centerX.equalToSuperview()
+            $0.top.equalTo(navigationBar.snp.bottom).offset(32)
+            $0.leading.trailing.equalToSuperview().inset(20)
         }
 
         cameraContainerView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing32)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(32)
             $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(402)
+
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                $0.width.equalToSuperview().multipliedBy(0.6)
+                $0.height.equalTo(cameraContainerView.snp.width).multipliedBy(1.4)
+            } else {
+                $0.width.equalToSuperview().multipliedBy(0.9)
+                $0.height.equalTo(cameraContainerView.snp.width).multipliedBy(1.2)
+            }
         }
 
         cameraView.snp.makeConstraints {
@@ -129,21 +136,24 @@ final class AddBookViewController: BaseViewController {
         }
 
         infoLabel.snp.makeConstraints {
-            $0.top.equalTo(cameraContainerView.snp.bottom)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(402)
-            $0.height.equalTo(85)
+            $0.top.equalTo(cameraContainerView.snp.bottom).offset(32)
+            $0.leading.trailing.equalToSuperview().inset(40)
         }
 
         captureButton.snp.makeConstraints {
-            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
+            $0.top.equalTo(infoLabel.snp.bottom).offset(32)
             $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(Vars.viewSizeLarge)
+            $0.size.equalTo(60)
+
+            // 아이패드에서 버튼이 짤리지 않도록 최소 여백 추가
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                $0.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide.snp.bottom).offset(-40)
+            }
         }
 
         loadingCircle.snp.makeConstraints {
-            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
-            $0.centerX.equalToSuperview()
+            $0.center.equalTo(captureButton)
+            $0.size.equalTo(80)
         }
     }
 
@@ -153,7 +163,7 @@ final class AddBookViewController: BaseViewController {
         let input = AddBookViewModel.Input(
             leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
             cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
-            capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
+            capturedImage: capturedImageRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -171,6 +181,102 @@ final class AddBookViewController: BaseViewController {
 
     // MARK: - Functions
 
+    // MARK: - Layout Configuration
+
+    private func setupAdaptiveLayout() {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            titleLabel.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+            infoLabel.font = UIFont.systemFont(ofSize: 20)
+            cameraContainerView.layer.cornerRadius = 40
+        } else {
+            cameraContainerView.layer.cornerRadius = 20
+        }
+    }
+
+    // MARK: - Camera Handling
+
+    /// 📌 앱이 활성화될 때 카메라 권한 체크
+    private func setupCameraNotifications() {
+        NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification)
+            .subscribe(onNext: { [weak self] _ in
+                self?.checkCameraPermission { [weak self] granted in
+                    guard let self else {
+                        return
+                    }
+
+                    DispatchQueue.main.async {
+                        if granted {
+                            self.setupCamera()
+                        } else {
+                            self.showPermissionAlert()
+                        }
+                    }
+                }
+            }).disposed(by: disposeBag)
+    }
+
+    /// 📌 카메라 권한 확인 함수 (클로저 추가)
+    private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+
+        switch status {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
+
+    private func setupCamera() {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else {
+                return
+            }
+
+            captureSession.beginConfiguration()
+            defer { self.captureSession.commitConfiguration() }
+
+            guard let device = AVCaptureDevice.default(for: .video),
+                  let input = try? AVCaptureDeviceInput(device: device),
+                  captureSession.canAddInput(input),
+                  captureSession.canAddOutput(self.captureOutput) else {
+                return
+            }
+
+            captureSession.addInput(input)
+            captureSession.addOutput(captureOutput)
+
+            DispatchQueue.main.async {
+                self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+                self.previewLayer?.videoGravity = .resizeAspectFill
+                self.previewLayer?.connection?.videoOrientation = .portrait
+                self.cameraView.layer.addSublayer(self.previewLayer!)
+                self.updatePreviewLayerFrame()
+
+                DispatchQueue.global(qos: .userInitiated).async {
+                    if !self.captureSession.isRunning {
+                        self.captureSession.startRunning()
+                    }
+                }
+            }
+        }
+    }
+
+    private func updatePreviewLayerFrame() {
+        DispatchQueue.main.async {
+            self.previewLayer?.frame = self.cameraContainerView.bounds
+            let cornerRadius = self.cameraContainerView.layer.cornerRadius
+            self.previewLayer?.cornerRadius = cornerRadius
+            self.cameraView.layer.cornerRadius = cornerRadius
+        }
+    }
+
     private func bindUI() {
         captureButton.rx.tap
             .bind { [weak self] in
@@ -180,12 +286,18 @@ final class AddBookViewController: BaseViewController {
             .disposed(by: disposeBag)
     }
 
-    private func appDidBecomActive() {
-        checkCameraPermission { granted in
-            if granted {
-                self.setupCamera()
-            } else {
-                self.showPermissionAlert()
+    private func appDidBecomeActive() {
+        checkCameraPermission { [weak self] granted in
+            guard let self else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                if granted {
+                    self.setupCamera()
+                } else {
+                    self.showPermissionAlert()
+                }
             }
         }
     }
@@ -200,41 +312,6 @@ final class AddBookViewController: BaseViewController {
         loadingCircle.isHidden = true
         captureButton.isHidden = false
         loadingCircle.stop()
-    }
-}
-
-extension AddBookViewController: AVCapturePhotoCaptureDelegate {
-    func capturePhoto() {
-        let settings = AVCapturePhotoSettings()
-        captureOutput.capturePhoto(with: settings, delegate: self)
-    }
-
-    func photoOutput(
-        _: AVCapturePhotoOutput,
-        didFinishProcessingPhoto photo: AVCapturePhoto,
-        error: Error?
-    ) {
-        guard error == nil, let imageData = photo.fileDataRepresentation(),
-              let image = UIImage(data: imageData) else {
-            showCaptureFailurePopup()
-            return
-        }
-
-        print("📸 이미지 캡처 성공")
-        capturedImageRelay.accept(image) // ✅ OCR을 위한 이미지 전달
-    }
-
-    private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            completion(true)
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async { completion(granted) }
-            }
-        default:
-            completion(false)
-        }
     }
 
     private func showPermissionAlert() {
@@ -257,47 +334,19 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
         alert.addAction(settingsAction)
         alert.addAction(cancelAction)
 
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            alert.popoverPresentationController?.sourceView = view
+            alert.popoverPresentationController?.sourceRect = CGRect(
+                x: view.bounds.midX,
+                y: view.bounds.midY,
+                width: 0,
+                height: 0
+            )
+            alert.popoverPresentationController?.permittedArrowDirections = []
+        }
+
         DispatchQueue.main.async {
             self.present(alert, animated: true)
-        }
-    }
-
-    private func setupCamera() {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self else {
-                return
-            }
-            guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-                print("🚨 카메라 장치를 찾을 수 없음")
-                return
-            }
-            do {
-                let input = try AVCaptureDeviceInput(device: captureDevice)
-                captureSession.beginConfiguration()
-                if captureSession.canAddInput(input) {
-                    captureSession.addInput(input)
-                }
-                if captureSession.canAddOutput(captureOutput) {
-                    captureSession.addOutput(captureOutput)
-                }
-                captureSession.commitConfiguration()
-
-                DispatchQueue.main.async {
-                    self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-                    self.previewLayer?.videoGravity = .resizeAspectFill
-                    self.previewLayer?.frame = self.cameraView.bounds
-                    self.cameraView.layer.insertSublayer(self.previewLayer!, at: 0)
-
-                    // 백그라운드에서 AVCaptureSession 시작
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        if !self.captureSession.isRunning {
-                            self.captureSession.startRunning()
-                        }
-                    }
-                }
-            } catch {
-                print("🚨 카메라 초기화 실패: \(error.localizedDescription)")
-            }
         }
     }
 
@@ -317,9 +366,42 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
         alert.addAction(retryAction)
         alert.addAction(cancelAction)
 
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            alert.popoverPresentationController?.sourceView = view
+            alert.popoverPresentationController?.sourceRect = CGRect(
+                x: view.bounds.midX,
+                y: view.bounds.midY,
+                width: 0,
+                height: 0
+            )
+            alert.popoverPresentationController?.permittedArrowDirections = []
+        }
+
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
+    }
+}
+
+extension AddBookViewController: AVCapturePhotoCaptureDelegate {
+    func capturePhoto() {
+        let settings = AVCapturePhotoSettings()
+        captureOutput.capturePhoto(with: settings, delegate: self)
+    }
+
+    func photoOutput(
+        _: AVCapturePhotoOutput,
+        didFinishProcessingPhoto photo: AVCapturePhoto,
+        error: Error?
+    ) {
+        guard error == nil, let imageData = photo.fileDataRepresentation(),
+              let image = UIImage(data: imageData) else {
+            showCaptureFailurePopup()
+            return
+        }
+
+        print("📸 이미지 캡처 성공")
+        capturedImageRelay.accept(image)
     }
 }
 
