@@ -13,8 +13,8 @@ public final class BookMatchKit: BookMatchable {
 
     private let naverAPI: NaverAPI
     private let imageDownloadAPI: ImageDownloadAPI
-    
-    private let textExtractor = TextExtractor()
+
+    private let textExtractingService = TextExtractingService()
     private let disposeBag = DisposeBag()
 
     // MARK: - Lifecycle
@@ -46,7 +46,7 @@ public final class BookMatchKit: BookMatchable {
     public func matchBook(_ image: UIImage) -> Single<BookItem> {
         BookMatchLogger.matchingStarted()
 
-        return textExtractor.extractText(from: image)
+        return textExtractingService.extractText(from: image)
             // `flatMap` - 텍스트 추출 결과를 도서 검색 결과로 변환
             // - Note: OCR로 추출된 텍스트를 사용하여 `도서 검색을 수행`할 때 사용.
             //         텍스트 배열을 받아서 새로운 Single<[BookItem]> 스트림을 생성.
@@ -149,21 +149,11 @@ public final class BookMatchKit: BookMatchable {
                 // `delay` - API 호출 간 지연 시간 추가
                 // - Note: 연속적인 API 호출 시 서버 부하를 줄이기 위해 사용.
                 //         백그라운드 스레드에서 500ms 지연 후 다음 요청 실행.
-                Single<Void>.just(())
+                return self.naverAPI.searchBooks(query: currentQuery, limit: 10)
                     .delay(
                         .milliseconds(500),
                         scheduler: ConcurrentDispatchQueueScheduler(qos: .background)
                     )
-                    // `flatMap` - 지연 후 실제 검색 수행
-                    // - Note: 지연 완료 후 실제 `도서 검색 API를 호출`할 때 사용.
-                    //         메모리 해제 검사도 함께 수행.
-                    .flatMap { [weak self] _ -> Single<[BookItem]> in
-                        guard let self else {
-                            return .error(BookMatchError.deinitError)
-                        }
-
-                        return naverAPI.searchBooks(query: currentQuery, limit: 10)
-                    }
                     // `subscribe` - 검색 결과 처리 및 다음 검색 준비
                     // - Note: 검색 결과를 받아 처리하고 조건에 따라 다음 검색을 수행하거나 최종 결과를 반환할 때 사용.
                     //         성공/실패 케이스를 각각 처리하고 disposeBag으로 구독 해제 보장.

@@ -13,11 +13,8 @@ import UIKit
 public final class BookRecommendationKit: BookRecommendable {
     // MARK: - Properties
 
-    private let naverAPI: NaverAPI
     private let openAiAPI: OpenAIAPI
-    private let similiarityThreshold: [Double]
-    private let maxRetries: Int
-    private let titleWeight: Double
+    private let matchingService: BookMatchingService
 
     // MARK: - Lifecycle
 
@@ -35,12 +32,16 @@ public final class BookRecommendationKit: BookRecommendable {
             openAIApiKey: openAIApiKey
         )
 
-        naverAPI = NaverAPI(configuration: apiConfig)
         openAiAPI = OpenAIAPI(configuration: apiConfig)
 
-        self.similiarityThreshold = similiarityThreshold
-        self.maxRetries = maxRetries
-        self.titleWeight = titleWeight
+        let naverAPI = NaverAPI(configuration: apiConfig)
+
+        matchingService = BookMatchingService(
+            similiarityThreshold: similiarityThreshold,
+            maxRetries: maxRetries,
+            titleWeight: titleWeight,
+            searchService: BookSearchService(naverAPI: naverAPI)
+        )
     }
 
     // MARK: - Functions
@@ -56,17 +57,43 @@ public final class BookRecommendationKit: BookRecommendable {
         BookMatchLogger.recommendationStarted(question: nil)
 
         return openAiAPI.getBookRecommendation(ownedBooks: ownedBooks)
+            // `flatMap` - GPT 추천 결과를 `실제 도서로 변환`
+            // - Note: GPT가 추천한 도서 목록을 실제 존재하는 도서로 매칭할 때 사용.
+            //         각 추천 도서에 대해 실제 도서 검색을 수행하고 결과를 새로운 스트림으로 변환.
+            //         메모리 해제 검사도 함께 수행.
             .flatMap { [weak self] result -> Single<[BookItem]> in
                 guard let self else {
                     return .just([])
                 }
 
+                // `Observable.from` - 배열을 개별 요소로 분리
+                // - Note: 추천된 도서 배열의 각 도서를 개별적으로 처리하기 위해 사용.
+                //         각 도서에 대해 독립적인 매칭 작업을 수행할 수 있게 함.
                 return Observable.from(result.books)
+                    // `flatMap` - 개별 도서를 실제 도서로 매칭
+                    // - Note: 각 추천 도서를 실제 도서 정보로 변환할 때 사용.
+                    //         matchToRealBook 메서드를 통해 각 도서를 실제 존재하는 도서와 매칭.
                     .flatMap { book -> Single<BookItem?> in
-                        self.matchToRealBook(book)
+                        self.matchingService.matchToRealBook(book)
                     }
+                    // `compactMap` - nil 값 제거
+                    //
+                    // ```
+                    // // filter + map할 경우 강제 언레핑이 필요하게 됨.
+                    // .filter { $0 != nil }  /// nil 체크
+                    // .map { $0! }          /// 강제 언래핑 필요
+                    // ```
+                    //
+                    // - Note: 매칭에 실패한 도서(nil)를 결과에서 제외할 때 사용.
+                    //         성공적으로 매칭된 도서만 최종 결과에 포함.
                     .compactMap { $0 }
+                    // `toArray` - 개별 결과를 배열로 변환
+                    // - Note: 개별적으로 처리된 도서들을 `하나의 배열로 모을 때` 사용.
+                    //         최종적으로 추천 도서 목록을 생성.
                     .toArray()
+                    // `map` - 중복 제거
+                    // - Note: 최종 결과에서 중복된 도서를 제거할 때 사용.
+                    //         Set을 통해 중복을 제거하고 다시 배열로 변환.
                     .map { Array(Set($0)) }
                     .catch { _ in
                         .just([])
@@ -85,6 +112,9 @@ public final class BookRecommendationKit: BookRecommendable {
         BookMatchLogger.recommendationStarted(question: question)
 
         return openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
+            // `do` - 사이드 이펙트 처리하며 스트림을 계속 진행해야하는 상황이므로 선택, Subscribe는 체이닝이 종료되는 시점에 사용
+            // - Note: 스트림을 변경하지 않고 로깅을 수행할 때 사용.
+            //         추천 결과를 로그로 기록하면서 원본 데이터는 그대로 유지.
             .do(onSuccess: { result in
                 let resultString = """
                 보유 도서 기반 추천 목록: \(result.ownedBooks.map(\.title))
@@ -93,6 +123,9 @@ public final class BookRecommendationKit: BookRecommendable {
 
                 BookMatchLogger.gptResponseReceived(result: resultString)
             })
+            // `flatMap` - 추천 결과를 실제 도서로 변환
+            // - Note: GPT 추천 결과를 실제 도서 정보로 변환할 때 사용.
+            //         추천된 도서들을 비동기적으로 실제 도서와 매칭하고 새로운 스트림 생성.
             .flatMap { [weak self] recommendation -> Single<(
                 recommendation: RecommendationForQuestion,
                 books: [BookItem]
@@ -108,22 +141,49 @@ public final class BookRecommendationKit: BookRecommendable {
 
                 var previousBooks = recommendation.newBooks
 
+                // `Observable.from` - 배열을 개별 요소로 분리
+                // - Note: 새로 추천된 도서들을 개별적으로 처리하기 위해 사용.
+                //         각 도서에 대해 순차적인 매칭 작업 수행.
                 return Observable.from(recommendation.newBooks)
+                    // `concatMap` - 순차적 매칭 수행
+                    // - Note: 각 도서를 순서대로 매칭할 때 사용.
+                    //         이전 매칭 작업이 완료된 후 다음 매칭을 시작하여 순서 보장.
+                    //         ``matchToRealBook()`` -> previousBooks 갱신 -> ``matchToRealBook()`` ->
+                    // previousBooks 갱신...
                     .concatMap { book -> Observable<BookItem?> in
-                        self.matchToRealBook(
+                        self.matchingService.matchToRealBook(
                             book: book,
                             question: question,
-                            previousBooks: previousBooks
+                            previousBooks: previousBooks,
+                            openAiAPI: self.openAiAPI
                         )
                         .asObservable()
+                        // `do` - 매칭 완료 후 처리
+                        // - Note: 매칭이 완료된 도서를 이전 도서 목록에 추가할 때 사용.
+                        //         다음 매칭 작업을 위한 컨텍스트 업데이트.
                         .do(onNext: { _ in
                             previousBooks.append(book)
                         })
                     }
+                    // `compactMap` - nil 값 제거
+                    // - Note: 매칭에 실패한 도서를 결과에서 제외할 때 사용.
+                    //         성공적으로 매칭된 도서만 최종 결과에 포함.
                     .compactMap { $0 }
+                    // `toArray` - 개별 결과를 배열로 변환
+                    // - Note: 매칭된 도서들을 하나의 배열로 모을 때 사용.
+                    //         최종 추천 도서 목록 생성.
                     .toArray()
+                    // `map` - 최종 결과 구조화
+                    // - Note: 원본 추천 정보와 매칭된 도서 목록을 함께 반환할 때 사용.
+                    //         추천 컨텍스트와 실제 도서 정보를 결합.
                     .map { (recommendation, $0) }
             }
+            // `flatMap` - 매칭된 도서 정보를 최종 모듈 출력으로 변환
+            // - Note: 매칭 결과와 GPT 설명을 결합하여 최종 출력을 생성할 때 사용.
+            //         1. 메모리 관리를 위해 weak self 패턴 적용
+            //         2. 추천된 보유 도서들을 실제 보유 도서와 매칭하여 ISBN 추출
+            //         3. GPT에 추천 도서 설명을 요청하여 결합
+            //         4. BookMatchModuleOutput 형식으로 최종 변환
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
                     BookMatchLogger.error(
@@ -139,6 +199,12 @@ public final class BookRecommendationKit: BookRecommendable {
                 }
 
                 let filteredOwnedBooks = result.recommendation.ownedBooks
+                    // `compactMap` - 추천된 도서의 ISBN 매핑 및 필터링
+                    // - Note: 추천된 도서와 실제 보유 도서를 매칭하여 ISBN을 추출할 때 사용.
+                    //         1. 각 추천 도서에 대해 실제 보유 도서와 제목/저자 일치 여부 확인
+                    //         2. 일치하는 도서가 있으면 해당 도서의 ISBN 반환
+                    //         3. 일치하는 도서가 없으면 nil 반환하여 자동으로 필터링
+                    //         4. 최종적으로 실제 보유 중인 도서의 ISBN만 남김
                     .compactMap { recommendedBook in
                         if let validOwnedBook = ownedBooks
                             .first(where: {
@@ -161,6 +227,12 @@ public final class BookRecommendationKit: BookRecommendable {
                     question: question,
                     books: ownedRaws + validNewRaws
                 )
+                // `map` - 최종 출력 데이터 구조화
+                // - Note: GPT 응답과 매칭 결과를 최종 출력 형태로 변환할 때 사용.
+                //         1. 중복 제거된 새로운 추천 도서 목록 생성
+                //         2. 매칭 완료 로깅 수행
+                //         3. ISBN 목록, 새로운 도서 목록, 설명을 포함한 출력 구조체 생성
+                //         4. 단일 값 변환이므로 일반 map 사용
                 .map { description in
                     let newBooks = Array(Set(result.books))
 
@@ -181,8 +253,8 @@ public final class BookRecommendationKit: BookRecommendable {
 
                 if let bookMatchError = error as? BookMatchError {
                     switch bookMatchError {
-                    case .invalidGPTFormat:
-                        return .error(BookMatchError.invalidGPTFormat)
+                    case let .invalidGPTFormat(result):
+                        return .error(BookMatchError.invalidGPTFormat(result))
                     case .networkError:
                         return .error(BookMatchError.networkError)
                     case .deinitError:
@@ -200,218 +272,5 @@ public final class BookRecommendationKit: BookRecommendable {
                     return .error(error)
                 }
             }
-    }
-
-    /// 단일 도서에 대해 매칭을 시도하고, 매칭 실패시 추가 도서를 요청하여 재시도합니다.
-    /// 모든 재시도가 실패하면 수집된 후보군 중 가장 유사도가 높은 도서를 반환합니다.
-    ///
-    /// - Parameters:
-    ///   - book: 매칭을 시도할 기본 도서 정보
-    ///   - question: 사용자의 도서 추천 요청 질문
-    ///   - previousBooks: 이전에 시도된 도서들의 목록
-    /// - Returns: 매칭된 도서 정보를 포함한 Single 스트림
-    ///           성공적으로 매칭된 경우 해당 도서,
-    ///           실패한 경우 후보군 중 최상위 도서 또는 nil 반환
-    private func matchToRealBook(
-        book: RawBook,
-        question: String,
-        previousBooks: [RawBook]
-    ) -> Single<BookItem?> {
-        BookMatchLogger.bookConversionStarted(title: book.title, author: book.author)
-
-        var retryCount = 0
-        var currentBook = book
-        var candidates = [(BookItem, Double)]()
-
-        func tryMatch() -> Single<BookItem?> {
-            guard retryCount < maxRetries else {
-                candidates.sort(by: { $0.1 > $1.1 })
-                return .just(candidates.first?.0)
-            }
-
-            return convertToRealBook(currentBook)
-                .flatMap { [weak self] result -> Single<BookItem?> in
-                    guard let self else {
-                        return .error(BookMatchError.invalidGPTFormat)
-                    }
-
-                    if let matchedBook = result.book {
-                        if result.isMatching {
-                            return .just(matchedBook)
-                        } else {
-                            candidates.append((matchedBook, result.similarity))
-                            retryCount += 1
-
-                            BookMatchLogger.retryingBookMatch(
-                                attempt: retryCount,
-                                currentBook: matchedBook
-                            )
-
-                            return openAiAPI.getAdditionalBook(
-                                question: question,
-                                previousBooks: previousBooks + [currentBook]
-                            )
-                            .flatMap { newBook -> Single<BookItem?> in
-                                currentBook = newBook
-                                return tryMatch()
-                            }
-                        }
-                    } else {
-                        return .just(nil)
-                    }
-                }
-        }
-
-        return tryMatch()
-    }
-
-    /// 단일 도서에 대해 매칭을 시도하고 후보군을 관리합니다.
-    /// 매칭 시도가 실패할 경우, 후보군 중 가장 유사도가 높은 도서를 반환합니다.
-    ///
-    /// - Parameter book: 매칭을 시도할 기본 도서 정보
-    /// - Returns: 매칭된 도서 정보를 포함한 Single 스트림. 매칭 실패시 후보군의 최상위 도서 또는 nil 반환
-    private func matchToRealBook(_ book: RawBook) -> Single<BookItem?> {
-        var retryCount = 0
-        var candidates = [(BookItem, Double)]()
-
-        func tryMatch() -> Single<BookItem?> {
-            guard retryCount <= maxRetries else {
-                candidates.sort(by: { $0.1 > $1.1 })
-                return .just(candidates.first?.0)
-            }
-
-            return convertToRealBook(book)
-                .map { result -> BookItem? in
-                    if result.isMatching, let matchedBook = result.book {
-                        return matchedBook
-                    } else if let matchedBook = result.book {
-                        candidates.append((matchedBook, result.similarity))
-                        retryCount += 1
-                        return nil
-                    } else {
-                        retryCount += 1
-                        return nil
-                    }
-                }
-                .flatMap { matchedBook -> Single<BookItem?> in
-                    if let matchedBook {
-                        return .just(matchedBook)
-                    }
-                    return tryMatch()
-                }
-        }
-
-        return tryMatch()
-    }
-
-    /// RawBook을 실제 BookItem으로 변환합니다.
-    /// - Note:``recommendBooks(for:)``, ``recommendBooks(from:)`` 메서드에 사용됩니다.
-    ///
-    /// - Parameters:
-    ///   - input: 변환할 기본 도서 정보
-    /// - Returns: 매칭 결과, 찾은 도서 정보, 유사도 점수를 포함한 튜플
-    /// - Throws: BookMatchError
-    private func convertToRealBook(_ input: RawBook)
-        -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)> {
-        // Results에 대한 병렬 처리가 필요하므로, Observable 스트림 생성 후, 최종 Single 반환 필요
-        searchOverallBooks(from: input)
-            .flatMap { searchResults -> Single<[(BookItem, [Double])]> in
-                guard !searchResults.isEmpty else {
-                    return .error(BookMatchError.noMatchFound)
-                }
-
-                let result = searchResults.map { book in
-                    let titleSimilarity = LevenshteinStrategyNoParenthesis.calculateSimilarity(
-                        book.title, input.title
-                    )
-
-                    let authorSimilarity = LevenshteinStrategy.calculateSimilarity(
-                        book.author, input.author
-                    )
-                    return (book, [titleSimilarity, authorSimilarity])
-                }
-
-                return .just(result)
-            }
-            .map { [weak self] results -> (isMatching: Bool, book: BookItem?, similarity: Double) in
-                guard let self else {
-                    return (isMatching: false, book: nil, similarity: 0.0)
-                }
-
-                let sortedResults = results
-                    .sorted { weightedTotalScore($0.1) > weightedTotalScore($1.1) }
-
-                guard let bestMatch = sortedResults.first else {
-                    return (isMatching: false, book: nil, similarity: 0.0)
-                }
-
-                let totalSimilarity = weightedTotalScore(bestMatch.1)
-
-                let isMatching = bestMatch.1[0] >= similiarityThreshold[0] && bestMatch
-                    .1[1] >= similiarityThreshold[1]
-
-                return (
-                    isMatching: isMatching,
-                    book: bestMatch.0,
-                    similarity: totalSimilarity
-                )
-            }
-            .catch { _ in
-                .just((isMatching: false, book: nil, similarity: 0.0))
-            }
-    }
-
-    /// `제목 & 저자`로 도서를 검색합니다.
-    /// - Note: ``convertToRealBook()`` 메서드에 사용됩니다.
-    ///
-    /// - Parameters:
-    ///   - sourceBook: 검색할 도서의 기본 정보
-    /// - Returns: 검색된 도서 목록
-    /// - Throws: BookMatchError
-    private func searchOverallBooks(from sourceBook: RawBook) -> Single<[BookItem]> {
-        // title과 author로 병렬 검색을 수행하기 위해 Observable 시영
-        Observable<Void>.just(())
-            .delay(.milliseconds(500), scheduler: MainScheduler.instance)
-            .flatMap { [weak self] _ -> Observable<[BookItem]> in
-                guard let self else {
-                    return .error(BookMatchError.noMatchFound)
-                }
-                // title 검색과 author 검색을 동시에 수행
-                let titleSearch = naverAPI.searchBooks(query: sourceBook.title, limit: 10)
-                    .asObservable()
-                let authorSearch = naverAPI.searchBooks(query: sourceBook.author, limit: 10)
-                    .asObservable()
-
-                // 결과를 하나의 배열로 병합합니다.
-                return Observable.zip(titleSearch, authorSearch)
-                    .map { titleResults, authorResults in
-                        var searchedResults = [BookItem]()
-                        searchedResults.append(contentsOf: titleResults)
-                        searchedResults.append(contentsOf: authorResults)
-                        return searchedResults
-                    }
-            }
-            .flatMap { searchedResults -> Observable<[BookItem]> in
-                let subTitleDivider = [":", "|", "-"]
-                // If no results and title contains divider, try searching with main title only
-                if searchedResults.isEmpty,
-                   !subTitleDivider.filter({ sourceBook.title.contains($0) }).isEmpty,
-                   let divider = subTitleDivider.first(where: { sourceBook.title.contains($0) }),
-                   let title = sourceBook.title.split(separator: divider).first {
-                    return self.naverAPI.searchBooks(query: String(title), limit: 10)
-                        .asObservable()
-                }
-
-                return Observable.just(searchedResults)
-            }
-            .asSingle()
-    }
-
-    private func weightedTotalScore(_ similarities: [Double]) -> Double {
-        let weights = [titleWeight, 1.0 - titleWeight]
-
-        return zip(similarities, weights)
-            .map { $0.0 * $0.1 }
-            .reduce(0, +)
     }
 }

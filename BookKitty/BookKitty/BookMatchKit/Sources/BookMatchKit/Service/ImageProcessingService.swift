@@ -1,8 +1,12 @@
 import UIKit
 
-public class ImageProcessor: ImageProcessable {
+public class ImageProcessingService: ImageProcessable {
+    // MARK: - Lifecycle
+
     public init() {}
-    
+
+    // MARK: - Functions
+
     /// 감지된 바운딩 박스를 확장하여 OCR 정확도를 높임
     public func expandBoundingBox(_ boundingBox: CGRect, factor: CGFloat) -> CGRect {
         let x = boundingBox.origin.x - (boundingBox.width * (factor - 1)) / 2

@@ -39,7 +39,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
         )
         .map { response -> String in
             guard let result = response.choices.first?.message.content else {
-                throw BookMatchError.invalidGPTFormat
+                throw BookMatchError.invalidGPTFormat(response.choices.description)
             }
             return result
         }
@@ -68,7 +68,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
         return sendChatRequest(
             messages: messages,
             temperature: 0.01,
-            maxTokens: 100
+            maxTokens: 200
         )
         .map { response in
             guard let jsonString = response.choices.first?.message.content,
@@ -77,15 +77,12 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
                       RecommendationForQuestionRaw.self,
                       from: jsonData
                   ) else {
-                throw BookMatchError.invalidGPTFormat
+                throw BookMatchError.invalidGPTFormat(response.choices.description)
             }
 
             return result.toDomain(ownedBooks)
         }
         .retry(3)
-        .catch { _ in
-            throw BookMatchError.invalidGPTFormat
-        }
     }
 
     /// `ChatGPT api`를 활용, `보유도서 기반 추천 도서`를 요청 및 반환받습니다.
@@ -117,7 +114,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
                       from: jsonData
                   )
             else {
-                throw BookMatchError.invalidGPTFormat
+                throw BookMatchError.invalidGPTFormat(response.choices.description)
             }
 
             return result.toDomain()
@@ -151,7 +148,7 @@ public final class OpenAIAPI: BaseAPIClient, AIRecommendable {
         )
         .map { response in
             guard let result = response.choices.first?.message.content else {
-                throw BookMatchError.invalidGPTFormat
+                throw BookMatchError.invalidGPTFormat(response.choices.description)
             }
 
             let arr = result
