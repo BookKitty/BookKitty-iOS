@@ -77,11 +77,17 @@ extension AddQuestionCoordinator {
 
         let questionResultViewController =
             QuestionResultViewController(viewModel: questionResultViewModel)
-        // 책 상세 화면으로 이동하는 이벤트를 구독
+
         questionResultViewModel.navigateToBookDetail
             .withUnretained(self)
             .bind(onNext: { owner, book in
-                owner.showBookDetailScene(with: book)
+                let bookDetailCoordinator = DefaultBookDetailCoordinator(
+                    owner.navigationController
+                )
+
+                owner.addChildCoordinator(bookDetailCoordinator)
+                bookDetailCoordinator.finishDelegate = self
+                bookDetailCoordinator.start(with: book)
             }).disposed(by: disposeBag)
 
         questionResultViewModel.navigateToQuestionHistory
@@ -95,22 +101,11 @@ extension AddQuestionCoordinator {
             !($0 is NewQuestionViewController)
         }
     }
+}
 
-    /// 책 상세 화면을 표시하는 메서드
-    /// - Parameter isbn: 선택한 책의 ISBN 번호
-    private func showBookDetailScene(with book: Book) {
-        let bookRepository = LocalBookRepository()
-        let bookDetailViewModel = BookDetailViewModel(
-            bookDetail: book,
-            bookRepository: bookRepository
-        )
-        let bookDetailViewController = BookDetailViewController(viewModel: bookDetailViewModel)
-        bookDetailViewModel.navigateBackRelay
-            .observe(on: MainScheduler.instance)
-            .withUnretained(self)
-            .bind(onNext: { owner, _ in
-                owner.navigationController.popViewController(animated: true)
-            }).disposed(by: disposeBag)
-        navigationController.pushViewController(bookDetailViewController, animated: true)
+extension AddQuestionCoordinator: CoordinatorFinishDelegate {
+    func coordinatorDidFinish(childCoordinator: any Coordinator) {
+        childCoordinators.removeAll { $0 === childCoordinator }
+        navigationController.popViewController(animated: true)
     }
 }

@@ -2,7 +2,6 @@ import BookMatchAPI
 import BookMatchCore
 import RxSwift
 
-
 public final class BookSearchService: BookSearchable {
     // MARK: - Properties
 
