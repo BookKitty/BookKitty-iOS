@@ -97,7 +97,7 @@ final class AddBookViewController: BaseViewController {
     // MARK: - Overridden Functions
 
     // MARK: - UI Setup
-    
+
     override func configureNavItem() {
         navigationBar.setupTitle(with: "새로운 책 추가하기")
     }
