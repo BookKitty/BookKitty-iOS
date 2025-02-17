@@ -18,6 +18,10 @@ let package = Package(
             targets: ["BookRecommendationKit"]
         ),
         .library(
+            name: "BookMatchService",
+            targets: ["BookMatchService"]
+        ),
+        .library(
             name: "BookMatchCore",
             targets: ["BookMatchCore"]
         ),
@@ -40,17 +44,14 @@ let package = Package(
             name: "BookOCRKit",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
-            ],
-            resources: [
-                .process("Resources/MyObjectDetector5_1.mlmodel"),
+                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy", "BookMatchService",
             ]
         ),
         .target(
             name: "BookRecommendationKit",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
+                "BookMatchCore", "BookMatchAPI", "BookMatchService",
             ]
         ),
         .target(
@@ -64,6 +65,16 @@ let package = Package(
             name: "BookMatchCore",
             dependencies: [
                 "RxSwift", "SwiftFormat",
+            ]
+        ),
+        .target(
+            name: "BookMatchService",
+            dependencies: [
+                "RxSwift", "SwiftFormat",
+                "BookMatchCore", "BookMatchAPI",
+            ],
+            resources: [
+                .process("Resources/MyObjectDetector5_1.mlmodel"),
             ]
         ),
         .target(

@@ -3,18 +3,6 @@ import BookMatchCore
 import BookMatchStrategy
 import RxSwift
 
-protocol BookValidatable {
-    func findMatchingBookWithRetry(
-        book: RawBook,
-        question: String,
-        previousBooks: [RawBook],
-        openAiAPI: OpenAIAPI
-    ) -> Single<BookItem?>
-
-    func validateRecommendedBook(_ input: RawBook)
-        -> Single<(isMatching: Bool, book: BookItem?, similarity: Double)>
-}
-
 public final class BookValidationService: BookValidatable {
     // MARK: - Properties
 
