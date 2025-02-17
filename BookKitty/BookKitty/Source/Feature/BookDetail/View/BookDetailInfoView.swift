@@ -129,7 +129,7 @@ final class BookDetailInfoView: UIStackView {
     }
 
     private func createWidthFixedImageView(for imageLink: String) -> WidthFixedImageView {
-        WidthFixedImageView(imageUrl: imageLink, width: .regular)
+        WidthFixedImageView(imageLink: imageLink, width: .regular)
     }
 }
 

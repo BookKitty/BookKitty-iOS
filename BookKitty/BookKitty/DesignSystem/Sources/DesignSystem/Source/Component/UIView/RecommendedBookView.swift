@@ -24,11 +24,11 @@ public class RecommendedBookView: UIView {
     public init(
         bookTitle: String,
         bookAuthor: String,
-        imageUrl: String,
+        imageLink: String,
         isOwned: Bool
     ) {
         tagLabel = OwnedTagLabel(isOwned: isOwned)
-        bookImageView = HeightFixedImageView(imageUrl: imageUrl, height: .regular)
+        bookImageView = HeightFixedImageView(imageLink: imageLink, height: .regular)
         bookTitleLabel = BodyLabel(weight: .semiBold).then {
             $0.text = bookTitle
             $0.numberOfLines = 2
@@ -66,11 +66,11 @@ public class RecommendedBookView: UIView {
     public func configureView(
         bookTitle: String,
         bookAuthor: String,
-        imageUrl: String,
+        imageLink: String,
         isOwned: Bool
     ) {
         tagLabel.configure(isOwned: isOwned)
-        bookImageView.configure(imageUrl: imageUrl)
+        bookImageView.setupImage(imageLink: imageLink)
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = bookAuthor
     }
