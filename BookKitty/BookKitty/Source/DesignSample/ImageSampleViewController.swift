@@ -68,7 +68,6 @@ class ImageSampleViewController: BaseViewController {
         setupViews()
         setupProperties()
         setupLayouts()
-        updateLayouts()
     }
 }
 

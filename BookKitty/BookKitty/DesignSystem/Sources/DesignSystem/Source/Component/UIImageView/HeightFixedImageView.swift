@@ -5,6 +5,7 @@
 //  Created by 임성수 on 2/4/25.
 //
 
+import Kingfisher
 import SnapKit
 import UIKit
 
@@ -14,26 +15,27 @@ public enum BookImageFixedHeight {
     case mini
 }
 
-public class HeightFixedImageView: UIImageView, ImageLoadableView {
+public class HeightFixedImageView: UIImageView {
     // MARK: - Properties
 
     // MARK: - Public
 
-    public var imageUrl: String
+    public var imageLink: String
     public var fixedHeight: CGFloat
-    public var onImageLoaded: (() -> Void)?
 
     // MARK: - Lifecycle
 
     // MARK: - Initializer
 
     /// 높이가 고정된 이미지뷰.
-    /// 책 이미지를 표시하는데 사용되며, 높이값은 200 고정입니다.
+    /// 책 이미지를 표시하는데 사용되며, 높이값은 ``BookImageFixedHeight`` 에 따라 정해집니다. 다음 세가지 수치가 있습니다.
+    /// ``Vars.imageFixedHeight``, ``Vars.imageFixedHeightSmall``, ``Vars.imageFixedHeightMini``
     ///
     /// - Parameters:
-    ///   - imageUrl: 사용하고자 하는 이미지의 URL
-    public init(imageUrl: String = "", height: BookImageFixedHeight) {
-        self.imageUrl = imageUrl
+    ///   - imageLink: 사용하고자 하는 이미지의 URL
+    ///   - height: 책의 높이값 선택
+    public init(imageLink: String = "", height: BookImageFixedHeight) {
+        self.imageLink = imageLink
 
         switch height {
         case .regular:
@@ -53,15 +55,6 @@ public class HeightFixedImageView: UIImageView, ImageLoadableView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Functions
-
-    // MARK: - Internal
-
-    func configure(imageUrl: String) {
-        self.imageUrl = imageUrl
-        setupProperties()
-    }
 }
 
 // MARK: - Setup UI
@@ -70,40 +63,30 @@ extension HeightFixedImageView {
     private func setupProperties() {
         contentMode = .scaleAspectFit
         clipsToBounds = true
-
-        imageUrl.loadAsyncImage { [weak self] image in
-            guard let self else {
-                return
-            }
-
-            let bookImage = image ?? UIImage(
-                named: "DefaultBookImage",
-                in: Bundle.module,
-                compatibleWith: nil
-            )
-
-            self.image = bookImage
-
-            // 이미지의 원본 비율에 맞춰 높이 조정
-            if let imageSize = bookImage?.size {
-                let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
-                let calculatedWidth = fixedHeight * aspectRatio
-
-                // 기존 제약조건 업데이트
-                snp.updateConstraints { make in
-                    make.width.equalTo(calculatedWidth)
-                }
-            }
-
-            // 이미지 로딩 완료 후 콜백 실행
-            onImageLoaded?()
-        }
+        setupImage(imageLink: imageLink)
     }
 
     private func setupLayouts() {
         snp.makeConstraints { make in
             make.height.equalTo(fixedHeight)
-            make.width.equalTo(Vars.viewSizeReg)
+        }
+    }
+
+    private func setDefaultImage() {
+        if let defaultImage = UIImage(
+            named: "DefaultBookImage",
+            in: Bundle.module,
+            compatibleWith: nil
+        ) {
+            let imageSize = defaultImage.size
+            let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
+            let calculatedWidth = fixedHeight * aspectRatio
+
+            snp.makeConstraints { make in
+                make.width.equalTo(calculatedWidth)
+            }
+
+            image = defaultImage
         }
     }
 }
@@ -113,5 +96,43 @@ extension HeightFixedImageView {
 extension HeightFixedImageView {
     public func setRadius(to isRound: Bool) {
         layer.cornerRadius = isRound ? Vars.radiusMini : 0
+    }
+
+    public func setupImage(imageLink: String) {
+        guard let url = URL(string: imageLink) else {
+            setDefaultImage()
+            return
+        }
+
+        kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "DefaultBookImage", in: Bundle.module, compatibleWith: nil),
+            options: [
+                .transition(.fade(0.2)), // 부드러운 페이드 효과
+                .cacheOriginalImage, // 원본 이미지 캐싱
+            ],
+            completionHandler: { [weak self] result in
+                guard let self else {
+                    return
+                }
+
+                switch result {
+                case let .success(value):
+                    let bookImage = value.image
+
+                    // 이미지의 원본 비율에 맞춰 너비 조정
+                    let imageSize = bookImage.size
+                    let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
+                    let calculatedWidth = fixedHeight * aspectRatio
+
+                    snp.makeConstraints { make in
+                        make.width.equalTo(calculatedWidth)
+                    }
+
+                case .failure:
+                    setDefaultImage()
+                }
+            }
+        )
     }
 }
