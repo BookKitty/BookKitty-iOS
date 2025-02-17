@@ -13,7 +13,7 @@ public final class BookMatchKit: BookMatchable {
 
     private let naverAPI: NaverAPI
     private let imageDownloadAPI: ImageDownloadAPI
-    
+
     private let textExtractor = TextExtractor()
     private let disposeBag = DisposeBag()
 
