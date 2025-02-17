@@ -10,8 +10,8 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "BookMatchKit",
-            targets: ["BookMatchKit"]
+            name: "BookOCRKit",
+            targets: ["BookOCRKit"]
         ),
         .library(
             name: "BookRecommendationKit",
@@ -37,7 +37,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "BookMatchKit",
+            name: "BookOCRKit",
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
@@ -78,7 +78,7 @@ let package = Package(
             name: "BookMatchKitTests",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
+                "BookOCRKit", "BookRecommendationKit", "BookMatchCore",
             ]
         ),
     ]

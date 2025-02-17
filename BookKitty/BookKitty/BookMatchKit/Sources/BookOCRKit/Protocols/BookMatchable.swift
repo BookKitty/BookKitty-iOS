@@ -3,5 +3,5 @@ import RxSwift
 import UIKit
 
 public protocol BookMatchable {
-    func matchBook(_ image: UIImage) -> Single<BookItem>
+    func recognizeBookFromImage(_ image: UIImage) -> Single<BookItem>
 }
