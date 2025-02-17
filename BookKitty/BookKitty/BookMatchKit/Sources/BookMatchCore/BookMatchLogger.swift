@@ -15,8 +15,12 @@ public enum BookMatchLogger {
         logger.info("📚 도서매칭 시작")
     }
 
+    public static func textsExtracted(_ words: [String]) {
+        logger.info("📝 최종 OCR 텍스트 추출 완료: \(words.joined(separator: ", "))")
+    }
+
     public static func textExtracted(_ words: [String]) {
-        logger.info("📝 OCR 텍스트 추출 완료: \(words.joined(separator: ", "))")
+        logger.info("🔍 OCR로 추출된 텍스트: \(words.joined(separator: ", "))")
     }
 
     public static func searchResultsReceived(count: Int) {

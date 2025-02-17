@@ -1,5 +1,5 @@
 /// 도서 매칭 및 추천 과정에서 발생할 수 있는 오류들을 정의합니다.
-public enum BookMatchError: Error {
+public enum BookMatchError: Error, Equatable {
     case noMatchFound
     case networkError
     case invalidGPTFormat(String)
