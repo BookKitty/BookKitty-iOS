@@ -1,11 +1,15 @@
+import BookMatchCore
 import RxSwift
 import UIKit
 import Vision
-import BookMatchCore
 
 final class TextExtractor: TextExtractable {
+    // MARK: - Properties
+
     private let imageProcessor: ImageProcessable = ImageProcessor()
-    
+
+    // MARK: - Functions
+
     // MARK: - OCR Logic
 
     /// 이미지에서 텍스트를 추출하고, 추출된 텍스트를 반환합니다.
@@ -73,7 +77,10 @@ final class TextExtractor: TextExtractable {
                     guard let self else {
                         return .error(BookMatchError.deinitError)
                     }
-                    let expandedBox = imageProcessor.expandBoundingBox(observation.boundingBox, factor: 1.2)
+                    let expandedBox = imageProcessor.expandBoundingBox(
+                        observation.boundingBox,
+                        factor: 1.2
+                    )
                     let croppedImage = imageProcessor.cropImage(image, to: expandedBox)
 
                     // 크롭된 이미지와 원본 이미지에 대한 OCR 순차 처리
