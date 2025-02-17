@@ -24,7 +24,7 @@ final class RecommendedBookCell: UICollectionViewCell {
     private let recommendedBookView = RecommendedBookView(
         bookTitle: "",
         bookAuthor: "",
-        imageUrl: "",
+        imageLink: "",
         isOwned: false
     )
 
@@ -52,7 +52,7 @@ final class RecommendedBookCell: UICollectionViewCell {
         recommendedBookView.configureView(
             bookTitle: bookTitle,
             bookAuthor: bookAuthor,
-            imageUrl: imageUrl,
+            imageLink: imageUrl,
             isOwned: isOwned
         )
     }

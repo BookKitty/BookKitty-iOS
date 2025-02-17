@@ -28,12 +28,13 @@ public class WidthFixedImageView: UIImageView, ImageLoadableView {
 
     /// 너비가 고정된 이미지뷰.
     /// 책의 이미지를 표시하는데 사용.
-    /// 두가지의 값(128, 144) 중 선택하여 사용합니다. ``BookImageFixedWidth`` 참고.
+    /// 두가지의 값 중 선택하여 사용합니다. ``BookImageFixedWidth`` 참고.
     ///
     /// - Parameters:
-    ///   - imageUrl: 사용하고자 하는 이미지의
-    public init(imageUrl: String = "", width: BookImageFixedWidth) {
-        self.imageUrl = imageUrl
+    ///   - imageLink: 사용하고자 하는 이미지의 주소값
+    ///   - width: 책의 너비값 선택.
+    public init(imageLink: String = "", width: BookImageFixedWidth) {
+        self.imageLink = imageLink
 
         switch width {
         case .regular:

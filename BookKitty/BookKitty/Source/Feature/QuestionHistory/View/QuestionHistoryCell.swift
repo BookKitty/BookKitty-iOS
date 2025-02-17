@@ -75,7 +75,7 @@ final class QuestionHistoryCell: UITableViewCell {
 
         for book in questionAnswer.recommendedBooks {
             let imageView = HeightFixedImageView(
-                imageUrl: book.thumbnailUrl?.absoluteString ?? "",
+                imageLink: book.thumbnailUrl?.absoluteString ?? "",
                 height: .small
             )
 

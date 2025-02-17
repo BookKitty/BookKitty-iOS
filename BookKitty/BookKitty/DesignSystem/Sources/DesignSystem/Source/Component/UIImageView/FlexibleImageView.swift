@@ -13,7 +13,7 @@ public class FlexibleImageView: UIImageView {
 
     // MARK: - Public
 
-    public var imageUrl: String
+    public var imageLink: String
     public var viewWidth: CGFloat
 
     // MARK: - Lifecycle
