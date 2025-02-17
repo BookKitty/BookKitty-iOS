@@ -17,6 +17,8 @@ public class FlexibleImageView: UIImageView {
     public var imageLink: String
     public var viewWidth: CGFloat
 
+    private var heightConstraint: Constraint?
+
     // MARK: - Lifecycle
 
     // MARK: - Initializer
@@ -67,8 +69,12 @@ extension FlexibleImageView {
             let aspectRatio = imageSize.height / imageSize.width
             let calculatedHeight = viewWidth * aspectRatio
 
-            snp.makeConstraints { make in
-                make.height.equalTo(calculatedHeight)
+            if let constraint = heightConstraint {
+                constraint.update(offset: calculatedHeight)
+            } else {
+                snp.makeConstraints { make in
+                    heightConstraint = make.height.equalTo(calculatedHeight).constraint
+                }
             }
 
             image = defaultImage
@@ -110,8 +116,12 @@ extension FlexibleImageView {
                     let aspectRatio = imageSize.height / imageSize.width
                     let calculatedHeight = viewWidth * aspectRatio
 
-                    snp.makeConstraints { make in
-                        make.height.equalTo(calculatedHeight)
+                    if let constraint = heightConstraint {
+                        constraint.update(offset: calculatedHeight)
+                    } else {
+                        snp.makeConstraints { make in
+                            heightConstraint = make.height.equalTo(calculatedHeight).constraint
+                        }
                     }
 
                 case .failure:
