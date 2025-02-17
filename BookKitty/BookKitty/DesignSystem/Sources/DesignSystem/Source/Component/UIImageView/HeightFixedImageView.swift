@@ -23,6 +23,8 @@ public class HeightFixedImageView: UIImageView {
     public var imageLink: String
     public var fixedHeight: CGFloat
 
+    private var widthConstraint: Constraint?
+
     // MARK: - Lifecycle
 
     // MARK: - Initializer
@@ -82,8 +84,12 @@ extension HeightFixedImageView {
             let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
             let calculatedWidth = fixedHeight * aspectRatio
 
-            snp.makeConstraints { make in
-                make.width.equalTo(calculatedWidth)
+            if let constraint = widthConstraint {
+                constraint.update(offset: calculatedWidth)
+            } else {
+                snp.makeConstraints { make in
+                    widthConstraint = make.width.equalTo(calculatedWidth).constraint
+                }
             }
 
             image = defaultImage
@@ -125,8 +131,12 @@ extension HeightFixedImageView {
                     let aspectRatio = min(imageSize.width / imageSize.height, 1.0)
                     let calculatedWidth = fixedHeight * aspectRatio
 
-                    snp.makeConstraints { make in
-                        make.width.equalTo(calculatedWidth)
+                    if let constraint = widthConstraint {
+                        constraint.update(offset: calculatedWidth)
+                    } else {
+                        snp.makeConstraints { make in
+                            widthConstraint = make.width.equalTo(calculatedWidth).constraint
+                        }
                     }
 
                 case .failure:
