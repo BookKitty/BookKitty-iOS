@@ -1,5 +1,6 @@
 import BookMatchAPI
 import BookMatchCore
+import BookMatchService
 import CoreFoundation
 import RxSwift
 import UIKit
@@ -13,7 +14,8 @@ public final class BookRecommendationKit: BookRecommendable {
     // MARK: - Properties
 
     private let openAiAPI: OpenAIAPI
-    private let validationService: BookValidationService
+    private let serviceFactory: ServiceFactory
+    private let validationService: BookValidatable
 
     // MARK: - Lifecycle
 
@@ -25,22 +27,17 @@ public final class BookRecommendationKit: BookRecommendable {
         maxRetries: Int = 3,
         titleWeight: Double = 0.8
     ) {
-        let apiConfig = APIConfiguration(
+        serviceFactory = ServiceFactory(
             naverClientId: naverClientId,
             naverClientSecret: naverClientSecret,
-            openAIApiKey: openAIApiKey
-        )
-
-        let naverAPI = NaverAPI(configuration: apiConfig)
-
-        openAiAPI = OpenAIAPI(configuration: apiConfig)
-
-        validationService = BookValidationService(
-            similiarityThreshold: similiarityThreshold,
+            openAIApiKey: openAIApiKey,
+            similarityThreshold: similiarityThreshold,
             maxRetries: maxRetries,
-            titleWeight: titleWeight,
-            searchService: BookSearchService(naverAPI: naverAPI)
+            titleWeight: titleWeight
         )
+
+        validationService = serviceFactory.makeBookValidationService()
+        openAiAPI = serviceFactory.makeOpenAIAPI()
     }
 
     // MARK: - Functions

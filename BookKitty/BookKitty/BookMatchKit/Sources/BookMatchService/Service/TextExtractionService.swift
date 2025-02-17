@@ -3,10 +3,14 @@ import RxSwift
 import UIKit
 import Vision
 
-final class TextExtractionService: TextExtractable {
+public final class TextExtractionService: TextExtractable {
     // MARK: - Properties
 
     private let imageProcessService: ImageProcessable = ImageProcessService()
+
+    // MARK: - Lifecycle
+
+    public init() {}
 
     // MARK: - Functions
 

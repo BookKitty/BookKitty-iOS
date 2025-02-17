@@ -1,5 +1,6 @@
 import BookMatchAPI
 import BookMatchCore
+import BookMatchService
 import BookMatchStrategy
 import RxSwift
 import UIKit
@@ -13,8 +14,9 @@ public final class BookOCRKit: BookMatchable {
 
     private let imageDownloadAPI: ImageDownloadAPI
 
+    private let serviceFactory: ServiceFactory
     private let searchService: BookSearchable
-    private let textExtractionService = TextExtractionService()
+    private let textExtractionService: TextExtractable
 
     // MARK: - Lifecycle
 
@@ -22,16 +24,15 @@ public final class BookOCRKit: BookMatchable {
         naverClientId: String,
         naverClientSecret: String
     ) {
-        let config = APIConfiguration(
+        serviceFactory = ServiceFactory(
             naverClientId: naverClientId,
             naverClientSecret: naverClientSecret,
             openAIApiKey: ""
         )
 
-        let naverAPI = NaverAPI(configuration: config)
-
-        imageDownloadAPI = ImageDownloadAPI(configuration: config)
-        searchService = BookSearchService(naverAPI: naverAPI)
+        searchService = serviceFactory.makeBookSearchService()
+        imageDownloadAPI = serviceFactory.makeImageDownloadAPI()
+        textExtractionService = serviceFactory.makeTextExtractionService()
     }
 
     // MARK: - Functions
