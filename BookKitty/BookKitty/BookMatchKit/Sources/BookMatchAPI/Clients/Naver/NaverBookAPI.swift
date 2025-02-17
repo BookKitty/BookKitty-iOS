@@ -2,7 +2,7 @@ import BookMatchCore
 import NetworkKit
 import RxSwift
 
-public final class NaverAPI: BaseAPIClient, BookSearchable {
+public final class NaverAPI: BaseAPIClient, _BookSearchable {
     // MARK: - Lifecycle
 
     /// BaseAPIClient의 configuration 속성이 internal 이상의 접근 수준을 가지고 있기에,

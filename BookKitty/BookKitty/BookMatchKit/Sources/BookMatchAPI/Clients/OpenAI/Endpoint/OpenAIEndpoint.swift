@@ -4,8 +4,6 @@ import NetworkKit
 struct ChatGPTEndpoint: Endpoint {
     // MARK: - Nested Types
 
-    // MARK: - Internal
-
     typealias Response = ChatGPTResponse
 
     // MARK: - Properties
