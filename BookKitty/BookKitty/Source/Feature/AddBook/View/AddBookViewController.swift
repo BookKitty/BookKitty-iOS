@@ -31,8 +31,13 @@ final class AddBookViewController: BaseViewController {
         $0.clipsToBounds = true
     }
 
+    private let infoButtonContainerView = UIView().then {
+        $0.backgroundColor = Colors.shadow25
+    }
+
     private let infoLabel = BodyLabel().then {
         $0.text = "책의 정보를 파악할 수 있는 겉면 사진을 찍어주세요."
+        $0.textColor = Colors.fontWhite
         $0.textAlignment = .center
     }
 
@@ -92,12 +97,17 @@ final class AddBookViewController: BaseViewController {
     // MARK: - Overridden Functions
 
     // MARK: - UI Setup
+    
+    override func configureNavItem() {
+        navigationBar.setupTitle(with: "새로운 책 추가하기")
+    }
 
     override func configureHierarchy() {
         [
             navigationBar,
             titleLabel,
             cameraContainerView,
+            infoButtonContainerView,
             infoLabel,
             captureButton,
             loadingCircle,
@@ -113,36 +123,39 @@ final class AddBookViewController: BaseViewController {
             $0.height.equalTo(Vars.viewSizeReg)
         }
 
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.spacing32)
-            $0.centerX.equalToSuperview()
-        }
+//        titleLabel.snp.makeConstraints {
+//            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.spacing32)
+//            $0.centerX.equalToSuperview()
+//        }
 
         cameraContainerView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing32)
-            $0.centerX.equalToSuperview()
-            $0.width.height.equalTo(402)
+            $0.top.equalTo(navigationBar.snp.bottom)
+            $0.horizontalEdges.bottom.equalTo(view.safeAreaLayoutGuide)
         }
 
         cameraView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
 
+        infoButtonContainerView.snp.makeConstraints {
+            $0.top.equalTo(infoLabel.snp.top).offset(-Vars.spacing8)
+            $0.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide)
+        }
+
         infoLabel.snp.makeConstraints {
-            $0.top.equalTo(cameraContainerView.snp.bottom)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(402)
-            $0.height.equalTo(85)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
+            $0.bottom.equalTo(captureButton.snp.top).offset(-Vars.spacing24)
         }
 
         captureButton.snp.makeConstraints {
-            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(Vars.spacing32)
             $0.centerX.equalToSuperview()
             $0.width.height.equalTo(Vars.viewSizeLarge)
         }
 
         loadingCircle.snp.makeConstraints {
-            $0.top.equalTo(infoLabel.snp.bottom).offset(Vars.spacing32)
+            $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(Vars.spacing32)
             $0.centerX.equalToSuperview()
         }
     }
