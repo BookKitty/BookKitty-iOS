@@ -10,12 +10,16 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "BookMatchKit",
-            targets: ["BookMatchKit"]
+            name: "BookOCRKit",
+            targets: ["BookOCRKit"]
         ),
         .library(
             name: "BookRecommendationKit",
             targets: ["BookRecommendationKit"]
+        ),
+        .library(
+            name: "BookMatchService",
+            targets: ["BookMatchService"]
         ),
         .library(
             name: "BookMatchCore",
@@ -37,20 +41,17 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "BookMatchKit",
+            name: "BookOCRKit",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
-            ],
-            resources: [
-                .process("Resources/MyObjectDetector5_1.mlmodel"),
+                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy", "BookMatchService",
             ]
         ),
         .target(
             name: "BookRecommendationKit",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchCore", "BookMatchAPI", "BookMatchStrategy",
+                "BookMatchCore", "BookMatchAPI", "BookMatchService",
             ]
         ),
         .target(
@@ -67,6 +68,16 @@ let package = Package(
             ]
         ),
         .target(
+            name: "BookMatchService",
+            dependencies: [
+                "RxSwift", "SwiftFormat",
+                "BookMatchCore", "BookMatchAPI",
+            ],
+            resources: [
+                .process("Resources/MyObjectDetector5_1.mlmodel"),
+            ]
+        ),
+        .target(
             name: "BookMatchAPI",
             dependencies: [
                 "RxSwift", "SwiftFormat",
@@ -78,7 +89,7 @@ let package = Package(
             name: "BookMatchKitTests",
             dependencies: [
                 "RxSwift", "SwiftFormat",
-                "BookMatchKit", "BookRecommendationKit", "BookMatchCore",
+                "BookOCRKit", "BookRecommendationKit", "BookMatchCore",
             ]
         ),
     ]
