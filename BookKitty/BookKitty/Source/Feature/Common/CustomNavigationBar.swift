@@ -42,6 +42,11 @@ final class CustomNavigationBar: UIView {
         $0.configuration = config
     }
 
+    private let titleLabel = UILabel().then {
+        $0.font = Fonts.titleExtraBold
+        $0.textColor = Colors.fontMain
+    }
+
     private lazy var rightButton = UIButton()
 
     private let separator = UIView().then {
@@ -81,6 +86,16 @@ final class CustomNavigationBar: UIView {
         rightButton.rx.tap
             .bind(to: rightButtonTapped)
             .disposed(by: disposeBag)
+    }
+
+    func setupTitle(with title: String) {
+        titleLabel.text = title
+
+        addSubview(titleLabel)
+
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
 
     private func configureHierarchy() {
