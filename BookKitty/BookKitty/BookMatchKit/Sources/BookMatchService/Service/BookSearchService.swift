@@ -150,4 +150,8 @@ public final class BookSearchService: BookSearchable {
             return Disposables.create()
         }
     }
+    
+    public func searchByQuery(from query: String) -> Single<[BookItem]> {
+        return naverAPI.searchBooks(query: query, limit: 10)
+    }
 }
