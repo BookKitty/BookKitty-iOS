@@ -18,7 +18,7 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
             BookQuestionAnswerLinkEntity.fetchRequest()
 
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-        fetchRequest.fetchLimit = 5
+        fetchRequest.fetchLimit = 20
 
         do {
             let fetchresult = try context.fetch(fetchRequest)

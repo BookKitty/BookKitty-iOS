@@ -85,15 +85,24 @@ struct LocalBookRepository: BookRepository {
     /// 질문답변을 통해 최근에 추천받은 책의 목록을 가져옵니다.
     /// - Returns: Book 모델의 배열
     func fetchRecentRecommendedBooks() -> [Book] {
-        let linkEntities = bookQALinkCoreDataManager.selectRecentRecommendedBooks(context: context)
+        let linkEntities = bookQALinkCoreDataManager.selectRecentRecommendedBooks(
+            context:
+            context
+        )
         var books: [Book] = []
 
         for linkEntity in linkEntities {
             if let bookEntity = linkEntity.book,
                let book = bookCoreDataManager.entityToModel(entity: bookEntity) {
-                books.append(book)
+                if !books.contains(book) {
+                    books.append(book)
+                }
+            }
+            if books.count == 5 {
+                break
             }
         }
+
         BookKittyLogger.log("최근 추천된 책 불러오기 성공")
         return books
     }
