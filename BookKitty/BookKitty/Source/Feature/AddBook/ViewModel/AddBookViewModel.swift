@@ -11,6 +11,7 @@ final class AddBookViewModel: ViewModelType {
 
     struct Input {
         let leftBarButtonTapTrigger: Observable<Void>
+        let addBookByTextButtonTapTrigger: Observable<Void>
         let cameraPermissionCancelButtonTapTrigger: Observable<Void>
         let capturedImage: Observable<UIImage>
     }
@@ -26,6 +27,7 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Private
 
     let navigateBackRelay = PublishRelay<Void>()
+    let navigateToAddBookByText = PublishRelay<Void>()
 
     private let errorRelay = PublishRelay<AlertPresentableError>()
     private let bookRepository: BookRepository
@@ -47,6 +49,10 @@ final class AddBookViewModel: ViewModelType {
         )
         .bind(to: navigateBackRelay)
         .disposed(by: disposeBag)
+
+        input.addBookByTextButtonTapTrigger
+            .bind(to: navigateToAddBookByText)
+            .disposed(by: disposeBag)
 
         input.capturedImage
             .flatMapLatest { [weak self] image -> Observable<Book> in

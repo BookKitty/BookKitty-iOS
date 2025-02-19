@@ -202,6 +202,9 @@ extension AddBookByTitleViewController: UICollectionViewDelegate {
 @available(iOS 17.0, *)
 #Preview {
     AddBookByTitleViewController(
-        viewModel: AddBookByTitleViewModel(bookOcrKit: MockBookOCRKit())
+        viewModel: AddBookByTitleViewModel(
+            bookRepository: MockBookRepository(),
+            bookOcrKit: MockBookOCRKit()
+        )
     )
 }

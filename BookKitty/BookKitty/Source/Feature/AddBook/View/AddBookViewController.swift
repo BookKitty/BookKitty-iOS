@@ -100,6 +100,7 @@ final class AddBookViewController: BaseViewController {
 
     override func configureNavItem() {
         navigationBar.setupTitle(with: "새로운 책 추가하기")
+        navigationBar.setupRightBarButton(with: .input)
     }
 
     override func configureHierarchy() {
@@ -165,6 +166,7 @@ final class AddBookViewController: BaseViewController {
     override func bind() {
         let input = AddBookViewModel.Input(
             leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            addBookByTextButtonTapTrigger: navigationBar.rightButtonTapped.asObservable(),
             cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
             capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
         )

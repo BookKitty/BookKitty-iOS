@@ -27,16 +27,17 @@ final class AddBookByTitleViewModel: ViewModelType {
 
     let disposeBag = DisposeBag()
 
-    private let booksRelay = BehaviorRelay<[Book]>(value: [])
-    private let repository = MockBookRepository()
-    private let bookOcrKit: BookMatchable
+    let navigationBackRelay = PublishRelay<Void>()
+    let navigationAfterBookAddedRelay = PublishRelay<Void>()
 
-    private let navigationBackRelay = PublishRelay<Void>()
-    private let navigationBackWithBookRelay = PublishRelay<Book>()
+    private let booksRelay = BehaviorRelay<[Book]>(value: [])
+    private let bookRepository: BookRepository
+    private let bookOcrKit: BookMatchable
 
     // MARK: - Lifecycle
 
-    init(bookOcrKit: BookMatchable) {
+    init(bookRepository: BookRepository, bookOcrKit: BookMatchable) {
+        self.bookRepository = bookRepository
         self.bookOcrKit = bookOcrKit
     }
 
@@ -52,11 +53,13 @@ final class AddBookByTitleViewModel: ViewModelType {
 
         input.addBookButtonTapped
             .withUnretained(self)
-            .map { _, book in
+            .map { owner, book in
                 BookKittyLogger.log("책 추가 버튼 탭")
-                return book
+                _ = owner.bookRepository.saveBook(book: book)
+                _ = owner.bookRepository.addBookToShelf(isbn: book.isbn)
+                // TODO: 에러 처리
             }
-            .bind(to: navigationBackWithBookRelay)
+            .bind(to: navigationAfterBookAddedRelay)
             .disposed(by: disposeBag)
 
         input.searchResult

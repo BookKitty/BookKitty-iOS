@@ -19,7 +19,9 @@ final class AddBookCoordinator: Coordinator {
     var navigationController: UINavigationController
 
     var addBookViewController: AddBookViewController
+    var addBookByTitleViewController: AddBookByTitleViewController
     var addBookViewModel: AddBookViewModel
+    var addBookByTitleViewModel: AddBookByTitleViewModel
 
     // MARK: - Private
 
@@ -44,6 +46,14 @@ final class AddBookCoordinator: Coordinator {
         addBookViewController = AddBookViewController(
             viewModel: addBookViewModel
         ) // ✅ 올바르게 전달
+
+        addBookByTitleViewModel = AddBookByTitleViewModel(
+            bookRepository: repository,
+            bookOcrKit: bookOCRKit
+        )
+        addBookByTitleViewController = AddBookByTitleViewController(
+            viewModel: addBookByTitleViewModel
+        )
     }
 
     // MARK: - Functions
@@ -61,6 +71,37 @@ extension AddBookCoordinator {
                 owner.finish()
             }).disposed(by: disposeBag)
 
+        addBookViewModel.navigateToAddBookByText
+            .withUnretained(self)
+            .subscribe { owner, _ in
+                owner.showAddBookByTitleScreen()
+            }
+            .disposed(by: disposeBag)
+
         navigationController.pushViewController(addBookViewController, animated: true)
+    }
+
+    private func showAddBookByTitleScreen() {
+        addBookByTitleViewModel.navigationBackRelay
+            .withUnretained(self)
+            .bind { owner, _ in
+                owner.navigationController.popViewController(animated: true)
+            }
+            .disposed(by: disposeBag)
+
+        addBookByTitleViewModel.navigationAfterBookAddedRelay
+            .withUnretained(self)
+            .bind { owner, _ in
+                let viewControllers: [UIViewController] = owner.navigationController
+                    .viewControllers as [UIViewController]
+                owner.navigationController.popToViewController(
+                    viewControllers[viewControllers.count - 3],
+                    animated: true
+                )
+                owner.finish()
+            }
+            .disposed(by: disposeBag)
+
+        navigationController.pushViewController(addBookByTitleViewController, animated: true)
     }
 }
