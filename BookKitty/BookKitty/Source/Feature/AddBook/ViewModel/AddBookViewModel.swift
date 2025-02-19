@@ -65,6 +65,8 @@ final class AddBookViewModel: ViewModelType {
                                     publisher: book.publisher,
                                     thumbnailUrl: URL(string: book.image),
                                     isOwned: true,
+                                    createdAt: Date(),
+                                    updatedAt: Date(),
                                     description: book.description,
                                     price: book.discount ?? "",
                                     pubDate: book.pubdate ?? ""
