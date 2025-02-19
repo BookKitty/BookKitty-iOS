@@ -24,8 +24,6 @@ final class AddBookByTitleViewController: BaseViewController {
         $0.searchBarStyle = .minimal
     }
 
-    private let manageBookPopupView = ManageBookPopupView(mode: .add)
-
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
 
     private let layout: UICollectionViewCompositionalLayout = {
@@ -174,6 +172,15 @@ extension AddBookByTitleViewController: UICollectionViewDelegate {
             BookKittyLogger.error("선택된 Book 존재하지 않음")
             return
         }
+
+        let vc = AddBookByTitlePopupViewController { addBook in
+            if addBook {
+                // 책 추가
+            } else {
+                // 책 추가 안 함
+            }
+        }
+        vc.present(by: self, with: selectedBook)
     }
 }
 
