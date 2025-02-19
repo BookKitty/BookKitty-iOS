@@ -95,7 +95,10 @@ final class AddBookByTitleViewController: BaseViewController {
     }
 
     override func bind() {
-        let input = AddBookByTitleViewModel.Input(searchResult: searchResultRelay.asObservable())
+        let input = AddBookByTitleViewModel.Input(
+            backButtonTapped: navigationBar.backButtonTapped.asObservable(),
+            searchResult: searchResultRelay.asObservable()
+        )
 
         let output = viewModel.transform(input)
 

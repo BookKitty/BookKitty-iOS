@@ -14,6 +14,7 @@ final class AddBookByTitleViewModel: ViewModelType {
     // MARK: - Nested Types
 
     struct Input {
+        let backButtonTapped: Observable<Void>
         let searchResult: Observable<String>
     }
 
@@ -28,6 +29,8 @@ final class AddBookByTitleViewModel: ViewModelType {
     private let booksRelay = BehaviorRelay<[Book]>(value: [])
     private let repository = MockBookRepository()
     private let bookOcrKit: BookMatchable
+    
+    private let navigationBackRelay = PublishRelay<Void>()
 
     // MARK: - Lifecycle
 
@@ -38,6 +41,10 @@ final class AddBookByTitleViewModel: ViewModelType {
     // MARK: - Functions
 
     func transform(_ input: Input) -> Output {
+        input.backButtonTapped
+            .bind(to: navigationBackRelay)
+            .disposed(by: disposeBag)
+        
         input.searchResult
             .withUnretained(self)
             .flatMapLatest { owner, searchResult in
