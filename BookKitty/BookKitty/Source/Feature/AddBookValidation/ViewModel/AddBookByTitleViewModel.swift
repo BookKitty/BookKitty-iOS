@@ -15,6 +15,7 @@ final class AddBookByTitleViewModel: ViewModelType {
 
     struct Input {
         let backButtonTapped: Observable<Void>
+        let addBookButtonTapped: Observable<Book>
         let searchResult: Observable<String>
     }
 
@@ -29,8 +30,9 @@ final class AddBookByTitleViewModel: ViewModelType {
     private let booksRelay = BehaviorRelay<[Book]>(value: [])
     private let repository = MockBookRepository()
     private let bookOcrKit: BookMatchable
-    
+
     private let navigationBackRelay = PublishRelay<Void>()
+    private let navigationBackWithBookRelay = PublishRelay<Book>()
 
     // MARK: - Lifecycle
 
@@ -42,9 +44,21 @@ final class AddBookByTitleViewModel: ViewModelType {
 
     func transform(_ input: Input) -> Output {
         input.backButtonTapped
+            .map {
+                BookKittyLogger.log("뒤로가기 버튼 탭")
+            }
             .bind(to: navigationBackRelay)
             .disposed(by: disposeBag)
-        
+
+        input.addBookButtonTapped
+            .withUnretained(self)
+            .map { _, book in
+                BookKittyLogger.log("책 추가 버튼 탭")
+                return book
+            }
+            .bind(to: navigationBackWithBookRelay)
+            .disposed(by: disposeBag)
+
         input.searchResult
             .withUnretained(self)
             .flatMapLatest { owner, searchResult in

@@ -43,8 +43,8 @@ final class AddBookByTitleViewController: BaseViewController {
     private var dataSource: UICollectionViewDiffableDataSource<Section, Book>!
 
     private let viewModel: AddBookByTitleViewModel
-
     private let searchResultRelay = PublishRelay<String>()
+    private let bookSelectionRelay = PublishRelay<Book>()
 
     // MARK: - Lifecycle
 
@@ -97,6 +97,7 @@ final class AddBookByTitleViewController: BaseViewController {
     override func bind() {
         let input = AddBookByTitleViewModel.Input(
             backButtonTapped: navigationBar.backButtonTapped.asObservable(),
+            addBookButtonTapped: bookSelectionRelay.asObservable(),
             searchResult: searchResultRelay.asObservable()
         )
 
@@ -173,11 +174,9 @@ extension AddBookByTitleViewController: UICollectionViewDelegate {
             return
         }
 
-        let vc = AddBookByTitlePopupViewController { addBook in
+        let vc = AddBookByTitlePopupViewController { [weak self] addBook in
             if addBook {
-                // 책 추가
-            } else {
-                // 책 추가 안 함
+                self?.bookSelectionRelay.accept(selectedBook)
             }
         }
         vc.present(by: self, with: selectedBook)
