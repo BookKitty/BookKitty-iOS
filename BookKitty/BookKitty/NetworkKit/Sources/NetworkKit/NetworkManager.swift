@@ -58,6 +58,23 @@ public final class NetworkManager: NetworkManageable {
             }
             task.resume()
             return Disposables.create()
+        }.retry { error in
+            error.enumerated().flatMap { attempt, error -> Observable<Int> in
+                if attempt >= 3 { // 3회 초과 시 실패(Error 방출)
+                    return Observable.error(error)
+                }
+
+                // 인터넷 연결 없을시 재시도
+                if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
+                    return Observable<Int>.timer(
+                        .seconds(2),
+                        period: nil,
+                        scheduler: MainScheduler.instance
+                    )
+                }
+
+                return Observable.error(error)
+            }
         }
     }
 }
