@@ -18,7 +18,6 @@ final class DefaultBookDetailCoordinator: BookDetailCoordinator {
 
     var finishDelegate: CoordinatorFinishDelegate?
 
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
 
     var navigationController: UINavigationController

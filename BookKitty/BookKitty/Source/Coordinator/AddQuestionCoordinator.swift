@@ -16,7 +16,6 @@ final class AddQuestionCoordinator: Coordinator {
     // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var newQuestionViewController: NewQuestionViewController
@@ -48,13 +47,14 @@ extension AddQuestionCoordinator {
             .bind(onNext: { owner, question in
                 owner.showQuestionResultScene(with: question)
             }).disposed(by: disposeBag)
+        
         // 루트 화면으로 이동하는 이벤트를 구독
         newQuestionViewModel.navigateToRoot
             .withUnretained(self)
             .bind(onNext: { owner, _ in
-                owner.navigationController.popViewController(animated: true)
-                owner.parentCoordinator?.childCoordinators.removeLast() // AddQuestionCoordinator 제거
+                owner.finish()
             }).disposed(by: disposeBag)
+        
         navigationController.pushViewController(newQuestionViewController, animated: true)
     }
 

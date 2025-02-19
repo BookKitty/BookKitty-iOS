@@ -16,7 +16,6 @@ final class MyLibraryCoordinator: Coordinator {
     // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var myLibraryViewController: MyLibraryViewController

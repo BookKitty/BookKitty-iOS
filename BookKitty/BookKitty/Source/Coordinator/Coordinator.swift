@@ -8,8 +8,6 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     var finishDelegate: CoordinatorFinishDelegate? { get set }
-    /// 현재 Coordinator를 소유한 상위 Coordinator
-    var parentCoordinator: Coordinator? { get }
     /// 현재 Coordinator가 관리하는 하위 Coordinators의 배열입니다.
     var childCoordinators: [Coordinator] { get set }
     var navigationController: UINavigationController { get }
