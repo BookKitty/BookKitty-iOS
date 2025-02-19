@@ -24,6 +24,8 @@ final class AddBookByTitleViewController: BaseViewController {
         $0.searchBarStyle = .minimal
     }
 
+    private let manageBookPopupView = ManageBookPopupView(mode: .add)
+
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
 
     private let layout: UICollectionViewCompositionalLayout = {
@@ -128,6 +130,7 @@ final class AddBookByTitleViewController: BaseViewController {
 
     private func configureDelegate() {
         searchBar.delegate = self
+        collectionview.delegate = self
     }
 
     private func configureDataSource() {
@@ -162,6 +165,15 @@ extension AddBookByTitleViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ bar: UISearchBar) {
         let searchText = bar.text ?? ""
         searchResultRelay.accept(searchText)
+    }
+}
+
+extension AddBookByTitleViewController: UICollectionViewDelegate {
+    func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let selectedBook = dataSource.itemIdentifier(for: indexPath) else {
+            BookKittyLogger.error("선택된 Book 존재하지 않음")
+            return
+        }
     }
 }
 
