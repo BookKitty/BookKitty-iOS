@@ -79,7 +79,7 @@ final class CustomNavigationBar: UIView {
         addSubview(rightButton)
 
         rightButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(Vars.spacing24)
+            $0.trailing.equalToSuperview().inset(Vars.spacing8)
             $0.verticalEdges.equalToSuperview()
         }
 
