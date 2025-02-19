@@ -26,6 +26,11 @@ final class AddBookByTitleViewController: BaseViewController {
 
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
 
+    private let emptyResultLabel = Headline3Label().then {
+        $0.text = "검색 결과가 없습니다."
+        $0.isHidden = true
+    }
+
     private let layout: UICollectionViewCompositionalLayout = {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
         return UICollectionViewCompositionalLayout.list(using: configuration)
@@ -72,6 +77,7 @@ final class AddBookByTitleViewController: BaseViewController {
             navigationBar,
             searchBar,
             collectionview,
+            emptyResultLabel,
         ].forEach { view.addSubview($0) }
     }
 
@@ -92,6 +98,10 @@ final class AddBookByTitleViewController: BaseViewController {
             make.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
             make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
+
+        emptyResultLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
     }
 
     override func bind() {
@@ -104,7 +114,9 @@ final class AddBookByTitleViewController: BaseViewController {
         let output = viewModel.transform(input)
 
         output.books
+            .skip(1)
             .drive(onNext: { [weak self] books in
+                self?.updateEmptyResultLabelVisibility(for: books)
                 self?.configureSnapshot(with: books)
             })
             .disposed(by: disposeBag)
@@ -150,6 +162,10 @@ final class AddBookByTitleViewController: BaseViewController {
         snapshot.appendSections([.main])
         snapshot.appendItems(items, toSection: .main)
         dataSource.apply(snapshot, animatingDifferences: true)
+    }
+
+    private func updateEmptyResultLabelVisibility(for books: [Book]) {
+        emptyResultLabel.isHidden = !books.isEmpty
     }
 }
 
