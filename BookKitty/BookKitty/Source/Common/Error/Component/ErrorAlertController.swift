@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import RxCocoa
 import RxSwift
 import SnapKit
 import Then
@@ -13,6 +14,8 @@ import UIKit
 
 final class ErrorAlertController: BaseViewController {
     // MARK: - Properties
+
+    let confirmButtonDidTap = PublishRelay<Void>()
 
     private let popup: FailAlertPopupView
 
@@ -51,6 +54,9 @@ final class ErrorAlertController: BaseViewController {
 
     override func bind() {
         popup.confirmButton.rx.tap
+            .do(onNext: { [weak self] _ in
+                self?.confirmButtonDidTap.accept(())
+            })
             .subscribe(onNext: { [weak self] in
                 self?.dismiss(animated: false)
             })
