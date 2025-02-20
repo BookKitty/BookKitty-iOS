@@ -120,5 +120,13 @@ final class AddBookConfirmView: UIView {
             make.height.equalTo(Vars.viewSizeReg)
             make.bottom.equalToSuperview().offset(-Vars.spacing24)
         }
+
+        cancelButton.snp.makeConstraints { make in
+            make.height.equalTo(buttonStackView)
+        }
+
+        confirmButton.snp.makeConstraints { make in
+            make.height.equalTo(buttonStackView)
+        }
     }
 }
