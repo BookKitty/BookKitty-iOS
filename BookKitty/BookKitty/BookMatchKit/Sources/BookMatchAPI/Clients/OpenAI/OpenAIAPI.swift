@@ -185,12 +185,11 @@ extension OpenAIAPI {
         )
 
         return NetworkManager.shared.request(endpoint)
-            .catch { _ in Single.error(BookMatchError.networkError) }
-            .flatMap { response -> Single<ChatGPTResponse> in
+            .map { response in
                 guard let response else {
-                    return Single.error(BookMatchError.networkError)
+                    throw BookMatchError.networkError
                 }
-                return Single.just(response)
+                return response
             }
     }
 }

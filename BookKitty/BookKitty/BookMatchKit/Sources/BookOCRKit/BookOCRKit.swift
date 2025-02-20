@@ -117,8 +117,8 @@ public final class BookOCRKit: BookMatchable {
                 return bestMatchedBook
             }
     }
-
+    
     public func searchBookFromText(_ query: String) -> Single<[BookItem]> {
-        searchService.searchByQuery(from: query)
+        return searchService.searchByQuery(from: query)
     }
 }

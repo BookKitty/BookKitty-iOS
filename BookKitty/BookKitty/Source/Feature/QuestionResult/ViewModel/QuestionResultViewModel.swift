@@ -146,6 +146,7 @@ final class QuestionResultViewModel: ViewModelType {
                 // 추천 서비스 호출
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
+                        // TODO: 에러 받아서 처리하기
                         owner.recommendationService.recommendBooks(
                             for: owner.userQuestion,
                             from: ownedBooks
