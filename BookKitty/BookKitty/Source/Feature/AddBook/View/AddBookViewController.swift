@@ -78,20 +78,21 @@ final class AddBookViewController: BaseViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
-        }
+        previewLayer?.frame = cameraView.bounds // 프레임 동기화
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        DispatchQueue.main.async {
-            self.previewLayer?.frame = self.cameraView.bounds
+        if !captureSession.isRunning {
+            captureSession.startRunning() // 세션 재시작
         }
     }
 
-    override func viewDidDisappear(_: Bool) {
-        captureSession.stopRunning()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if captureSession.isRunning {
+            captureSession.stopRunning() // 세션 정지
+        }
     }
 
     // MARK: - Overridden Functions
@@ -243,7 +244,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
         }
 
         print("📸 이미지 캡처 성공")
-        capturedImageRelay.accept(image) // ✅ OCR을 위한 이미지 전달
+        capturedImageRelay.accept(image)
     }
 
     private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
@@ -289,32 +290,40 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             guard let self else {
                 return
             }
+
+            // 기존 세션 정리
+            if captureSession.isRunning {
+                captureSession.stopRunning()
+            }
+            captureSession.beginConfiguration()
+            captureSession.sessionPreset = .photo
+
             guard let captureDevice = AVCaptureDevice.default(for: .video) else {
                 print("🚨 카메라 장치를 찾을 수 없음")
                 return
             }
+
             do {
                 let input = try AVCaptureDeviceInput(device: captureDevice)
-                captureSession.beginConfiguration()
-                if captureSession.canAddInput(input) {
-                    captureSession.addInput(input)
-                }
-                if captureSession.canAddOutput(captureOutput) {
-                    captureSession.addOutput(captureOutput)
-                }
+                captureSession.inputs.forEach { self.captureSession.removeInput($0) }
+                captureSession.addInput(input)
+
+                captureSession.outputs.forEach { self.captureSession.removeOutput($0) }
+                captureSession.addOutput(captureOutput)
+
                 captureSession.commitConfiguration()
 
                 DispatchQueue.main.async {
-                    self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
-                    self.previewLayer?.videoGravity = .resizeAspectFill
-                    self.previewLayer?.frame = self.cameraView.bounds
-                    self.cameraView.layer.insertSublayer(self.previewLayer!, at: 0)
+                    if self.previewLayer == nil {
+                        self.previewLayer = AVCaptureVideoPreviewLayer(session: self.captureSession)
+                        self.previewLayer?.videoGravity = .resizeAspectFill
+                        self.previewLayer?.frame = self.cameraView.bounds
+                        self.cameraView.layer.insertSublayer(self.previewLayer!, at: 0)
+                    }
 
-                    // 백그라운드에서 AVCaptureSession 시작
-                    DispatchQueue.global(qos: .userInitiated).async {
-                        if !self.captureSession.isRunning {
-                            self.captureSession.startRunning()
-                        }
+                    // 메인 스레드에서 세션 시작
+                    if !self.captureSession.isRunning {
+                        self.captureSession.startRunning()
                     }
                 }
             } catch {
@@ -342,18 +351,5 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
-    }
-}
-
-extension UIImage {
-    func resized(toWidth width: CGFloat) -> UIImage? {
-        let scaleFactor = width / size.width
-        let canvasSize = CGSize(width: width, height: size.height * scaleFactor)
-
-        UIGraphicsBeginImageContextWithOptions(canvasSize, false, UIScreen.main.scale)
-        defer { UIGraphicsEndImageContext() }
-
-        draw(in: CGRect(origin: .zero, size: canvasSize))
-        return UIGraphicsGetImageFromCurrentImageContext()
     }
 }
