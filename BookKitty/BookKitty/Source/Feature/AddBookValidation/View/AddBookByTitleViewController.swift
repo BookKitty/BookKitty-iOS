@@ -68,6 +68,7 @@ final class AddBookByTitleViewController: BaseViewController {
         configureDataSource()
         super.viewDidLoad()
         addTapGestureToCollectionView()
+        makeSearchBarFirstResponder()
     }
 
     // MARK: - Overridden Functions
@@ -166,6 +167,10 @@ final class AddBookByTitleViewController: BaseViewController {
 
     private func updateEmptyResultLabelVisibility(for books: [Book]) {
         emptyResultLabel.isHidden = !books.isEmpty
+    }
+
+    private func makeSearchBarFirstResponder() {
+        searchBar.becomeFirstResponder()
     }
 }
 
