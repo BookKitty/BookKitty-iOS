@@ -19,25 +19,22 @@ final class AddBookCoordinator: Coordinator {
     var navigationController: UINavigationController
 
     var addBookViewController: AddBookViewController
-    var addBookByTitleViewController: AddBookByTitleViewController
     var addBookViewModel: AddBookViewModel
-    var addBookByTitleViewModel: AddBookByTitleViewModel
 
     // MARK: - Private
 
     private let disposeBag = DisposeBag()
     private let confirmButtonRelay = PublishRelay<Void>()
+    private let repository = LocalBookRepository()
+    private let bookOCRKit = BookOCRKit(
+        naverClientId: Environment().naverClientID,
+        naverClientSecret: Environment().naverClientSecret
+    )
 
     // MARK: - Lifecycle
 
     init(_ navigationController: UINavigationController) {
         self.navigationController = navigationController
-
-        let repository = LocalBookRepository()
-        let bookOCRKit = BookOCRKit(
-            naverClientId: Environment().naverClientID,
-            naverClientSecret: Environment().naverClientSecret
-        )
 
         addBookViewModel = AddBookViewModel(
             bookRepository: repository,
@@ -46,14 +43,6 @@ final class AddBookCoordinator: Coordinator {
         addBookViewController = AddBookViewController(
             viewModel: addBookViewModel
         ) // ✅ 올바르게 전달
-
-        addBookByTitleViewModel = AddBookByTitleViewModel(
-            bookRepository: repository,
-            bookOcrKit: bookOCRKit
-        )
-        addBookByTitleViewController = AddBookByTitleViewController(
-            viewModel: addBookByTitleViewModel
-        )
     }
 
     // MARK: - Functions
@@ -82,6 +71,14 @@ extension AddBookCoordinator {
     }
 
     private func showAddBookByTitleScreen() {
+        let addBookByTitleViewModel = AddBookByTitleViewModel(
+            bookRepository: repository,
+            bookOcrKit: bookOCRKit
+        )
+        let addBookByTitleViewController = AddBookByTitleViewController(
+            viewModel: addBookByTitleViewModel
+        )
+
         addBookByTitleViewModel.navigationBackRelay
             .withUnretained(self)
             .bind { owner, _ in
