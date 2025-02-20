@@ -57,7 +57,7 @@ final class AddBookViewController: BaseViewController {
     }
 
     private let guideLabel = BodyLabel().then {
-        $0.text = "책을 정면으로 맞추고, 카메라와 수평이 되도록 해주세요."
+        $0.text = "책을 정면으로, 카메라와 수평이 되도록 해주세요."
         $0.textColor = Colors.fontWhite
         $0.textAlignment = .center
         $0.numberOfLines = 2
@@ -182,7 +182,7 @@ final class AddBookViewController: BaseViewController {
         }
 
         guideLabel.snp.makeConstraints {
-            $0.top.equalTo(guideBoxView.snp.bottom).offset(Vars.spacing16)
+            $0.top.equalTo(guideBoxView.snp.bottom).offset(Vars.spacing12)
             $0.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
         }
     }
