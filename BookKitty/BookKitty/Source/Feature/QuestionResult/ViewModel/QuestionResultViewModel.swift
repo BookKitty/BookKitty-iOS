@@ -159,7 +159,7 @@ final class QuestionResultViewModel: ViewModelType {
                             guard let error = error as? BookMatchError else {
                                 return
                             }
-                            
+
                             BookKittyLogger.error("추천 서비스에서 에러 발생 : \(error.localizedDescription)")
 
                             switch error {

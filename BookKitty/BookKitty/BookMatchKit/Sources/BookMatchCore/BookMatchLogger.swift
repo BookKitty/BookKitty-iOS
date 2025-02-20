@@ -15,6 +15,14 @@ public enum BookMatchLogger {
         logger.info("📚 도서매칭 시작")
     }
 
+    public static func detectorInitializationFailed() {
+        logger.error("⚠️ CIDetector 초기화 실패")
+    }
+
+    public static func textSlopeDetectionFailed() {
+        logger.error("⚠️ 텍스트 기울기 감지 실패")
+    }
+
     public static func textsExtracted(_ words: [String]) {
         logger.info("📝 최종 OCR 텍스트 추출 완료: \(words.joined(separator: ", "))")
     }

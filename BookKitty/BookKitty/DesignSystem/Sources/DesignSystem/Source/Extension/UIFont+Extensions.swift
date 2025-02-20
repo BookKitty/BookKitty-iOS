@@ -26,23 +26,24 @@ extension UIFont {
     /// 폰트 등록 메서드
     public static func registerFont(name: String, extension ext: String) {
         guard let fontURL = Bundle.module.url(forResource: name, withExtension: ext) else {
-            print("폰트 파일을 찾을 수 없음: \(name).\(ext)")
+            DSLogger.log("폰트 파일을 찾을 수 없음: \(name).\(ext)")
             return
         }
 
         guard let fontDataProvider = CGDataProvider(url: fontURL as CFURL),
               let fontRef = CGFont(fontDataProvider)
         else {
-            print("폰트 등록 실패: \(name).\(ext)")
+            DSLogger.log("폰트 등록 실패: \(name).\(ext)")
             return
         }
 
         var error: Unmanaged<CFError>?
 
         if !CTFontManagerRegisterGraphicsFont(fontRef, &error) {
-            print("폰트 등록 중 오류 발생: \(name), \(String(describing: error?.takeRetainedValue()))")
+            DSLogger
+                .error("폰트 등록 중 오류 발생: \(name), \(String(describing: error?.takeRetainedValue()))")
         } else {
-            print("폰트 등록 완료: \(name)")
+            DSLogger.log("폰트 등록 완료: \(name)")
         }
     }
 

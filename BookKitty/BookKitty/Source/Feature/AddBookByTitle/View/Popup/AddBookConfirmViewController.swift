@@ -77,7 +77,6 @@ final class AddBookConfirmViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    AddBookConfirmViewController { result in
-        print(result)
+    AddBookConfirmViewController { _ in
     }
 }
