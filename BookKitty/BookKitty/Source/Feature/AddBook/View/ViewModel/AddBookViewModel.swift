@@ -87,14 +87,14 @@ final class AddBookViewModel: ViewModelType {
 
                             },
                             onFailure: { error in
+                                BookKittyLogger
+                                    .error("Error: \(error.localizedDescription)")
                                 switch error {
                                 case BookMatchError.networkError:
                                     self?.errorRelay.accept(NetworkError.networkUnstable)
                                 case BookMatchError.noMatchFound:
                                     self?.errorRelay.accept(AddBookError.bookNotFound)
                                 default:
-                                    BookKittyLogger
-                                        .error("Error: \(error.localizedDescription)")
                                     self?.errorRelay.accept(AddBookError.unknown)
                                 }
                             }

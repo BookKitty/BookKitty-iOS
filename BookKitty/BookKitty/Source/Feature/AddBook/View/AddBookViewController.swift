@@ -327,7 +327,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
                     }
                 }
             } catch {
-                print("🚨 카메라 초기화 실패: \(error.localizedDescription)")
+                BookKittyLogger.error("🚨 카메라 초기화 실패: \(error.localizedDescription)")
             }
         }
     }

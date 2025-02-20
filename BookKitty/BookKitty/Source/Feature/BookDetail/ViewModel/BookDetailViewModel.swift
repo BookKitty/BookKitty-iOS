@@ -58,16 +58,19 @@ final class BookDetailViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         input.popupViewConfirmButtonTapTrigger
-            .do(onNext: { [weak self] _ in
-                guard let bookDetail = self?.bookDetail else {
-                    return
-                }
+            .withUnretained(self)
+            .do(onNext: { owner, _ in
+                let bookDetail = owner.bookDetail
                 switch bookDetail.isOwned {
                 // TODO: 오류 처리
                 case true:
-                    _ = self?.bookRepository.exceptBookFromShelf(isbn: bookDetail.isbn)
+                    if !owner.bookRepository.exceptBookFromShelf(isbn: bookDetail.isbn) {
+                        BookKittyLogger.error("책장에서 책 제외 실패")
+                    }
                 case false:
-                    _ = self?.bookRepository.addBookToShelf(isbn: bookDetail.isbn)
+                    if !owner.bookRepository.addBookToShelf(isbn: bookDetail.isbn) {
+                        BookKittyLogger.error("책장에 책 추가 실패")
+                    }
                 }
             })
             .map { _ in }
