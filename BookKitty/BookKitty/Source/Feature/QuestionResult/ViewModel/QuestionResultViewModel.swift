@@ -20,6 +20,7 @@ final class QuestionResultViewModel: ViewModelType {
         let viewWillAppear: Observable<Void> // 뷰가 보일 때 책 소유 여부 업데이트
         let bookSelected: Observable<Book> // 사용자가 선택한 책
         let submitButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
+        let alertConfirmButtonTapped: Observable<Void> // 에러 알럿 확인 버튼 탭됐을 때 이벤트
     }
 
     struct Output {
@@ -114,8 +115,10 @@ final class QuestionResultViewModel: ViewModelType {
             .bind(to: navigateToBookDetail) // 책 상세 화면으로 이동
             .disposed(by: disposeBag)
 
-        input.submitButtonTapped
-            .bind(to: navigateToQuestionHistory) // 질문 내역 화면으로 이동
+        Observable.merge(
+            input.submitButtonTapped,
+            input.alertConfirmButtonTapped
+        ).bind(to: navigateToQuestionHistory)
             .disposed(by: disposeBag)
 
         return Output(
