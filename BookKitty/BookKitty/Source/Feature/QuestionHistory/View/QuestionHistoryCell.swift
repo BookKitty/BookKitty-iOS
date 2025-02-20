@@ -47,6 +47,28 @@ final class QuestionHistoryCell: UITableViewCell {
         containerView.setBasicShadow(radius: Vars.radiusTiny)
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        // StackView 정리: 기존 arrangedSubviews 안전하게 제거
+        for arrangedSubview in recommendedBooksStackView.arrangedSubviews {
+            recommendedBooksStackView.removeArrangedSubview(arrangedSubview)
+            arrangedSubview.removeFromSuperview()
+        }
+
+        // Spacing 초기화
+        recommendedBooksStackView.spacing = 12.0
+
+        // 회전된 이미지 초기화
+        for subview in recommendedBooksStackView.arrangedSubviews {
+            subview.transform = .identity
+        }
+
+        // 라벨 초기화
+        dateLabel.text = nil
+        questionLabel.text = nil
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -66,8 +88,6 @@ final class QuestionHistoryCell: UITableViewCell {
         dateLabel.text = DateFormatter.shared.string(from: questionAnswer.createdAt)
         questionLabel.text = questionAnswer.userQuestion
         questionLabel.lineBreakMode = .byTruncatingTail
-
-        recommendedBooksStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
 
         if isOverlapNeeded {
             recommendedBooksStackView.spacing = -48
