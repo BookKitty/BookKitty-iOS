@@ -22,10 +22,6 @@ final class AddBookViewController: BaseViewController {
 
     private let navigationBar = CustomNavigationBar()
 
-    private let titleLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "새로운 책 추가하기"
-    }
-
     private let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.clipsToBounds = true
@@ -46,6 +42,10 @@ final class AddBookViewController: BaseViewController {
     }
 
     private var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
+
+    // MARK: - ViewModel Binding
+
+    private let confirmButtonTappedRelay = PublishRelay<Book>()
 
     // MARK: - Lifecycle
 
@@ -100,13 +100,13 @@ final class AddBookViewController: BaseViewController {
     // MARK: - UI Setup
 
     override func configureNavItem() {
-        navigationBar.setupTitle(with: "새로운 책 추가하기")
+        navigationBar.setupTitle(with: "책 추가하기")
+        navigationBar.setupRightBarButton(with: .input)
     }
 
     override func configureHierarchy() {
         [
             navigationBar,
-            titleLabel,
             cameraContainerView,
             infoButtonContainerView,
             infoLabel,
@@ -156,16 +156,30 @@ final class AddBookViewController: BaseViewController {
         }
     }
 
-    // MARK: - ViewModel Binding
-
     override func bind() {
         let input = AddBookViewModel.Input(
-            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
             cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
-            capturedImage: capturedImageRelay.asObservable()
+            leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
+            addBookByTextButtonTapTrigger: navigationBar.rightButtonTapped.asObservable(),
+            confirmButtonTapTrigger: confirmButtonTappedRelay.asObservable(),
+            capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
         )
 
         let output = viewModel.transform(input)
+
+        output.bookMatchSuccess
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self, onNext: { owner, book in
+                let vc = AddBookConfirmViewController { [weak self] shouldAdd in
+                    if shouldAdd {
+                        self?.confirmButtonTappedRelay.accept(book)
+                    } else {
+                        self?.hideLoadingImage()
+                    }
+                }
+                vc.present(by: owner, with: book)
+            })
+            .disposed(by: disposeBag)
 
         output.error
             .observe(on: MainScheduler.instance)

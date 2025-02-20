@@ -42,8 +42,8 @@ struct Book: IdentifiableType, Hashable {
         thumbnailUrl: URL?,
         isOwned: Bool,
         bookInfoLink: String = "",
-        createdAt: Date = Date(),
-        updatedAt: Date = Date(),
+        createdAt: Date,
+        updatedAt: Date,
         description: String = "이 책을 추천합니다.",
         price: String = "가격 미정",
         pubDate: String = "출판일 알 수 없음"

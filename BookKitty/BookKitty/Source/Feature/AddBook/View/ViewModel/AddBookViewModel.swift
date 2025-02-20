@@ -10,13 +10,16 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
     struct Input {
-        let leftBarButtonTapTrigger: Observable<Void>
         let cameraPermissionCancelButtonTapTrigger: Observable<Void>
+        let leftBarButtonTapTrigger: Observable<Void>
+        let addBookByTextButtonTapTrigger: Observable<Void>
+        let confirmButtonTapTrigger: Observable<Book>
         let capturedImage: Observable<UIImage>
     }
 
     struct Output {
-        let error: Observable<AlertPresentableError> // 에러 처리
+        let bookMatchSuccess: PublishRelay<Book>
+        let error: PublishRelay<AlertPresentableError> // 에러 처리
     }
 
     // MARK: - Properties
@@ -26,8 +29,11 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Private
 
     let navigateBackRelay = PublishRelay<Void>()
+    let navigateToAddBookByText = PublishRelay<Void>()
 
     private let errorRelay = PublishRelay<AlertPresentableError>()
+    private let bookMatchSuccessRelay = PublishRelay<Book>()
+
     private let bookRepository: BookRepository
     private let bookOCRKit: BookMatchable
 
@@ -48,6 +54,10 @@ final class AddBookViewModel: ViewModelType {
         .bind(to: navigateBackRelay)
         .disposed(by: disposeBag)
 
+        input.addBookByTextButtonTapTrigger
+            .bind(to: navigateToAddBookByText)
+            .disposed(by: disposeBag)
+
         input.capturedImage
             .flatMapLatest { [weak self] image -> Observable<Book> in
                 guard self != nil else {
@@ -65,6 +75,8 @@ final class AddBookViewModel: ViewModelType {
                                     publisher: book.publisher,
                                     thumbnailUrl: URL(string: book.image),
                                     isOwned: true,
+                                    createdAt: Date(),
+                                    updatedAt: Date(),
                                     description: book.description,
                                     price: book.discount ?? "",
                                     pubDate: book.pubdate ?? ""
@@ -77,12 +89,13 @@ final class AddBookViewModel: ViewModelType {
                             onFailure: { error in
                                 switch error {
                                 case BookMatchError.networkError:
-                                    observer.onError(NetworkError.networkUnstable)
+                                    self?.errorRelay.accept(NetworkError.networkUnstable)
                                 case BookMatchError.noMatchFound:
-                                    observer.onError(AddBookError.bookNotFound)
+                                    self?.errorRelay.accept(AddBookError.bookNotFound)
                                 default:
-                                    BookKittyLogger.error("Error: \(error.localizedDescription)")
-                                    observer.onError(AddBookError.unknown)
+                                    BookKittyLogger
+                                        .error("Error: \(error.localizedDescription)")
+                                    self?.errorRelay.accept(AddBookError.unknown)
                                 }
                             }
                         )
@@ -93,6 +106,10 @@ final class AddBookViewModel: ViewModelType {
                 }
             }
             .observe(on: MainScheduler.instance)
+            .bind(to: bookMatchSuccessRelay)
+            .disposed(by: disposeBag)
+
+        input.confirmButtonTapTrigger
             .subscribe(with: self, onNext: { owner, book in
                 let isSaved = owner.bookRepository.saveBook(book: book)
                 if isSaved {
@@ -110,7 +127,8 @@ final class AddBookViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         return Output(
-            error: errorRelay.asObservable()
+            bookMatchSuccess: bookMatchSuccessRelay,
+            error: errorRelay
         )
     }
 }
