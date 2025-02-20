@@ -58,7 +58,8 @@ public final class NetworkManager: NetworkManageable {
             }
             task.resume()
             return Disposables.create()
-        }.retry { error in
+        }
+        .retry { error in
             error.enumerated().flatMap { attempt, error -> Observable<Int> in
                 if attempt >= 3 { // 3회 초과 시 실패(Error 방출)
                     return Observable.error(error)
