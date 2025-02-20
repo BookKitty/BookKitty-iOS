@@ -12,7 +12,7 @@ import RxSwift
 import UIKit
 
 /// Mock 추천 서비스 클래스
-class MockRecommendationService: BookRecommendable {
+final class MockRecommendationService: BookRecommendable {
     // MARK: - Properties
 
     let mockBookData = [
@@ -73,7 +73,9 @@ class MockRecommendationService: BookRecommendable {
             author: "John Doe",
             publisher: "TechBooks",
             thumbnailUrl: URL(string: "https://bookstore.com/images/1234567890123.jpg"),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "1234567890123",
@@ -81,7 +83,9 @@ class MockRecommendationService: BookRecommendable {
             author: "John Doe",
             publisher: "TechBooks",
             thumbnailUrl: URL(string: "https://bookstore.com/images/1234567890123.jpg"),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "1234567890123",
@@ -89,7 +93,9 @@ class MockRecommendationService: BookRecommendable {
             author: "John Doe",
             publisher: "TechBooks",
             thumbnailUrl: URL(string: "https://bookstore.com/images/1234567890123.jpg"),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "1234567890123",
@@ -97,7 +103,9 @@ class MockRecommendationService: BookRecommendable {
             author: "John Doe",
             publisher: "TechBooks",
             thumbnailUrl: URL(string: "https://bookstore.com/images/1234567890123.jpg"),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
     ]
 

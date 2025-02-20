@@ -163,7 +163,9 @@ final class BookDetailViewController: BaseViewController {
                 thumbnailUrl: URL(
                     string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
                 ),
-                isOwned: true
+                isOwned: true,
+                createdAt: Date(),
+                updatedAt: Date()
             ),
             bookRepository: MockBookRepository()
         )

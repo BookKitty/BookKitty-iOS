@@ -42,10 +42,7 @@ final class CustomNavigationBar: UIView {
         $0.configuration = config
     }
 
-    private let titleLabel = UILabel().then {
-        $0.font = Fonts.titleExtraBold
-        $0.textColor = Colors.fontMain
-    }
+    private let titleLabel = BodyLabel(weight: .extraBold)
 
     private lazy var rightButton = UIButton()
 
@@ -79,7 +76,7 @@ final class CustomNavigationBar: UIView {
         addSubview(rightButton)
 
         rightButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(Vars.spacing24)
+            $0.trailing.equalToSuperview().inset(Vars.spacing8)
             $0.verticalEdges.equalToSuperview()
         }
 
