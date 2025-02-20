@@ -88,6 +88,8 @@ final class QuestionResultViewController: BaseViewController {
         }
     )
 
+    private var hasScrolledToBottom = false
+
     // MARK: - Lifecycle
 
     init(viewModel: QuestionResultViewModel) {
@@ -110,12 +112,18 @@ final class QuestionResultViewController: BaseViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        // 처음 한 번만 스크롤 수행
+        guard !hasScrolledToBottom else {
+            return
+        }
+
         DispatchQueue.main.async {
             let bottomOffset = CGPoint(
                 x: 0,
                 y: max(0, self.scrollView.contentSize.height - self.scrollView.bounds.height)
             )
             self.scrollView.setContentOffset(bottomOffset, animated: true)
+            self.hasScrolledToBottom = true
         }
     }
 
