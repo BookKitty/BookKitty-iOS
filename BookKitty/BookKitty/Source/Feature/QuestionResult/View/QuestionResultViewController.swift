@@ -22,7 +22,6 @@ final class QuestionResultViewController: BaseViewController {
 
     private let bookSelectedRelay = PublishRelay<Book>()
     private let submitButtonTappedRelay = PublishRelay<Void>()
-    private let alertConfirmButtonTappedRelay = PublishRelay<Void>()
 
     private let viewModel: QuestionResultViewModel
 
@@ -68,8 +67,6 @@ final class QuestionResultViewController: BaseViewController {
         )
         return collectionView
     }()
-
-    private var alertView: ErrorAlertView?
 
     private let dataSource = RxCollectionViewSectionedReloadDataSource<SectionOfBook>(
         configureCell: { _, collectionView, indexPath, item in
@@ -199,8 +196,7 @@ final class QuestionResultViewController: BaseViewController {
             viewDidLoad: viewDidLoadRelay.asObservable(),
             viewWillAppear: viewWillAppearRelay.asObservable(),
             bookSelected: bookSelectedRelay.asObservable(),
-            submitButtonTapped: submitButtonTappedRelay.asObservable(),
-            alertConfirmButtonTapped: alertConfirmButtonTappedRelay.asObservable()
+            submitButtonTapped: submitButtonTappedRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -232,16 +228,9 @@ final class QuestionResultViewController: BaseViewController {
             .withUnretained(self)
             .observe(on: MainScheduler.instance)
             .subscribe(onNext: { owner, error in
-                owner.alertView = ErrorAlertView(presentableError: error)
-
-                guard let errorAlert = owner.alertView else {
-                    return
-                }
-
-                owner.view.addSubview(errorAlert)
-                errorAlert.snp.makeConstraints { $0.edges.equalToSuperview() }
-                owner.bindAlertView()
-            }).disposed(by: disposeBag)
+                ErrorAlertController(presentableError: error).present(from: owner)
+            })
+            .disposed(by: disposeBag)
 
         recommendedBooksCollectionView.rx.itemSelected
             .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
@@ -314,16 +303,6 @@ final class QuestionResultViewController: BaseViewController {
             recommendationBodyLabel,
             submitButton,
         ].forEach { $0.isHidden = false }
-    }
-
-    private func bindAlertView() {
-        guard let errorAlert = alertView else {
-            return
-        }
-
-        errorAlert.confirmButtonDidTap
-            .bind(to: alertConfirmButtonTappedRelay)
-            .disposed(by: disposeBag)
     }
 }
 
