@@ -36,6 +36,7 @@ final class QuestionResultViewModel: ViewModelType {
     // 화면 이동을 위한 Relay
     let navigateToBookDetail = PublishRelay<Book>()
     let navigateToQuestionHistory = PublishRelay<Void>()
+    let navigateToRoot = PublishRelay<Void>()
 
     // MARK: - Private
 
