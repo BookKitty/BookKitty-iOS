@@ -45,9 +45,6 @@ final class AddBookByTitleViewModel: ViewModelType {
 
     func transform(_ input: Input) -> Output {
         input.backButtonTapped
-            .map {
-                BookKittyLogger.log("뒤로가기 버튼 탭")
-            }
             .bind(to: navigationBackRelay)
             .disposed(by: disposeBag)
 
