@@ -22,10 +22,6 @@ final class AddBookViewController: BaseViewController {
 
     private let navigationBar = CustomNavigationBar()
 
-    private let titleLabel = Headline3Label(weight: .extraBold).then {
-        $0.text = "새로운 책 추가하기"
-    }
-
     private let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.clipsToBounds = true
@@ -106,7 +102,6 @@ final class AddBookViewController: BaseViewController {
     override func configureHierarchy() {
         [
             navigationBar,
-            titleLabel,
             cameraContainerView,
             infoButtonContainerView,
             infoLabel,
@@ -123,11 +118,6 @@ final class AddBookViewController: BaseViewController {
             $0.horizontalEdges.equalToSuperview()
             $0.height.equalTo(Vars.viewSizeReg)
         }
-
-//        titleLabel.snp.makeConstraints {
-//            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.spacing32)
-//            $0.centerX.equalToSuperview()
-//        }
 
         cameraContainerView.snp.makeConstraints {
             $0.top.equalTo(navigationBar.snp.bottom)
