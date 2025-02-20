@@ -190,7 +190,7 @@ extension AddBookByTitleViewController: UICollectionViewDelegate {
             return
         }
 
-        let vc = AddBookByTitlePopupViewController { [weak self] addBook in
+        let vc = AddBookConfirmViewController { [weak self] addBook in
             if addBook {
                 self?.bookSelectionRelay.accept(selectedBook)
             }

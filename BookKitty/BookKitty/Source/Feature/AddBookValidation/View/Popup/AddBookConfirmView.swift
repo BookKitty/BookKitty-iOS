@@ -1,5 +1,5 @@
 //
-//  AddBookByTitlePopupView.swift
+//  AddBookConfirmView.swift
 //  BookKitty
 //
 //  Created by 권승용 on 2/19/25.
@@ -12,7 +12,7 @@ import SnapKit
 import Then
 import UIKit
 
-final class AddBookByTitlePopupView: UIView {
+final class AddBookConfirmView: UIView {
     // MARK: - Properties
 
     let cancelButton = UIButton().then {

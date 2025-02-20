@@ -169,7 +169,7 @@ final class AddBookViewController: BaseViewController {
         output.bookMatchSuccess
             .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, book in
-                let vc = AddBookByTitlePopupViewController { [weak self] shouldAdd in
+                let vc = AddBookConfirmViewController { [weak self] shouldAdd in
                     if shouldAdd {
                         self?.confirmButtonTappedRelay.accept(book)
                     } else {

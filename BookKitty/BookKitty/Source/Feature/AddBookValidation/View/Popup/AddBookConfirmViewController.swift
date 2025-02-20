@@ -1,5 +1,5 @@
 //
-//  AddBookByTitlePopupViewController.swift
+//  AddBookConfirmViewController.swift
 //  BookKitty
 //
 //  Created by 권승용 on 2/19/25.
@@ -12,10 +12,10 @@ import SnapKit
 import Then
 import UIKit
 
-final class AddBookByTitlePopupViewController: BaseViewController {
+final class AddBookConfirmViewController: BaseViewController {
     // MARK: - Properties
 
-    private let popup = AddBookByTitlePopupView()
+    private let popup = AddBookConfirmView()
     private let completion: (Bool) -> Void
 
     // MARK: - Lifecycle
@@ -77,7 +77,7 @@ final class AddBookByTitlePopupViewController: BaseViewController {
 
 @available(iOS 17.0, *)
 #Preview {
-    AddBookByTitlePopupViewController { result in
+    AddBookConfirmViewController { result in
         print(result)
     }
 }
