@@ -177,8 +177,8 @@ final class AddBookViewController: BaseViewController {
         guideBoxView.snp.makeConstraints {
             $0.centerX.equalToSuperview()
             $0.centerY.equalToSuperview().offset(-40) // 화면 중앙에서 약간 위로
-            $0.width.equalTo(200)
-            $0.height.equalTo(300)
+            $0.width.equalToSuperview().multipliedBy(0.9) // 화면 너비의 90%
+            $0.height.equalToSuperview().multipliedBy(0.6) // 화면 높이의 60%
         }
 
         guideLabel.snp.makeConstraints {
