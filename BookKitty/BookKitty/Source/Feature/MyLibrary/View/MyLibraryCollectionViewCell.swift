@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import Kingfisher
 import SnapKit
 import UIKit
 
@@ -19,9 +20,6 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
     // MARK: - Properties
 
     // MARK: - Private
-
-    private var imageLoadTask: URLSessionDataTask?
-    private var currentImageUrl: URL?
 
     private let cellImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
@@ -41,49 +39,11 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        // 기존 요청 취소 및 기본 이미지 설정
-        imageLoadTask?.cancel()
-        cellImageView.image = nil
-        currentImageUrl = nil
-    }
-
     // MARK: - Functions
 
     // TODO: 고도화 필요
     func configureCell(imageUrl: URL?) {
-        // 기존 요청이 있다면 취소
-        imageLoadTask?.cancel()
-        currentImageUrl = imageUrl
-
-        guard let imageUrl else {
-            cellImageView.image = UIImage(systemName: "photo")
-            return
-        }
-
-        let request = URLRequest(
-            url: imageUrl,
-            cachePolicy: .returnCacheDataElseLoad,
-            timeoutInterval: 10
-        )
-        imageLoadTask = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard let self, let data, error == nil, let image = UIImage(data: data) else {
-                DispatchQueue.main.async {
-                    if self?.currentImageUrl == imageUrl {
-                        self?.cellImageView.image = UIImage(systemName: "photo")
-                    }
-                }
-                return
-            }
-
-            DispatchQueue.main.async {
-                if self.currentImageUrl == imageUrl {
-                    self.cellImageView.image = image
-                }
-            }
-        }
-        imageLoadTask?.resume()
+        cellImageView.kf.setImage(with: imageUrl)
     }
 
     private func configureHierarchy() {
