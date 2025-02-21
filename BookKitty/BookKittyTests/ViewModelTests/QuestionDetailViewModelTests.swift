@@ -10,175 +10,180 @@ import Foundation
 import RxSwift
 import Testing
 
-@Suite()
+@Suite(.serialized)
+@MainActor
 struct QuestionDetailViewModelTests {
     // MARK: - Properties
 
-    // MARK: - Private
+    private let repository = MockQuestionHistoryRepository()
+    private let mockBooks = MockBookRepository().mockBookList
 
-    private var deleteButtonTappedSubject = PublishSubject<Void>()
-    private var bookSelectedSubject = PublishSubject<Book>()
-
-    private let questionHistoryRepostiroy = MockQuestionHistoryRepository()
-
-    private let testQuestionAnswer = QuestionAnswer(
+    private let mockQnA = QuestionAnswer(
         createdAt: Date(),
-        userQuestion: "유저 질문",
-        gptAnswer: "지피티 응답",
-        recommendedBooks: [
-            Book(
-                isbn: "102031923",
-                title: "책제목",
-                author: "저자",
-                publisher: "출판사",
-                thumbnailUrl: nil
-            ),
-        ]
-    )
-
-    private let testBook = Book(
-        isbn: "102031923",
-        title: "책제목",
-        author: "저자",
-        publisher: "출판사",
-        thumbnailUrl: nil
+        userQuestion: "테스트 질문",
+        gptAnswer: "테스트 답변",
+        id: UUID(),
+        recommendedBooks: MockBookRepository().mockBookList
     )
 
     // MARK: - Functions
 
-    // MARK: - Internal
-
-    @Test()
-    func test_viewDidLoad_questionDate() async {
+    /// viewDidLoad 시 데이터가 올바르게 표시되는지 테스트
+    @Test("viewDidLoad -> 데이터 표시")
+    func test_viewDidLoad() async {
         let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
+            questionAnswer: mockQnA,
+            questionHistoryRepository: repository
         )
 
         let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .just(()),
-            deleteButtonTapped: .empty(),
-            bookTapped: .empty()
+            viewDidLoad: Observable.just(()),
+            viewWillAppear: Observable.empty(),
+            deleteButtonTapped: Observable.empty(),
+            backButtonTapped: Observable.empty(),
+            bookTapped: Observable.empty()
         )
 
         let output = vm.transform(input)
 
-        for await value in await output.questionDate.values {
-            #expect(value == DateFormatHandler().dateString(from: testQuestionAnswer.createdAt))
+        for await value in output.userQuestion.values {
+            #expect(value == "테스트 질문")
+            break
+        }
+
+        for await value in output.recommendationReason.values {
+            #expect(value == "테스트 답변")
+            break
+        }
+
+        for await value in output.recommendedBooks.values {
+            #expect(value[0].items == mockBooks)
             break
         }
     }
 
-    @Test()
-    func test_viewDidLoad_userQuestion() async {
+    /// 화면 재진입 시 데이터가 업데이트되는지 테스트
+    @Test("viewWillAppear -> 데이터 업데이트")
+    func test_viewWillAppear() async {
         let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
+            questionAnswer: mockQnA,
+            questionHistoryRepository: repository
         )
+        let viewWillAppearSubject = PublishSubject<Void>()
 
         let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .just(()),
-            deleteButtonTapped: .empty(),
-            bookTapped: .empty()
+            viewDidLoad: Observable.empty(),
+            viewWillAppear: viewWillAppearSubject.asObservable(),
+            deleteButtonTapped: Observable.empty(),
+            backButtonTapped: Observable.empty(),
+            bookTapped: Observable.empty()
         )
 
         let output = vm.transform(input)
 
-        for await value in await output.userQuestion.values {
-            #expect(value == testQuestionAnswer.userQuestion)
-            break
+        // 첫 번째 viewWillAppear는 스킵됨
+        Task {
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            viewWillAppearSubject.onNext(())
+            viewWillAppearSubject.onNext(())
+        }
+
+        var emissionCount = 0
+        for await value in output.recommendedBooks.values {
+            emissionCount += 1
+            if emissionCount > 1 {
+                #expect(value[0].items == mockBooks)
+                break
+            }
         }
     }
 
-    @Test()
-    func test_viewDidLoad_reason() async {
+    /// 삭제 버튼 탭 시 화면이 dismiss되는지 테스트
+    @Test("deleteButtonTapped -> 화면 dismiss")
+    func test_deleteButtonTapped() async throws {
         let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
+            questionAnswer: mockQnA,
+            questionHistoryRepository: repository
         )
+        let deleteButtonTappedSubject = PublishSubject<Void>()
 
         let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .just(()),
-            deleteButtonTapped: .empty(),
-            bookTapped: .empty()
-        )
-
-        let output = vm.transform(input)
-
-        for await value in await output.recommendationReason.values {
-            #expect(value == testQuestionAnswer.gptAnswer)
-            break
-        }
-    }
-
-    @Test()
-    func test_viewDidLoad_books() async {
-        let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
-        )
-
-        let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .just(()),
-            deleteButtonTapped: .empty(),
-            bookTapped: .empty()
-        )
-
-        let output = vm.transform(input)
-
-        for await value in await output.recommendedBooks.values {
-            #expect(value[0].items == testQuestionAnswer.recommendedBooks)
-            break
-        }
-    }
-
-    @Test()
-    func test_deleteButtonTapped_popVC() async throws {
-        let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
-        )
-
-        let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .empty(),
-            deleteButtonTapped: deleteButtonTappedSubject,
-            bookTapped: .empty()
+            viewDidLoad: Observable.empty(),
+            viewWillAppear: Observable.empty(),
+            deleteButtonTapped: deleteButtonTappedSubject.asObservable(),
+            backButtonTapped: Observable.empty(),
+            bookTapped: Observable.empty()
         )
 
         _ = vm.transform(input)
 
         Task {
-            try await Task.sleep(nanoseconds: 3_000_000_000)
+            try await Task.sleep(nanoseconds: 1_000_000_000)
             deleteButtonTappedSubject.onNext(())
         }
 
-        for try await value in vm.dismissViewController.values {
-            #expect(value == ())
+        for try await _ in vm.dismissViewController.values {
+            #expect(true)
             break
         }
     }
 
-    func test_bookSelected_navigateToBookDetail() async throws {
+    /// 뒤로가기 버튼 탭 시 화면이 dismiss되는지 테스트
+    @Test("backButtonTapped -> 화면 dismiss")
+    func test_backButtonTapped() async throws {
         let vm = QuestionDetailViewModel(
-            questionAnswer: testQuestionAnswer,
-            questionHistoryRepository: questionHistoryRepostiroy
+            questionAnswer: mockQnA,
+            questionHistoryRepository: repository
         )
+        let deleteButtonTappedSubject = PublishSubject<Void>()
 
         let input = QuestionDetailViewModel.Input(
-            viewDidLoad: .empty(),
-            deleteButtonTapped: .empty(),
-            bookTapped: bookSelectedSubject
+            viewDidLoad: Observable.empty(),
+            viewWillAppear: Observable.empty(),
+            deleteButtonTapped: Observable.empty(),
+            backButtonTapped: deleteButtonTappedSubject.asObservable(),
+            bookTapped: Observable.empty()
         )
 
         _ = vm.transform(input)
 
         Task {
-            try await Task.sleep(nanoseconds: 3_000_000_000)
-            bookSelectedSubject.onNext(testBook)
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            deleteButtonTappedSubject.onNext(())
+        }
+
+        for try await _ in vm.dismissViewController.values {
+            #expect(true)
+            break
+        }
+    }
+
+    /// 책 탭 시 상세화면으로 이동하는지 테스트
+    @Test("bookTapped -> 상세화면 이동")
+    func test_bookTapped() async throws {
+        let vm = QuestionDetailViewModel(
+            questionAnswer: mockQnA,
+            questionHistoryRepository: repository
+        )
+        let bookTappedSubject = PublishSubject<Book>()
+
+        let input = QuestionDetailViewModel.Input(
+            viewDidLoad: Observable.empty(),
+            viewWillAppear: Observable.empty(),
+            deleteButtonTapped: Observable.empty(),
+            backButtonTapped: Observable.empty(),
+            bookTapped: bookTappedSubject.asObservable()
+        )
+
+        _ = vm.transform(input)
+
+        Task {
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            bookTappedSubject.onNext(mockBooks[0])
         }
 
         for try await value in vm.navigateToBookDetail.values {
-            #expect(value == testBook)
+            #expect(value == mockBooks[0])
             break
         }
     }
