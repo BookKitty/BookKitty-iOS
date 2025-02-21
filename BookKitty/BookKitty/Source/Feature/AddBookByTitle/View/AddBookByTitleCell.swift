@@ -30,6 +30,7 @@ final class AddBookByTitleCell: UICollectionViewCell {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configureBackground()
         configureHierarahy()
         configureLayout()
     }
@@ -45,6 +46,10 @@ final class AddBookByTitleCell: UICollectionViewCell {
         imageView.setupImage(imageLink: imageLink)
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = author
+    }
+
+    private func configureBackground() {
+        backgroundColor = Colors.background0
     }
 
     private func configureHierarahy() {

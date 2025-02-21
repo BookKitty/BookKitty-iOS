@@ -25,6 +25,9 @@ final class AddBookByTitleViewController: BaseViewController {
     }
 
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        .then {
+            $0.backgroundColor = Colors.background0
+        }
 
     private let emptyResultLabel = Headline3Label().then {
         $0.text = "검색 결과가 없습니다."
@@ -33,6 +36,7 @@ final class AddBookByTitleViewController: BaseViewController {
 
     private let layout: UICollectionViewCompositionalLayout = {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        configuration.backgroundColor = Colors.background0
         return UICollectionViewCompositionalLayout.list(using: configuration)
     }()
 
