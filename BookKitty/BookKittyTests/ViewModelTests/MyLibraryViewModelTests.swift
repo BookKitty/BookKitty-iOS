@@ -30,7 +30,7 @@ struct MyLibraryViewModelTests {
 
         // ViewModel 입력 설정
         let input = MyLibraryViewModel.Input(
-            viewDidLoad: Observable.just(()), // 뷰 로드 이벤트
+            viewWillAppear: Observable.just(()), // 뷰 로드 이벤트
             bookTapped: Observable<Book>.empty(), // 책 탭 이벤트 (현재 비어있음)
             reachedScrollEnd: Observable<Void>.empty() // 스크롤 끝 이벤트 (현재 비어있음)
         )
@@ -52,7 +52,7 @@ struct MyLibraryViewModelTests {
 
         // ViewModel 입력 설정
         let input = MyLibraryViewModel.Input(
-            viewDidLoad: Observable<Void>.empty(), // 뷰 로드 이벤트 (현재 비어있음)
+            viewWillAppear: Observable<Void>.empty(), // 뷰 로드 이벤트 (현재 비어있음)
             bookTapped: bookTappedSubject.asObservable(), // 책 탭 이벤트
             reachedScrollEnd: Observable<Void>.empty() // 스크롤 끝 이벤트 (현재 비어있음)
         )
@@ -62,8 +62,8 @@ struct MyLibraryViewModelTests {
 
         // 비동기 작업을 통해 책 탭 이벤트 방출
         Task {
-            // publishSubject 구독을 기다리기 위해 3초 기다리고 방출
-            try await Task.sleep(nanoseconds: 3_000_000_000)
+            // publishSubject 구독을 기다리기 위해 1초 기다리고 방출
+            try await Task.sleep(nanoseconds: 1_000_000_000)
             bookTappedSubject.onNext(repository.mockBookList[0]) // 첫 번째 책 방출
         }
 
@@ -83,7 +83,7 @@ struct MyLibraryViewModelTests {
 
         // ViewModel 입력 설정
         let input = MyLibraryViewModel.Input(
-            viewDidLoad: Observable<Void>.empty(), // 뷰 로드 이벤트 (현재 비어있음)
+            viewWillAppear: Observable<Void>.empty(), // 뷰 로드 이벤트 (현재 비어있음)
             bookTapped: Observable<Book>.empty(), // 책 탭 이벤트 (현재 비어있음)
             reachedScrollEnd: Observable<Void>.just(()) // 스크롤 끝 이벤트
         )
@@ -95,6 +95,67 @@ struct MyLibraryViewModelTests {
         for await value in output.bookList.values {
             #expect(value[0].items == repository.mockBookList) // 방출된 값이 예상한 책 목록과 같은지 확인
             break
+        }
+    }
+
+    /// 무한 스크롤 시 책 목록이 누적되는지 테스트
+    @Test("multiple reachScrollEnd -> 누적된 Book 목록 방출")
+    func test_multipleReachedScrollEnd() async {
+        let vm = MyLibraryViewModel(bookRepository: repository)
+        let scrollEndSubject = PublishSubject<Void>()
+
+        // ViewModel 입력 설정
+        let input = MyLibraryViewModel.Input(
+            viewWillAppear: Observable.just(()), // 초기 로드
+            bookTapped: Observable<Book>.empty(),
+            reachedScrollEnd: scrollEndSubject.asObservable()
+        )
+
+        let output = vm.transform(input)
+
+        // 첫 번째 스크롤 이벤트 발생
+        Task {
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            scrollEndSubject.onNext(())
+        }
+
+        var emissionCount = 0
+        for await value in output.bookList.values {
+            emissionCount += 1
+            if emissionCount == 2 { // 초기 로드와 첫 번째 스크롤 이벤트 후
+                #expect(value[0].items.count == repository.mockBookList.count * 2)
+                break
+            }
+        }
+    }
+
+    /// 로딩 중에 중복 요청이 방지되는지 테스트
+    @Test("loading prevents duplicate requests")
+    func test_loadingPrevention() async {
+        let vm = MyLibraryViewModel(bookRepository: repository)
+        let scrollEndSubject = PublishSubject<Void>()
+
+        let input = MyLibraryViewModel.Input(
+            viewWillAppear: Observable<Void>.empty(),
+            bookTapped: Observable<Book>.empty(),
+            reachedScrollEnd: scrollEndSubject.asObservable()
+        )
+
+        let output = vm.transform(input)
+
+        // 연속된 스크롤 이벤트 발생
+        Task {
+            scrollEndSubject.onNext(())
+            scrollEndSubject.onNext(()) // 바로 연속해서 호출
+        }
+
+        var emissionCount = 0
+        for await value in output.bookList.values {
+            emissionCount += 1
+            if emissionCount > 1 {
+                #expect(value[0].items.count == repository.mockBookList.count)
+                break
+            }
         }
     }
 }
