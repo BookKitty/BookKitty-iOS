@@ -46,7 +46,7 @@ final class MyLibraryViewModel: ViewModelType {
     private let bookList = BehaviorRelay<[SectionOfBook]>(value: [])
 
     private var offset = 0
-    private let limit = 15
+    private let limit = 12
     private var books: [Book] = []
     private var isLoading = false
 
@@ -71,41 +71,42 @@ final class MyLibraryViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         // 화면 로드 시 책 목록 가져오기
-        input.viewWillAppear
+        let initialLoad = input.viewWillAppear
             .withUnretained(self)
             .map { owner, _ in
-                let fetchedBooks = owner.bookRepository.fetchBookList(
-                    offset: owner.offset,
-                    limit: owner.limit
-                )
-                owner.books = fetchedBooks
-                return [SectionOfBook(items: owner.books)]
+                owner.offset = 0
+                owner.books.removeAll()
+                return owner.fetchBooks()
             }
-            .bind(to: bookList)
-            .disposed(by: disposeBag)
 
         // 스크롤이 끝에 닿았을 때 책 목록 추가 (무한 스크롤 기능)
-        input.reachedScrollEnd
+        let loadMore = input.reachedScrollEnd
             .withUnretained(self)
             .map { owner, _ in
-                guard !owner.isLoading else {
-                    return [SectionOfBook(items: owner.books)]
-                }
-                owner.isLoading = true
-                owner.offset += owner.limit
-                let fetchedBooks = owner.bookRepository.fetchBookList(
-                    offset: owner.offset,
-                    limit: owner.limit
-                )
-                owner.books += fetchedBooks
-                owner.isLoading = false
-                return [SectionOfBook(items: owner.books)]
+                owner.fetchBooks()
             }
+
+        Observable.merge(initialLoad, loadMore)
             .bind(to: bookList)
             .disposed(by: disposeBag)
 
         return Output(
             bookList: bookList.asDriver()
         )
+    }
+
+    private func fetchBooks() -> [SectionOfBook] {
+        guard !isLoading else {
+            return [SectionOfBook(items: books)]
+        }
+        isLoading = true
+        let fetchedBooks = bookRepository.fetchBookList(
+            offset: offset,
+            limit: limit
+        )
+        books += fetchedBooks
+        offset += fetchedBooks.count
+        isLoading = false
+        return [SectionOfBook(items: books)]
     }
 }
