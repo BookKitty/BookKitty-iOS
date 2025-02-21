@@ -22,6 +22,10 @@ final class AddBookViewController: BaseViewController {
 
     private let navigationBar = CustomNavigationBar()
 
+    private let titleLabel = Headline3Label(weight: .extraBold).then {
+        $0.text = "새로운 책 추가하기"
+    }
+
     private let cameraContainerView = UIView().then {
         $0.backgroundColor = .black
         $0.clipsToBounds = true
@@ -43,9 +47,21 @@ final class AddBookViewController: BaseViewController {
 
     private var captureButton: UIButton = CircleIconButton(iconId: "camera.fill")
 
-    // MARK: - ViewModel Binding
+    // MARK: - Guide Box UI Components
 
-    private let confirmButtonTappedRelay = PublishRelay<Book>()
+    private let guideBoxView = UIView().then {
+        $0.layer.borderColor = UIColor.white.cgColor
+        $0.layer.borderWidth = 2.0
+        $0.layer.cornerRadius = 8.0
+        $0.backgroundColor = .clear
+    }
+
+    private let guideLabel = BodyLabel().then {
+        $0.text = "책을 정면으로, 카메라와 수평이 되도록 해주세요."
+        $0.textColor = Colors.fontWhite
+        $0.textAlignment = .center
+        $0.numberOfLines = 2
+    }
 
     // MARK: - Lifecycle
 
@@ -86,6 +102,7 @@ final class AddBookViewController: BaseViewController {
         if !captureSession.isRunning {
             captureSession.startRunning() // 세션 재시작
         }
+        animateGuideBox() // 가이드박스 애니메이션 시작
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -100,18 +117,20 @@ final class AddBookViewController: BaseViewController {
     // MARK: - UI Setup
 
     override func configureNavItem() {
-        navigationBar.setupTitle(with: "책 추가하기")
-        navigationBar.setupRightBarButton(with: .input)
+        navigationBar.setupTitle(with: "새로운 책 추가하기")
     }
 
     override func configureHierarchy() {
         [
             navigationBar,
+            titleLabel,
             cameraContainerView,
             infoButtonContainerView,
             infoLabel,
             captureButton,
             loadingCircle,
+            guideBoxView, // 가이드박스 추가
+            guideLabel, // 가이드 라벨 추가
         ].forEach { view.addSubview($0) }
 
         cameraContainerView.addSubview(cameraView)
@@ -154,32 +173,30 @@ final class AddBookViewController: BaseViewController {
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(Vars.spacing32)
             $0.centerX.equalToSuperview()
         }
+
+        guideBoxView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-40) // 화면 중앙에서 약간 위로
+            $0.width.equalToSuperview().multipliedBy(0.9) // 화면 너비의 90%
+            $0.height.equalToSuperview().multipliedBy(0.6) // 화면 높이의 60%
+        }
+
+        guideLabel.snp.makeConstraints {
+            $0.top.equalTo(guideBoxView.snp.bottom).offset(Vars.spacing12)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
+        }
     }
+
+    // MARK: - ViewModel Binding
 
     override func bind() {
         let input = AddBookViewModel.Input(
-            cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
             leftBarButtonTapTrigger: navigationBar.backButtonTapped.asObservable(),
-            addBookByTextButtonTapTrigger: navigationBar.rightButtonTapped.asObservable(),
-            confirmButtonTapTrigger: confirmButtonTappedRelay.asObservable(),
-            capturedImage: capturedImageRelay.asObservable() // ✅ OCR 바인딩 추가
+            cameraPermissionCancelButtonTapTrigger: cameraPermissionCancelRelay.asObservable(),
+            capturedImage: capturedImageRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
-
-        output.bookMatchSuccess
-            .observe(on: MainScheduler.instance)
-            .subscribe(with: self, onNext: { owner, book in
-                let vc = AddBookConfirmViewController { [weak self] shouldAdd in
-                    if shouldAdd {
-                        self?.confirmButtonTappedRelay.accept(book)
-                    } else {
-                        self?.hideLoadingImage()
-                    }
-                }
-                vc.present(by: owner, with: book)
-            })
-            .disposed(by: disposeBag)
 
         output.error
             .observe(on: MainScheduler.instance)
@@ -217,12 +234,22 @@ final class AddBookViewController: BaseViewController {
         captureButton.isHidden = true
         loadingCircle.isHidden = false
         loadingCircle.play()
+        guideBoxView.isHidden = true // 가이드박스 숨기기
+        guideLabel.isHidden = true // 가이드 라벨 숨기기
     }
 
     private func hideLoadingImage() {
         loadingCircle.isHidden = true
         captureButton.isHidden = false
         loadingCircle.stop()
+        guideBoxView.isHidden = false // 가이드박스 보이기
+        guideLabel.isHidden = false // 가이드 라벨 보이기
+    }
+
+    private func animateGuideBox() {
+        UIView.animate(withDuration: 1.0, delay: 0, options: [.autoreverse, .repeat], animations: {
+            self.guideBoxView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        }, completion: nil)
     }
 }
 
@@ -335,7 +362,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
     private func showCaptureFailurePopup() {
         let alert = UIAlertController(
             title: "촬영 실패",
-            message: "이미지를 캡처하는 데 실패했습니다. 다시 시도해주세요.",
+            message: "책이 정면으로 촬영되지 않았습니다. 다시 시도해주세요.", // 수정된 메시지
             preferredStyle: .alert
         )
 
