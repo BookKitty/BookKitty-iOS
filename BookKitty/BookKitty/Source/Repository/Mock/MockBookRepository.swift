@@ -95,12 +95,10 @@ final class MockBookRepository: BookRepository {
     }
 
     func addBookToShelf(isbn _: String) -> Bool {
-        print("책 서재에 추가")
-        return true
+        true
     }
 
     func exceptBookFromShelf(isbn _: String) -> Bool {
-        print("책 서재에서 제거")
-        return true
+        true
     }
 }

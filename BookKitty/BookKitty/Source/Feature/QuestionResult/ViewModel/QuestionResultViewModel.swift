@@ -90,6 +90,7 @@ final class QuestionResultViewModel: ViewModelType {
 
                 guard let updatedQnA = owner.questionHistoryRepository.fetchQuestion(by: uuid)
                 else {
+                    BookKittyLogger.error("해당하는 uuid의 질의응답이 없습니다.")
                     return []
                 }
 
@@ -158,6 +159,8 @@ final class QuestionResultViewModel: ViewModelType {
                             guard let error = error as? BookMatchError else {
                                 return
                             }
+
+                            BookKittyLogger.error("추천 서비스에서 에러 발생 : \(error.localizedDescription)")
 
                             switch error {
                             case .networkError:

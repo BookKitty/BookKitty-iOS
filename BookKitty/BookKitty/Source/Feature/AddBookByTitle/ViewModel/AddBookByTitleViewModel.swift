@@ -52,9 +52,13 @@ final class AddBookByTitleViewModel: ViewModelType {
             .withUnretained(self)
             .map { owner, book in
                 BookKittyLogger.log("책 추가 버튼 탭")
-                _ = owner.bookRepository.saveBook(book: book)
-                _ = owner.bookRepository.addBookToShelf(isbn: book.isbn)
-                // TODO: 에러 처리
+                if !owner.bookRepository.saveBook(book: book) {
+                    BookKittyLogger.error("책 저장 실패")
+                }
+                if !owner.bookRepository.addBookToShelf(isbn: book.isbn) {
+                    BookKittyLogger.error("책 내 서재 추가 실패")
+                }
+                // TODO: 에러 처리 필요
             }
             .bind(to: navigationAfterBookAddedRelay)
             .disposed(by: disposeBag)
@@ -63,6 +67,11 @@ final class AddBookByTitleViewModel: ViewModelType {
             .withUnretained(self)
             .flatMapLatest { owner, searchResult in
                 owner.bookOcrKit.searchBookFromText(searchResult)
+                    .catch { error in
+                        BookKittyLogger.log("책 검색 실패: \(error.localizedDescription)")
+                        // TODO: 에러 처리 필요
+                        return .just([])
+                    }
             }
             .map { bookItems in
                 bookItems.map {

@@ -270,7 +270,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             return
         }
 
-        print("📸 이미지 캡처 성공")
+        BookKittyLogger.log("📸 이미지 캡처 성공")
         capturedImageRelay.accept(image)
     }
 
@@ -326,7 +326,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             captureSession.sessionPreset = .photo
 
             guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-                print("🚨 카메라 장치를 찾을 수 없음")
+                BookKittyLogger.error("🚨 카메라 장치를 찾을 수 없음")
                 return
             }
 
@@ -354,7 +354,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
                     }
                 }
             } catch {
-                print("🚨 카메라 초기화 실패: \(error.localizedDescription)")
+                BookKittyLogger.error("🚨 카메라 초기화 실패: \(error.localizedDescription)")
             }
         }
     }

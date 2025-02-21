@@ -233,8 +233,7 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
     }
 
     func deleteQuestionAnswer(uuid _: UUID) -> Bool {
-        print("question removed")
-        return true
+        true
     }
 
     func fetchQuestions(offset _: Int, limit _: Int) -> Single<[QuestionAnswer]> {

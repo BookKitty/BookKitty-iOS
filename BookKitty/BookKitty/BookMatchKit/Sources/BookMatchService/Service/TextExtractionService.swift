@@ -217,12 +217,12 @@ public final class TextExtractionService: TextExtractable {
             context: nil,
             options: nil
         ) else {
-            print("⚠️ CIDetector 초기화 실패")
+            BookMatchLogger.detectorInitializationFailed()
             return image
         }
 
         guard let feature = detector.features(in: image).first as? CIRectangleFeature else {
-            print("⚠️ 텍스트 기울기 감지 실패")
+            BookMatchLogger.textSlopeDetectionFailed()
             return image
         }
 
