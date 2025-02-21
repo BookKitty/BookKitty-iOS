@@ -31,7 +31,9 @@ final class AddBookViewController: BaseViewController {
         $0.clipsToBounds = true
     }
 
-    private let infoButtonContainerView = UIView().then {
+    private
+
+    let infoButtonContainerView = UIView().then {
         $0.backgroundColor = Colors.shadow25
     }
 
@@ -104,7 +106,9 @@ final class AddBookViewController: BaseViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if !captureSession.isRunning {
-            captureSession.startRunning() // 세션 재시작
+            DispatchQueue.global().async { [weak self] in
+                self?.captureSession.startRunning() // 세션 재시작
+            }
         }
         animateGuideBox() // 가이드박스 애니메이션 시작
     }
@@ -369,7 +373,9 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
 
                     // 메인 스레드에서 세션 시작
                     if !self.captureSession.isRunning {
-                        self.captureSession.startRunning()
+                        DispatchQueue.global().async {
+                            self.captureSession.startRunning()
+                        }
                     }
                 }
             } catch {
