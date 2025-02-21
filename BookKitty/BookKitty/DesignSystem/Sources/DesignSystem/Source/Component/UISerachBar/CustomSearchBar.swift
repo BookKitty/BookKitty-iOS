@@ -55,6 +55,12 @@ public final class CustomSearchBar: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Overridden Functions
+
+    override public func becomeFirstResponder() -> Bool {
+        textField.becomeFirstResponder()
+    }
+
     // MARK: - Functions
 
     // MARK: - Setup

@@ -20,8 +20,8 @@ final class AddBookByTitleViewController: BaseViewController {
     // MARK: - Properties
 
     private let navigationBar = CustomNavigationBar()
-    private let searchBar = UISearchBar().then {
-        $0.searchBarStyle = .minimal
+    private lazy var searchBar = CustomSearchBar().then {
+        $0.delegate = self
     }
 
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -170,7 +170,7 @@ final class AddBookByTitleViewController: BaseViewController {
     }
 
     private func makeSearchBarFirstResponder() {
-        searchBar.becomeFirstResponder()
+        _ = searchBar.becomeFirstResponder()
     }
 }
 
@@ -181,9 +181,9 @@ extension AddBookByTitleViewController {
     }
 }
 
-extension AddBookByTitleViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ bar: UISearchBar) {
-        let searchText = bar.text ?? ""
+extension AddBookByTitleViewController: CustomSearchBarDelegate {
+    func searchBarSearchButtonClicked(_ bar: CustomSearchBar) {
+        let searchText = bar.searchText ?? ""
         searchResultRelay.accept(searchText)
     }
 }
