@@ -50,6 +50,7 @@ final class AddBookViewController: BaseViewController {
     // MARK: - ViewModel Binding
 
     private let confirmButtonTappedRelay = PublishRelay<Book>()
+
     // MARK: - Guide Box UI Components
 
     private let guideBoxView = UIView().then {
@@ -205,7 +206,7 @@ final class AddBookViewController: BaseViewController {
         output.bookMatchSuccess
             .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, book in
-                let vc = AddBookByTitlePopupViewController { [weak self] shouldAdd in
+                let vc = AddBookConfirmViewController { [weak self] shouldAdd in
                     if shouldAdd {
                         self?.confirmButtonTappedRelay.accept(book)
                     } else {
