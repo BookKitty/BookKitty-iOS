@@ -37,6 +37,7 @@ final class AddBookByTitleViewController: BaseViewController {
     private let layout: UICollectionViewCompositionalLayout = {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
         configuration.backgroundColor = Colors.background0
+        configuration.showsSeparators = false
         return UICollectionViewCompositionalLayout.list(using: configuration)
     }()
 

@@ -13,10 +13,20 @@ import UIKit
 final class AddBookByTitleCell: UICollectionViewCell {
     // MARK: - Properties
 
-    private let imageView = HeightFixedImageView(height: .mini)
+    private let imageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFit
+        $0.clipsToBounds = true
+    }
 
-    private let bookTitleLabel = BodyLabel(weight: .regular)
-    private let bookAuthorLabel = CaptionLabel(weight: .regular)
+    private let bookTitleLabel = BodyLabel(weight: .regular).then {
+        $0.numberOfLines = 1
+        $0.lineBreakMode = .byTruncatingTail
+    }
+
+    private let bookAuthorLabel = CaptionLabel(weight: .regular).then {
+        $0.textColor = Colors.fontSub1
+    }
+
     private lazy var bookInfoStackView = UIStackView().then {
         $0.addArrangedSubview(bookTitleLabel)
         $0.addArrangedSubview(bookAuthorLabel)
@@ -43,7 +53,7 @@ final class AddBookByTitleCell: UICollectionViewCell {
     // MARK: - Functions
 
     func configureCell(imageLink: String, bookTitle: String, author: String) {
-        imageView.setupImage(imageLink: imageLink)
+        imageView.kf.setImage(with: URL(string: imageLink))
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = author
     }
@@ -62,12 +72,15 @@ final class AddBookByTitleCell: UICollectionViewCell {
     private func configureLayout() {
         imageView.snp.makeConstraints { make in
             make.leading.equalToSuperview()
-            make.verticalEdges.equalToSuperview()
+            make.verticalEdges.equalToSuperview().inset(Vars.spacing8)
+            make.width.equalTo(Vars.spacing48)
+            make.height.equalTo(Vars.imageFixedHeightMini)
         }
 
         bookInfoStackView.snp.makeConstraints { make in
-            make.leading.equalTo(imageView.snp.trailing).offset(Vars.spacing8)
+            make.leading.equalTo(imageView.snp.trailing).offset(Vars.spacing24)
             make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(Vars.spacing8)
         }
     }
 }
