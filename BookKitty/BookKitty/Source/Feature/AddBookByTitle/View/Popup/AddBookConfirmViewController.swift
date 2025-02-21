@@ -50,15 +50,15 @@ final class AddBookConfirmViewController: BaseViewController {
     override func bind() {
         popup.cancelButton.rx.tap
             .subscribe(with: self, onNext: { owned, _ in
-                owned.completion(false)
                 owned.dismiss(animated: false)
+                owned.completion(false)
             })
             .disposed(by: disposeBag)
 
         popup.confirmButton.rx.tap
             .subscribe(with: self, onNext: { owned, _ in
-                owned.completion(true)
                 owned.dismiss(animated: false)
+                owned.completion(true)
             })
             .disposed(by: disposeBag)
     }

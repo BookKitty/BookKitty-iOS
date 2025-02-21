@@ -115,6 +115,7 @@ final class AddBookViewModel: ViewModelType {
                 if isSaved {
                     owner.navigateBackRelay.accept(())
                 } else {
+                    BookKittyLogger.log("중복된 책 에러 발생")
                     owner.errorRelay.accept(AddBookError.duplicatedBook)
                 }
             }, onError: { owner, error in
