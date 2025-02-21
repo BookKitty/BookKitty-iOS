@@ -40,7 +40,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
     ///   - offset: 시작지점
     ///   - limit: 한번에 가져오는 개수
     /// - Returns: 질문답변 데이터 모델을 rx로 반환.
-    func fetchQuestions(offset: Int, limit: Int) -> RxSwift.Single<[QuestionAnswer]> {
+    func fetchQuestions(offset: Int, limit: Int) -> [QuestionAnswer] {
         let qnaEntities = questionAnswerCoreDataManager.selectQuestionHistories(
             offset: offset,
             limit: limit,
@@ -48,14 +48,12 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
         )
 
         guard !qnaEntities.isEmpty else {
-            return .just([])
+            return []
         }
 
-        let questions: [QuestionAnswer] = qnaEntities.compactMap {
+        return qnaEntities.compactMap {
             questionEntityToModel(entity: $0)
         }
-
-        return .just(questions)
     }
 
     /// 특정 id의 질문답변 데이터 가져오기

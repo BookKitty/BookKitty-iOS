@@ -242,4 +242,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
             return Disposables.create()
         }
     }
+
+    func fetchQuestions(offset _: Int, limit _: Int) -> [QuestionAnswer] {
+        mockQuestionList
+    }
 }
