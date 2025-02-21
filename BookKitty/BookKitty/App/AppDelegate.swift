@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import FirebaseCore
 import UIKit
 
 @main
@@ -16,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Override point for customization after application launch.
         UIFont.registerFonts() // 라이브러리에 사용된 폰트를 프로젝트 내부에서 사용 가능하도록 등록.
+        FirebaseApp.configure()
         return true
     }
 
