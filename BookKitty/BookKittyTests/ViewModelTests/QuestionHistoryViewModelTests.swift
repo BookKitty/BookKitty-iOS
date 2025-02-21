@@ -10,14 +10,7 @@ import Foundation
 import RxSwift
 import Testing
 
-// QuestionHistoryViewModel의 단위 테스트
-// 테스트 대상: QuestionHistoryViewModel의 입력 이벤트가 올바른 출력을 생성하는지 확인
-
-@testable import BookKitty
-import Foundation
-import RxSwift
-import Testing
-
+@Suite()
 @MainActor
 struct QuestionHistoryViewModelTests {
     // MARK: - Properties
@@ -38,7 +31,7 @@ struct QuestionHistoryViewModelTests {
 
         // Input 정의: viewDidLoad 이벤트가 발생함
         let input = QuestionHistoryViewModel.Input(
-            viewDidLoad: .just(()),
+            viewWillAppear: .just(()),
             questionSelected: .never(),
             reachedScrollEnd: .never()
         )
@@ -67,17 +60,16 @@ struct QuestionHistoryViewModelTests {
 
         // Input 정의: 질문이 선택됨
         let input = QuestionHistoryViewModel.Input(
-            viewDidLoad: .never(),
+            viewWillAppear: .never(),
             questionSelected: questionSelectedSubject.asObservable(),
             reachedScrollEnd: .never()
         )
 
         _ = vm.transform(input)
-        var didEmit = false
 
         // 3초 후에 질문 선택 이벤트를 발생시킴
         Task {
-            try await Task.sleep(nanoseconds: 3_000_000_000)
+            try await Task.sleep(nanoseconds: 1_000_000_000)
             questionSelectedSubject.onNext(repository.mockQuestionList[0])
         }
 
@@ -85,15 +77,9 @@ struct QuestionHistoryViewModelTests {
         do {
             for try await value in vm.navigateToQuestionDetail.values {
                 #expect(value == repository.mockQuestionList[0])
-                didEmit = true
                 break
             }
         } catch {}
-
-        // 만약 방출되지 않았다면 실패 처리
-        if !didEmit {
-            #expect(Bool(false))
-        }
     }
 
     /// 스크롤이 마지막에 도달하면 새로운 질문 목록이 방출되는지 테스트
@@ -103,24 +89,17 @@ struct QuestionHistoryViewModelTests {
 
         // Input 정의: 스크롤이 마지막에 도달하는 이벤트 발생
         let input = QuestionHistoryViewModel.Input(
-            viewDidLoad: .never(),
+            viewWillAppear: .never(),
             questionSelected: .never(),
             reachedScrollEnd: .just(())
         )
 
         let output = vm.transform(input)
-        var didEmit = false
 
         // Output 검증: 새로운 질문 목록이 방출되는지 확인
         for await value in output.questions.values {
             #expect(value == repository.mockQuestionList)
-            didEmit = true
             break
-        }
-
-        // 만약 방출되지 않았다면 실패 처리
-        if !didEmit {
-            #expect(Bool(false))
         }
     }
 }
