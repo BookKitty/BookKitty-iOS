@@ -27,6 +27,7 @@ final class AddBookByTitleViewController: BaseViewController {
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
         .then {
             $0.backgroundColor = Colors.background0
+            $0.showsVerticalScrollIndicator = false
         }
 
     private let emptyResultLabel = Headline3Label().then {

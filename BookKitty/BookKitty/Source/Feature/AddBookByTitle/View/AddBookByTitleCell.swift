@@ -20,7 +20,6 @@ final class AddBookByTitleCell: UICollectionViewCell {
 
     private let bookTitleLabel = BodyLabel(weight: .regular).then {
         $0.numberOfLines = 1
-        $0.lineBreakMode = .byTruncatingTail
     }
 
     private let bookAuthorLabel = CaptionLabel(weight: .regular).then {
@@ -56,6 +55,7 @@ final class AddBookByTitleCell: UICollectionViewCell {
         imageView.kf.setImage(with: URL(string: imageLink))
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = author
+        bookTitleLabel.lineBreakMode = .byTruncatingTail
     }
 
     private func configureBackground() {
