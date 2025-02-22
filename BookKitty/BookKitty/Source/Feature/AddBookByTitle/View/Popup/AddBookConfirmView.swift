@@ -6,7 +6,6 @@
 //
 
 import DesignSystem
-import Kingfisher
 import RxSwift
 import SnapKit
 import Then
