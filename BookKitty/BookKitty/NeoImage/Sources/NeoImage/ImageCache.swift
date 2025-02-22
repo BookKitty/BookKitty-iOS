@@ -1,18 +1,25 @@
 import Foundation
 
+/// 쓰기 제어와 같은 동시성이 필요한 부분만 선택적으로 제어하기 위해 전체 ImageCache를 actor로 변경하지 않고, ImageCacheActor 생성
+/// actor를 사용하면 모든 동작이 actor의 실행큐를 통과해야하기 때문에, 동시성 보호가 불필요한 read-only 동작도 직렬화되며 오버헤드가 발생
+@globalActor public actor ImageCacheActor {
+    public static let shared = ImageCacheActor()
+}
+
 public final class ImageCache {
     
     /// ERROR: Static property 'shared' is not concurrency-safe because non-'Sendable' type 'ImageCache' may have shared mutable state
-    ///
     /// ```
     /// public static let shared = ImageCache()
     /// ```
     /// Swift 6에서는 동시성 안정성 검사가 더욱 엄격해졌습니다. 이로 인해 여러 스레드에서 동시에 접근할 수 있는 공유 상태 (shared mutable state)인 싱글톤 패턴을 사용할 경우,위 에러가 발생합니다.
     /// 이는 별도의 가변 프로퍼티를 클래스 내부에 지니고 있지 않음에도 발생하는 에러입니다
-    public static let shared = ImageCache()
+    /// 이를 해결하기 위해선, Actor를 사용하거나, Serial Queue를 사용해 동기화를 해줘야 합니다.
+    @ImageCacheActor
+    public static let shared = try! ImageCache(name: "default")
     
     // MARK: - Properties
-    private let memoryStorage: MemoryStorage
+    private let memoryStorage: MemoryStorageActor
     private let diskStorage: DiskStorage<Data>
     
     // MARK: - Initialization
@@ -24,13 +31,11 @@ public final class ImageCache {
         // Memory cache configuration
         let totalMemory = ProcessInfo.processInfo.physicalMemory
         let memoryLimit = totalMemory / 4
-        let memoryCacheConfig = MemoryStorage.Config(
-            totalCostLimit: (memoryLimit > Int.max) ? Int.max : Int(memoryLimit)
-        )
-        self.memoryStorage = MemoryStorage(config: memoryCacheConfig)
-        
+        self.memoryStorage = MemoryStorageActor(
+                    totalCostLimit: (memoryLimit > Int.max) ? Int.max : Int(memoryLimit)
+                )
         // Disk cache configuration
-        let diskConfig = DiskStorage.Config(
+        let diskConfig = DiskStorage<Data>.Config(
             name: name,
             sizeLimit: 0,
             directory: FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
@@ -39,15 +44,15 @@ public final class ImageCache {
     }
     
     // MARK: - Public Methods
-    
     /// Stores an image to both memory and disk cache
+    @ImageCacheActor
     public func store(
         _ data: Data,
         forKey key: String,
         expiration: StorageExpiration? = nil
     ) async throws {
         // Store in memory
-        memoryStorage.store(value: data, forKey: key, expiration: expiration)
+        await memoryStorage.store(value: data, forKey: key, expiration: expiration)
         
         // Store in disk
         try await diskStorage.store(
@@ -58,9 +63,10 @@ public final class ImageCache {
     }
     
     /// Retrieves an image from cache (first checks memory, then disk)
+    @ImageCacheActor
     public func retrieveImage(forKey key: String) async throws -> Data? {
         // Check memory cache first
-        if let memoryData = memoryStorage.value(forKey: key) {
+        if let memoryData = await memoryStorage.value(forKey: key) {
             return memoryData
         }
         
@@ -69,7 +75,7 @@ public final class ImageCache {
         
         // If found in disk, store in memory for next time
         if let diskData = diskData {
-            memoryStorage.store(
+            await memoryStorage.store(
                 value: diskData,
                 forKey: key,
                 expiration: .days(7)
@@ -80,26 +86,29 @@ public final class ImageCache {
     }
     
     /// Removes an image from both memory and disk cache
+    @ImageCacheActor
     public func removeImage(forKey key: String) async throws {
         // Remove from memory
-        memoryStorage.remove(forKey: key)
+        await memoryStorage.remove(forKey: key)
         
         // Remove from disk
-        try await diskStorage.remove(forKey: key)
+//        try await diskStorage.remove(forKey: key)
     }
     
     /// Clears all cached images from both memory and disk
+    @ImageCacheActor
     public func clearCache() async throws {
         // Clear memory
-        memoryStorage.removeAll()
+        await memoryStorage.removeAll()
         
         // Clear disk
-        try await diskStorage.removeAll()
+//        try await diskStorage.removeAll()
     }
     
     /// Checks if an image exists in cache (either memory or disk)
+    @ImageCacheActor
     public func isCached(forKey key: String) async -> Bool {
-        if memoryStorage.isCached(forKey: key) {
+        if await memoryStorage.isCached(forKey: key) {
             return true
         }
         return await diskStorage.isCached(forKey: key)
@@ -107,45 +116,32 @@ public final class ImageCache {
 }
 
 // MARK: - Memory Storage
-private final class MemoryStorage {
+private actor MemoryStorageActor {
     private let cache = NSCache<NSString, NSData>()
-    private let lock = NSLock()
+    private let totalCostLimit: Int
     
-    struct Config {
-        let totalCostLimit: Int
-    }
-    
-    init(config: Config) {
-        cache.totalCostLimit = config.totalCostLimit
+    init(totalCostLimit: Int) {
+        self.totalCostLimit = totalCostLimit
+        self.cache.totalCostLimit = totalCostLimit
     }
     
     func store(value: Data, forKey key: String, expiration: StorageExpiration?) {
-        lock.lock()
-        defer { lock.unlock() }
         cache.setObject(value as NSData, forKey: key as NSString)
     }
     
     func value(forKey key: String) -> Data? {
-        lock.lock()
-        defer { lock.unlock() }
         return cache.object(forKey: key as NSString) as Data?
     }
     
     func remove(forKey key: String) {
-        lock.lock()
-        defer { lock.unlock() }
         cache.removeObject(forKey: key as NSString)
     }
     
     func removeAll() {
-        lock.lock()
-        defer { lock.unlock() }
         cache.removeAllObjects()
     }
     
     func isCached(forKey key: String) -> Bool {
-        lock.lock()
-        defer { lock.unlock() }
         return cache.object(forKey: key as NSString) != nil
     }
 }
