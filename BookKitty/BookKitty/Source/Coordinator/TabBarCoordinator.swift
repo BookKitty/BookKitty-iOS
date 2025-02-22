@@ -61,6 +61,7 @@ final class TabBarCoordinator: Coordinator {
             .bind(onNext: { owner, _ in
                 owner.showAddBookFlow()
             }).disposed(by: disposeBag)
+
         tabBarViewModel.navigateToAddQuestion
             .withUnretained(self)
             .bind(onNext: { owner, _ in
