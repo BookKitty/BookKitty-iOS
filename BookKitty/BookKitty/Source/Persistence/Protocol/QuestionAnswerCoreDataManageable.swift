@@ -13,4 +13,5 @@ protocol QuestionAnswerCoreDataManageable {
         -> [QuestionAnswerEntity]
     func selectById(by uuid: UUID, context: NSManagedObjectContext) -> QuestionAnswerEntity?
     func deleteQuestionAnswer(by id: UUID, context: NSManagedObjectContext) -> Bool
+    func readAllQuestionCount(context: NSManagedObjectContext) -> Int
 }

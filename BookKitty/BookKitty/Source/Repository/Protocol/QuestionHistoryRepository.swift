@@ -14,4 +14,6 @@ protocol QuestionHistoryRepository {
 
     func saveQuestionAnswer(data: QuestionAnswer) -> UUID? // 질문답변 데이터 셋 저장.
     func deleteQuestionAnswer(uuid: UUID) -> Bool // 삭제 성공 여부를 bool값으로 반환.
+
+    func recodeAllQuestionCount()
 }

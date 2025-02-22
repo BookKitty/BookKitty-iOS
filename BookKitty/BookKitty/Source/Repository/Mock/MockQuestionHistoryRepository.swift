@@ -246,4 +246,8 @@ final class MockQuestionHistoryRepository: QuestionHistoryRepository {
     func fetchQuestions(offset _: Int, limit _: Int) -> [QuestionAnswer] {
         mockQuestionList
     }
+
+    func recodeAllQuestionCount() {
+        print(mockQuestionList.count)
+    }
 }

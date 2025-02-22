@@ -173,4 +173,19 @@ final class BookCoreDataManager: BookCoreDataManageable {
 
         return entity
     }
+
+    /// isOwned가 true인 책 개수를 가져오기
+    /// - Parameter context: 코어데이터 컨텍스트
+    /// - Returns: 소유한 책 개수
+    func readOwnedBooksCount(context: NSManagedObjectContext) -> Int {
+        let request: NSFetchRequest<BookEntity> = BookEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isOwned == %@", NSNumber(value: true))
+
+        do {
+            return try context.count(for: request)
+        } catch {
+            BookKittyLogger.log("소유한 책 개수 가져오기 실패: \(error.localizedDescription)")
+            return 0
+        }
+    }
 }

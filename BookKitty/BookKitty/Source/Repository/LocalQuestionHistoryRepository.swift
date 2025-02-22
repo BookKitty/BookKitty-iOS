@@ -5,6 +5,7 @@
 //  Created by 권승용 on 2/11/25.
 //
 
+import FirebaseAnalytics
 import Foundation
 import RxSwift
 
@@ -149,5 +150,15 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             id: questionId,
             recommendedBooks: books
         )
+    }
+}
+
+extension LocalQuestionHistoryRepository {
+    func recodeAllQuestionCount() {
+        let count = questionAnswerCoreDataManager.readAllQuestionCount(context: context)
+
+        Analytics.logEvent("user_question_count", parameters: [
+            "count": count,
+        ])
     }
 }

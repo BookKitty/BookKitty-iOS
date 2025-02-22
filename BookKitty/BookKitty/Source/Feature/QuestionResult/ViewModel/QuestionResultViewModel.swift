@@ -6,6 +6,7 @@
 //
 
 import BookRecommendationKit
+import FirebaseAnalytics
 import Foundation
 import RxCocoa
 import RxSwift
@@ -148,7 +149,6 @@ final class QuestionResultViewModel: ViewModelType {
                 // 추천 서비스 호출
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
-                        // TODO: 에러 받아서 처리하기
                         owner.recommendationService.recommendBooks(
                             for: owner.userQuestion,
                             from: ownedBooks
@@ -222,6 +222,10 @@ final class QuestionResultViewModel: ViewModelType {
         let _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         questionAnswer = questionToSave
+        recodeQnA(
+            question: question,
+            bookTitles: recommendedBooks.map(\.title)
+        )
 
         requestFinishedRelay.accept(())
         return [SectionOfBook(items: recommendedBooks)]
@@ -231,5 +235,22 @@ final class QuestionResultViewModel: ViewModelType {
     private func mapRecommendationReason(_ questionAndOutput: (String, BookMatchModuleOutput))
         -> String {
         questionAndOutput.1.description
+    }
+
+    private func recodeQnA(question: String, bookTitles: [String]) {
+        let analyticsData: [String: Any] = [
+            "question": question,
+        ]
+
+        Analytics.logEvent("question_asked", parameters: analyticsData)
+
+        for bookTitle in bookTitles {
+            let bookData: [String: Any] = [
+                "question": question,
+                "recommended_book": bookTitle,
+            ]
+
+            Analytics.logEvent("book_recommended", parameters: bookData)
+        }
     }
 }

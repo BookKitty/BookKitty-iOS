@@ -17,14 +17,13 @@ final class DefaultHomeCoordinator: Coordinator {
 
     // MARK: - Internal
 
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
 
     var navigationController: UINavigationController
     var homeViewController: HomeViewController
 
     var homeViewModel: HomeViewModel
-    var finishDelegate: (any CoordinatorFinishDelegate)?
+    weak var finishDelegate: CoordinatorFinishDelegate?
 
     // MARK: - Private
 
