@@ -74,6 +74,7 @@ final class MyLibraryViewModel: ViewModelType {
         let initialLoad = input.viewWillAppear
             .withUnretained(self)
             .map { owner, _ in
+                owner.bookRepository.recodeOwnedBooksCount()
                 owner.offset = 0
                 owner.books.removeAll()
                 return owner.fetchBooks()

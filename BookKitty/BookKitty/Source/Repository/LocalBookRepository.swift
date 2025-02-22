@@ -5,6 +5,7 @@
 //  Created by 권승용 on 2/11/25.
 //
 
+import FirebaseAnalytics
 import Foundation
 import RxSwift
 
@@ -192,5 +193,15 @@ struct LocalBookRepository: BookRepository {
             BookKittyLogger.log("책장에 책 제거 실패: \(error.localizedDescription)")
             return false
         }
+    }
+}
+
+extension LocalBookRepository {
+    func recodeOwnedBooksCount() {
+        let count = bookCoreDataManager.readOwnedBooksCount(context: context)
+
+        Analytics.logEvent("user_owned_book_count", parameters: [
+            "count": count,
+        ])
     }
 }

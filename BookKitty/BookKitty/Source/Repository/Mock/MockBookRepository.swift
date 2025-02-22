@@ -101,4 +101,11 @@ final class MockBookRepository: BookRepository {
     func exceptBookFromShelf(isbn _: String) -> Bool {
         true
     }
+
+    func recodeOwnedBooksCount() {
+        let count = mockBookList.filter { $0.isOwned == true }
+            .count
+
+        print(count)
+    }
 }
