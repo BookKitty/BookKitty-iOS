@@ -63,7 +63,7 @@ final class AddBookViewController: BaseViewController {
     }
 
     private let guideLabel = BodyLabel().then {
-        $0.text = "책을 정면으로, 카메라와 수평이 되도록 해주세요."
+        $0.text = "책의 앞면 표지를 정확하게 촬영해 주세요"
         $0.textColor = Colors.fontWhite
         $0.textAlignment = .center
         $0.numberOfLines = 2
@@ -183,16 +183,15 @@ final class AddBookViewController: BaseViewController {
             $0.centerX.equalToSuperview()
         }
 
-        guideBoxView.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.centerY.equalToSuperview().offset(-40) // 화면 중앙에서 약간 위로
-            $0.width.equalToSuperview().multipliedBy(0.9) // 화면 너비의 90%
-            $0.height.equalToSuperview().multipliedBy(0.6) // 화면 높이의 60%
+        guideLabel.snp.makeConstraints {
+            $0.bottom.equalTo(infoButtonContainerView.snp.top).offset(-Vars.spacing24)
+            $0.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
         }
 
-        guideLabel.snp.makeConstraints {
-            $0.top.equalTo(guideBoxView.snp.bottom).offset(Vars.spacing12)
+        guideBoxView.snp.makeConstraints {
+            $0.top.equalTo(navigationBar.snp.bottom).offset(Vars.spacing24)
             $0.horizontalEdges.equalToSuperview().inset(Vars.spacing24)
+            $0.bottom.equalTo(guideLabel.snp.top).offset(-Vars.spacing12)
         }
     }
 

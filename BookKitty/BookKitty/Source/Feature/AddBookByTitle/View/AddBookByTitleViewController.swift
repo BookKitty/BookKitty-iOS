@@ -20,11 +20,15 @@ final class AddBookByTitleViewController: BaseViewController {
     // MARK: - Properties
 
     private let navigationBar = CustomNavigationBar()
-    private let searchBar = UISearchBar().then {
-        $0.searchBarStyle = .minimal
+    private lazy var searchBar = CustomSearchBar().then {
+        $0.delegate = self
     }
 
     private lazy var collectionview = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        .then {
+            $0.backgroundColor = Colors.background0
+            $0.showsVerticalScrollIndicator = false
+        }
 
     private let emptyResultLabel = Headline3Label().then {
         $0.text = "검색 결과가 없습니다."
@@ -33,6 +37,8 @@ final class AddBookByTitleViewController: BaseViewController {
 
     private let layout: UICollectionViewCompositionalLayout = {
         var configuration = UICollectionLayoutListConfiguration(appearance: .plain)
+        configuration.backgroundColor = Colors.background0
+        configuration.showsSeparators = false
         return UICollectionViewCompositionalLayout.list(using: configuration)
     }()
 
@@ -170,7 +176,7 @@ final class AddBookByTitleViewController: BaseViewController {
     }
 
     private func makeSearchBarFirstResponder() {
-        searchBar.becomeFirstResponder()
+        _ = searchBar.becomeFirstResponder()
     }
 }
 
@@ -181,9 +187,9 @@ extension AddBookByTitleViewController {
     }
 }
 
-extension AddBookByTitleViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(_ bar: UISearchBar) {
-        let searchText = bar.text ?? ""
+extension AddBookByTitleViewController: CustomSearchBarDelegate {
+    func searchBarSearchButtonClicked(_ bar: CustomSearchBar) {
+        let searchText = bar.searchText ?? ""
         searchResultRelay.accept(searchText)
     }
 }
