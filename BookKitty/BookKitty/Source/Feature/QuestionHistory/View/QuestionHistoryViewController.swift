@@ -52,6 +52,12 @@ final class QuestionHistoryViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "QuestionHistoryViewController"
+    }
+
     // MARK: - Overridden Functions
 
     // MARK: - Internal

@@ -70,6 +70,12 @@ final class MyLibraryViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "MyLibraryViewController"
+    }
+
     // MARK: - Overridden Functions
 
     // MARK: - Internal
