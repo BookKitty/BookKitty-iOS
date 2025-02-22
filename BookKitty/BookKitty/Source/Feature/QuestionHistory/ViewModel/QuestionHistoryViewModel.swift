@@ -75,6 +75,7 @@ final class QuestionHistoryViewModel: ViewModelType {
         let initialLoad = input.viewWillAppear
             .withUnretained(self)
             .map { owner, _ in
+                owner.questionHistoryRepository.recodeAllQuestionCount()
                 owner.questions.removeAll()
                 owner.offset = 0
                 return owner.fetchQuestions()

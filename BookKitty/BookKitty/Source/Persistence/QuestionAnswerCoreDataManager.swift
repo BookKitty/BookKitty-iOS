@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import FirebaseAnalytics
 
 /// QuestionAnswer 엔티티를 관리하는 객체
 final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
@@ -97,6 +98,17 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         } catch {
             BookKittyLogger.log("질문답변 삭제 실패: \(error.localizedDescription)")
             return false
+        }
+    }
+
+    func readAllQuestionCount(context: NSManagedObjectContext) -> Int {
+        let request: NSFetchRequest<QuestionAnswerEntity> = QuestionAnswerEntity.fetchRequest()
+
+        do {
+            return try context.count(for: request)
+        } catch {
+            BookKittyLogger.log("질문 개수 가져오기 실패: \(error.localizedDescription)")
+            return 0
         }
     }
 }

@@ -7,6 +7,7 @@
 //
 
 import DesignSystem
+import FirebaseAnalytics
 import RxCocoa
 import RxSwift
 import SnapKit
