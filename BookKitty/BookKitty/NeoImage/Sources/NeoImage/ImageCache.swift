@@ -28,52 +28,52 @@ public final class ImageCache {
             throw CacheError.invalidCacheKey
         }
         
-        // Memory cache configuration
+        /// 메모리 캐싱 관련 설정 과정입니다.
+        /// NSProcessInfo를 통해 총 메모리 크기를 접근한 후, 메모리 상한선을 전체 메모리의 1/4로 한정합니다.
         let totalMemory = ProcessInfo.processInfo.physicalMemory
         let memoryLimit = totalMemory / 4
         self.memoryStorage = MemoryStorageActor(
-                    totalCostLimit: (memoryLimit > Int.max) ? Int.max : Int(memoryLimit)
-                )
-        // Disk cache configuration
+            totalCostLimit: min(Int.max, Int(memoryLimit))
+        )
+        
+        /// 디스크 캐시에 대한 설정을 여기서 정의해줍니다.
         let diskConfig = DiskStorage<Data>.Config(
             name: name,
             sizeLimit: 0,
             directory: FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
         )
+        
+        /// 디스크 캐시 제어 관련 클래스 인스턴스 생성
         self.diskStorage = try DiskStorage(config: diskConfig)
     }
     
-    // MARK: - Public Methods
-    /// Stores an image to both memory and disk cache
+    /// 메모리와 디스크 캐시에 모두 데이터를 저장합니다.
     @ImageCacheActor
     public func store(
         _ data: Data,
         forKey key: String,
         expiration: StorageExpiration? = nil
     ) async throws {
-        // Store in memory
         await memoryStorage.store(value: data, forKey: key, expiration: expiration)
         
-        // Store in disk
         try await diskStorage.store(
             value: data,
             forKey: key,
             expiration: expiration
         )
     }
-    
-    /// Retrieves an image from cache (first checks memory, then disk)
-    @ImageCacheActor
+    /// 캐시로부터 저장된 이미지를 가져옵니다.
+    /// 1차적으로 오버헤드가 적은 메모리를 먼저 확인합니다.
+    /// 이후 메모리에 없을 경우, 디스크를 확인합니다.
+    /// 디스크에 없을 경우 throw합니다.
+    /// 디스크에 데이터를 확인할 경우, 다음 조회를 위해 해당 데이터를 메모리로 올립니다.
     public func retrieveImage(forKey key: String) async throws -> Data? {
-        // Check memory cache first
         if let memoryData = await memoryStorage.value(forKey: key) {
             return memoryData
         }
         
-        // If not in memory, check disk
         let diskData = try await diskStorage.value(forKey: key)
         
-        // If found in disk, store in memory for next time
         if let diskData = diskData {
             await memoryStorage.store(
                 value: diskData,
@@ -85,24 +85,22 @@ public final class ImageCache {
         return diskData
     }
     
-    /// Removes an image from both memory and disk cache
+    /// 메모리와 디스크 모두에서 특정 키에 해당하는 이미지 데이터를 제거합니다.
     @ImageCacheActor
     public func removeImage(forKey key: String) async throws {
         // Remove from memory
         await memoryStorage.remove(forKey: key)
         
         // Remove from disk
-//        try await diskStorage.remove(forKey: key)
+        try await diskStorage.remove(forKey: key)
     }
     
-    /// Clears all cached images from both memory and disk
+    /// 메모리와 디스크 모두에 존재하는 모든 데이터를 제거합니다.
     @ImageCacheActor
     public func clearCache() async throws {
-        // Clear memory
         await memoryStorage.removeAll()
         
-        // Clear disk
-//        try await diskStorage.removeAll()
+        try await diskStorage.removeAll()
     }
     
     /// Checks if an image exists in cache (either memory or disk)
@@ -111,36 +109,45 @@ public final class ImageCache {
         if await memoryStorage.isCached(forKey: key) {
             return true
         }
+        
         return await diskStorage.isCached(forKey: key)
     }
 }
 
-// MARK: - Memory Storage
+// MARK: - 메모리 영역 제어를 위한 actor입니다.
+
 private actor MemoryStorageActor {
+    /// 캐시는 NSCache로 접근합니다.
     private let cache = NSCache<NSString, NSData>()
     private let totalCostLimit: Int
     
     init(totalCostLimit: Int) {
+        /// 메모리가 사용할 수 있는 공간 상한선 (ImageCache 클래스에서 총 메모리공간의 1/4로 주입하고 있음) 데이터를 아래 private 속성에 주입시킵니다.
         self.totalCostLimit = totalCostLimit
         self.cache.totalCostLimit = totalCostLimit
     }
     
+    /// 캐시에 저장
     func store(value: Data, forKey key: String, expiration: StorageExpiration?) {
         cache.setObject(value as NSData, forKey: key as NSString)
     }
     
+    /// 캐시에서 조회
     func value(forKey key: String) -> Data? {
         return cache.object(forKey: key as NSString) as Data?
     }
     
+    /// 캐시에서 제거
     func remove(forKey key: String) {
         cache.removeObject(forKey: key as NSString)
     }
     
+    /// 캐시에서 일괄 제거
     func removeAll() {
         cache.removeAllObjects()
     }
     
+    /// 캐시에서 있는지 여부를 조회
     func isCached(forKey key: String) -> Bool {
         return cache.object(forKey: key as NSString) != nil
     }

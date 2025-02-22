@@ -8,6 +8,7 @@ class DiskStorage<T: DataTransformable>: @unchecked Sendable {
     private let serialActor = Actor()
     private var storageReady: Bool = true
     
+    /// FileManager를 통해 디렉토리를 생성하는 과정에서 에러가 발생할 수 있기 때문에 인스턴스 생성 자체에서 throws 키워드를 기입해줍니다.
     init(config: Config) throws {
         /// 외부에서 주입된 디스크 저장소에 대한 설정값과 Creation 구조체로 생성된 디렉토리 URL와 cacheName을 생성 및 self.directoryURL에 저장합니다.
         self.config = config
@@ -45,7 +46,6 @@ class DiskStorage<T: DataTransformable>: @unchecked Sendable {
             try FileManager.default.setAttributes(attributes, ofItemAtPath: fileURL.path)
         }
     }
-    
     
     func value(
         forKey key: String, /// 캐시의 키
@@ -87,6 +87,27 @@ class DiskStorage<T: DataTransformable>: @unchecked Sendable {
             }
             
             return obj
+        }
+    }
+    
+    /// 특정 키에 해당하는 파일을 삭제하는 메서드
+    func remove(forKey key: String) async throws {
+        try await serialActor.run {
+            let fileURL = cacheFileURL(forKey: key)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+            }
+        }
+    }
+    
+    /// 디렉토리 내의 모든 파일을 삭제하는 메서드
+    func removeAll() async throws {
+        try await serialActor.run {
+            let fileManager = FileManager.default
+            let contents = try fileManager.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: nil, options: [])
+            for fileURL in contents {
+                try fileManager.removeItem(at: fileURL)
+            }
         }
     }
     
