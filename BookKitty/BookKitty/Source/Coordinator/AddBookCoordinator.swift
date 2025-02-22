@@ -14,7 +14,6 @@ final class AddBookCoordinator: Coordinator {
     // MARK: - Properties
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
 

@@ -12,7 +12,6 @@ final class AppCoordinator: Coordinator {
     // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     let navigationController: UINavigationController
 
@@ -32,7 +31,6 @@ extension AppCoordinator {
         let tabBarCoordinator = TabBarCoordinator(navigationController)
         navigationController.navigationBar.isHidden = true
         addChildCoordinator(tabBarCoordinator)
-        tabBarCoordinator.parentCoordinator = self
         tabBarCoordinator.start()
     }
 }
