@@ -3,3 +3,7 @@ struct TimeConstants {
     /// also known as
     static let secondsInOneDay = 86_400
 }
+
+struct ImageTaskKey {
+    static let associatedKey = "com.neoimage.UIImageView.ImageTask"
+}

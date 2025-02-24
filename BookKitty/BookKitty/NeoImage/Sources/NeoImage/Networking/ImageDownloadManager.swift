@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-/// 이미지 다운로드 결과 구조체 (스레드 안전)
+/// 이미지 다운로드 결과 구조체
 public struct ImageLoadingResult: Sendable {
     public let image: UIImage
     public let url: URL?

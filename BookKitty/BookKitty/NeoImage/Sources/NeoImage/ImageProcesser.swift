@@ -1,12 +1,10 @@
-//
-//  ImageProcessing.swift
-//  NeoImage
-//
-//  Created by Neoself on 2/23/25.
-//
-
-
 import UIKit
+
+public enum FilteringAlgorithm: Sendable {
+    case none
+    case linear
+    case trilinear
+}
 
 /// 이미지 처리를 위한 프로토콜
 public protocol ImageProcessing: Sendable {
@@ -21,13 +19,13 @@ public protocol ImageProcessing: Sendable {
 /// 이미지 리사이징 프로세서
 public struct ResizingImageProcessor: ImageProcessing {
     /// 대상 크기
-    public let targetSize: CGSize
+    private let targetSize: CGSize
     
     /// 크기 조정 모드
-    public let contentMode: UIView.ContentMode
+    private let contentMode: UIView.ContentMode
     
     /// 크기 조정 시 필터링 방식
-    public let filteringAlgorithm: FilteringAlgorithm
+    private let filteringAlgorithm: FilteringAlgorithm
     
     public init(
         targetSize: CGSize,
@@ -91,18 +89,12 @@ public struct ResizingImageProcessor: ImageProcessing {
         
         return "com.neoimage.ResizingImageProcessor(\(targetSize),\(contentModeString))"
     }
-    
-    public enum FilteringAlgorithm {
-        case none
-        case linear
-        case trilinear
-    }
 }
 
 /// 둥근 모서리 처리를 위한 프로세서
 public struct RoundCornerImageProcessor: ImageProcessing {
     /// 모서리 반경
-    public let radius: CGFloat
+    private let radius: CGFloat
     
     public init(radius: CGFloat) {
         self.radius = radius
@@ -131,7 +123,7 @@ public struct RoundCornerImageProcessor: ImageProcessing {
 
 /// 여러 프로세서를 순차적으로 적용하는 프로세서
 public struct ChainImageProcessor: ImageProcessing {
-    let processors: [ImageProcessing]
+    private let processors: [ImageProcessing]
     
     public init(_ processors: [ImageProcessing]) {
         self.processors = processors
