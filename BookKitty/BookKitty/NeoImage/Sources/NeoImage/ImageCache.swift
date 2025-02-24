@@ -6,7 +6,7 @@ import Foundation
     public static let shared = ImageCacheActor()
 }
 
-public final class ImageCache {
+public final class ImageCache: @unchecked Sendable {
     
     /// ERROR: Static property 'shared' is not concurrency-safe because non-'Sendable' type 'ImageCache' may have shared mutable state
     /// ```
@@ -88,10 +88,8 @@ public final class ImageCache {
     /// 메모리와 디스크 모두에서 특정 키에 해당하는 이미지 데이터를 제거합니다.
     @ImageCacheActor
     public func removeImage(forKey key: String) async throws {
-        // Remove from memory
         await memoryStorage.remove(forKey: key)
         
-        // Remove from disk
         try await diskStorage.remove(forKey: key)
     }
     
