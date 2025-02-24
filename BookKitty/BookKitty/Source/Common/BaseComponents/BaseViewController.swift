@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import FirebaseAnalytics
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -40,6 +41,12 @@ class BaseViewController: UIViewController {
         viewWillAppearRelay.accept(())
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        recordScreenView()
+    }
+
     // MARK: - Functions
 
     /// 뷰 컨트롤러의 배경색을 설정하는 메서드입니다.
@@ -63,4 +70,23 @@ class BaseViewController: UIViewController {
     /// RxSwift 바인딩을 설정하는 메서드입니다.
     /// 하위 클래스에서 필요에 따라 오버라이드하여 구현합니다.
     func bind() {}
+}
+
+extension BaseViewController {
+    func recordScreenView() {
+        guard let screenName = title else {
+            return
+        }
+        let screenClass = classForCoder.description()
+
+        // [START set_current_screen]
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [
+                AnalyticsParameterScreenName: screenName,
+                AnalyticsParameterScreenClass: screenClass,
+            ]
+        )
+        // [END set_current_screen]
+    }
 }

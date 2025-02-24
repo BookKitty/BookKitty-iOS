@@ -1,5 +1,5 @@
-// @testable import BookMatchCore
-@testable import BookMatchKit
+@testable import BookMatchCore
+@testable import BookOCRKit
 @testable import BookRecommendationKit
 import RxSwift
 import XCTest
@@ -58,7 +58,7 @@ final class BookMatchKitTests: XCTestCase {
     func test_RecommendForQuestion() async {
         var total = 0
         for question in questions {
-            let result = try! await module.recommendBooks(for: question, from: []).value
+            let result = try! await recommendationKit.recommendBooks(for: question, from: []).value
             total += result.newBooks.count
 
             XCTAssertTrue(!result.description.isEmpty)
@@ -69,11 +69,12 @@ final class BookMatchKitTests: XCTestCase {
     }
 
     func test_RecommendFromOwnedBooks() async {
-        let result = try! await module.recommendBooks(from: dummyOwnedBooks).value
+        let result = try! await recommendationKit.recommendBooks(from: dummyOwnedBooks).value
 
         print(result)
         XCTAssertTrue(!result.isEmpty)
     }
+
 //
 //    func accurancyTester(question: String, title: String) async -> Int {
 //        let prompt = """
@@ -137,4 +138,123 @@ final class BookMatchKitTests: XCTestCase {
 //            return -1
 //        }
 //    }
+    func testrecognizeBookFromImageWithValidImage() {
+        guard let testImage = loadTestImage(named: "book1") else {
+            XCTFail("Failed to load test image")
+            return
+        }
+
+        // When
+        let bookMatch = bookMatchKit.recognizeBookFromImage(testImage)
+        let matchExpectation = expectation(for: bookMatch)
+
+        // Then
+        wait(for: [matchExpectation], timeout: 10.0)
+    }
+
+    func testrecognizeBookFromImageWithMultipleImages() async {
+        let imageNames = (1 ... 20).map { "book\($0)" }
+        var cnt = 0
+        for imageName in imageNames {
+            guard let testImage = loadTestImage(named: imageName) else {
+                XCTFail("Failed to load test image: \(imageName)")
+                continue
+            }
+            do {
+                let bookMatch = try await bookMatchKit.recognizeBookFromImage(testImage).value
+                print(bookMatch.title)
+                cnt += 1
+            } catch {
+                print("error in \(imageName)")
+            }
+        }
+        print("accurancy: \(cnt / imageNames.count)")
+    }
+
+    func testrecognizeBookFromImageWithInvalidImage() {
+        // Given
+        let invalidImage = UIImage()
+
+        // When
+        let bookMatch = bookMatchKit.recognizeBookFromImage(invalidImage)
+
+        // Then
+        bookMatch
+            .subscribe(
+                onSuccess: { _ in
+                    XCTFail("Should not succeed with invalid image")
+                },
+                onFailure: { error in
+                    XCTAssertTrue(error is BookMatchError)
+                    if let bookMatchError = error as? BookMatchError {
+                        XCTAssertEqual(bookMatchError, .OCRError("convertToGrayscale Failed"))
+                    }
+                }
+            )
+            .disposed(by: disposeBag)
+    }
+
+    func testrecognizeBookFromImagePerformance() {
+        guard let testImage = loadTestImage(named: "book1") else {
+            XCTFail("Failed to load test image")
+            return
+        }
+
+        measure {
+            let bookMatch = bookMatchKit.recognizeBookFromImage(testImage)
+            let matchExpectation = expectation(for: bookMatch)
+            wait(for: [matchExpectation], timeout: 10.0)
+        }
+    }
+
+    func testrecognizeBookFromImageConcurrency() {
+        // This test validates that multiple concurrent matching requests work correctly
+        let imageNames = ["book1", "book2", "book3", "book4", "book5"]
+        var expectations: [XCTestExpectation] = []
+
+        for imageName in imageNames {
+            guard let testImage = loadTestImage(named: imageName) else {
+                XCTFail("Failed to load test image: \(imageName)")
+                continue
+            }
+
+            let bookMatch = bookMatchKit.recognizeBookFromImage(testImage)
+            expectations.append(expectation(for: bookMatch))
+        }
+
+        wait(for: expectations, timeout: 30.0)
+    }
+
+    // MARK: - Helper Methods
+
+    private func loadTestImage(named: String) -> UIImage? {
+        guard let url = Bundle.module.url(
+            forResource: named,
+            withExtension: "png",
+            subdirectory: "images"
+        ),
+            let image = UIImage(contentsOfFile: url.path) else {
+            XCTFail("Could not load image at path: TestImages/\(named).png")
+            return nil
+        }
+        return image
+    }
+
+    private func expectation(for bookMatch: Single<BookItem>) -> XCTestExpectation {
+        let expectation = XCTestExpectation(description: "Book matching completion")
+
+        bookMatch
+            .subscribe(
+                onSuccess: { _ in
+                    expectation.fulfill()
+                },
+                onFailure: { error in
+                    XCTFail("Book matching failed with error: \(error)")
+                    expectation.fulfill()
+                }
+            )
+            .disposed(by: disposeBag)
+
+        return expectation
+    }
 }

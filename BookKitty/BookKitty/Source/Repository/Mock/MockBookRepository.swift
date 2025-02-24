@@ -20,7 +20,9 @@ final class MockBookRepository: BookRepository {
             thumbnailUrl: URL(
                 string: "https://shopping-phinf.pstatic.net/main_3249696/32496966995.20240321071044.jpg"
             ),
-            isOwned: true
+            isOwned: true,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "9788954625760",
@@ -30,7 +32,9 @@ final class MockBookRepository: BookRepository {
             thumbnailUrl: URL(
                 string: "https://shopping-phinf.pstatic.net/main_3245596/32455964233.20230822103854.jpg"
             ),
-            isOwned: true
+            isOwned: true,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "9788981171353",
@@ -40,7 +44,9 @@ final class MockBookRepository: BookRepository {
             thumbnailUrl: URL(
                 string: "https://shopping-phinf.pstatic.net/main_3245593/32455931661.20220527022757.jpg"
             ),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
         Book(
             isbn: "9791196914806",
@@ -50,7 +56,9 @@ final class MockBookRepository: BookRepository {
             thumbnailUrl: URL(
                 string: "https://shopping-phinf.pstatic.net/main_3248052/32480522779.20231230070743.jpg"
             ),
-            isOwned: false
+            isOwned: false,
+            createdAt: Date(),
+            updatedAt: Date()
         ),
     ]
 
@@ -87,12 +95,17 @@ final class MockBookRepository: BookRepository {
     }
 
     func addBookToShelf(isbn _: String) -> Bool {
-        print("책 서재에 추가")
-        return true
+        true
     }
 
     func exceptBookFromShelf(isbn _: String) -> Bool {
-        print("책 서재에서 제거")
-        return true
+        true
+    }
+
+    func recodeOwnedBooksCount() {
+        let count = mockBookList.filter { $0.isOwned == true }
+            .count
+
+        print(count)
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import BookRecommendationKit
+import FirebaseAnalytics
 import Foundation
 import RxCocoa
 import RxSwift
@@ -20,6 +21,7 @@ final class QuestionResultViewModel: ViewModelType {
         let viewWillAppear: Observable<Void> // 뷰가 보일 때 책 소유 여부 업데이트
         let bookSelected: Observable<Book> // 사용자가 선택한 책
         let submitButtonTapped: Observable<Void> // 버튼이 탭됐을 때 이벤트
+        let alertConfirmButtonTapped: Observable<Void> // 에러 알럿 확인 버튼 탭됐을 때 이벤트
     }
 
     struct Output {
@@ -89,6 +91,7 @@ final class QuestionResultViewModel: ViewModelType {
 
                 guard let updatedQnA = owner.questionHistoryRepository.fetchQuestion(by: uuid)
                 else {
+                    BookKittyLogger.error("해당하는 uuid의 질의응답이 없습니다.")
                     return []
                 }
 
@@ -114,8 +117,10 @@ final class QuestionResultViewModel: ViewModelType {
             .bind(to: navigateToBookDetail) // 책 상세 화면으로 이동
             .disposed(by: disposeBag)
 
-        input.submitButtonTapped
-            .bind(to: navigateToQuestionHistory) // 질문 내역 화면으로 이동
+        Observable.merge(
+            input.submitButtonTapped,
+            input.alertConfirmButtonTapped
+        ).bind(to: navigateToQuestionHistory)
             .disposed(by: disposeBag)
 
         return Output(
@@ -144,7 +149,6 @@ final class QuestionResultViewModel: ViewModelType {
                 // 추천 서비스 호출
                 return Observable<(String, BookMatchModuleOutput)>.create { observer in
                     let task = Task {
-                        // TODO: 에러 받아서 처리하기
                         owner.recommendationService.recommendBooks(
                             for: owner.userQuestion,
                             from: ownedBooks
@@ -155,6 +159,8 @@ final class QuestionResultViewModel: ViewModelType {
                             guard let error = error as? BookMatchError else {
                                 return
                             }
+
+                            BookKittyLogger.error("추천 서비스에서 에러 발생 : \(error.localizedDescription)")
 
                             switch error {
                             case .networkError:
@@ -194,6 +200,8 @@ final class QuestionResultViewModel: ViewModelType {
                 publisher: $0.publisher,
                 thumbnailUrl: URL(string: $0.image),
                 isOwned: false,
+                createdAt: Date(),
+                updatedAt: Date(),
                 description: $0.description,
                 price: $0.discount ?? "",
                 pubDate: $0.pubdate ?? ""
@@ -214,6 +222,10 @@ final class QuestionResultViewModel: ViewModelType {
         let _ = questionHistoryRepository.saveQuestionAnswer(data: questionToSave)
 
         questionAnswer = questionToSave
+        recodeQnA(
+            question: question,
+            bookTitles: recommendedBooks.map(\.title)
+        )
 
         requestFinishedRelay.accept(())
         return [SectionOfBook(items: recommendedBooks)]
@@ -223,5 +235,22 @@ final class QuestionResultViewModel: ViewModelType {
     private func mapRecommendationReason(_ questionAndOutput: (String, BookMatchModuleOutput))
         -> String {
         questionAndOutput.1.description
+    }
+
+    private func recodeQnA(question: String, bookTitles: [String]) {
+        let analyticsData: [String: Any] = [
+            "question": question,
+        ]
+
+        Analytics.logEvent("question_asked", parameters: analyticsData)
+
+        for bookTitle in bookTitles {
+            let bookData: [String: Any] = [
+                "question": question,
+                "recommended_book": bookTitle,
+            ]
+
+            Analytics.logEvent("book_recommended", parameters: bookData)
+        }
     }
 }

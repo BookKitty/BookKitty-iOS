@@ -22,6 +22,7 @@ final class QuestionResultViewController: BaseViewController {
 
     private let bookSelectedRelay = PublishRelay<Book>()
     private let submitButtonTappedRelay = PublishRelay<Void>()
+    private let alertConfirmButtonTappedRelay = PublishRelay<Void>()
 
     private let viewModel: QuestionResultViewModel
 
@@ -88,6 +89,8 @@ final class QuestionResultViewController: BaseViewController {
         }
     )
 
+    private var hasScrolledToBottom = false
+
     // MARK: - Lifecycle
 
     init(viewModel: QuestionResultViewModel) {
@@ -110,12 +113,18 @@ final class QuestionResultViewController: BaseViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        // 처음 한 번만 스크롤 수행
+        guard !hasScrolledToBottom else {
+            return
+        }
+
         DispatchQueue.main.async {
             let bottomOffset = CGPoint(
                 x: 0,
                 y: max(0, self.scrollView.contentSize.height - self.scrollView.bounds.height)
             )
             self.scrollView.setContentOffset(bottomOffset, animated: true)
+            self.hasScrolledToBottom = true
         }
     }
 
@@ -196,7 +205,8 @@ final class QuestionResultViewController: BaseViewController {
             viewDidLoad: viewDidLoadRelay.asObservable(),
             viewWillAppear: viewWillAppearRelay.asObservable(),
             bookSelected: bookSelectedRelay.asObservable(),
-            submitButtonTapped: submitButtonTappedRelay.asObservable()
+            submitButtonTapped: submitButtonTappedRelay.asObservable(),
+            alertConfirmButtonTapped: alertConfirmButtonTappedRelay.asObservable()
         )
 
         let output = viewModel.transform(input)
@@ -226,8 +236,13 @@ final class QuestionResultViewController: BaseViewController {
 
         output.error
             .withUnretained(self)
+            .observe(on: MainScheduler.instance)
             .subscribe(onNext: { owner, error in
-                ErrorAlertController(presentableError: error).present(from: owner)
+                let alert = ErrorAlertController(presentableError: error)
+                alert.confirmButtonDidTap
+                    .bind(to: owner.alertConfirmButtonTappedRelay)
+                    .disposed(by: owner.disposeBag)
+                alert.present(from: owner)
             })
             .disposed(by: disposeBag)
 

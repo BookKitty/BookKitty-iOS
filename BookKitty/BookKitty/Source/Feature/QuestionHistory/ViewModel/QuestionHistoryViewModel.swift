@@ -66,54 +66,50 @@ final class QuestionHistoryViewModel: ViewModelType {
     /// - Parameter input: ViewController에서 전달하는 Input 구조체
     /// - Returns: Output 구조체
     func transform(_ input: Input) -> Output {
-        // TODO: 3번이나 fetch가 불림. 해결 필요
         // 선택된 질문을 네비게이션 릴레이에 바인딩하여 상세 화면으로 이동할 수 있도록 설정
         input.questionSelected
             .bind(to: navigateToQuestionDetail)
             .disposed(by: disposeBag)
 
         // 뷰가 새로 나타날 때 데이터 새로 로드
-        input.viewWillAppear
+        let initialLoad = input.viewWillAppear
             .withUnretained(self)
-            .flatMapLatest { owner, _ in
+            .map { owner, _ in
+                owner.questionHistoryRepository.recodeAllQuestionCount()
                 owner.questions.removeAll()
                 owner.offset = 0
-                return owner.questionHistoryRepository.fetchQuestions(
-                    offset: owner.offset,
-                    limit: owner.limit
-                )
+                return owner.fetchQuestions()
             }
-            .withUnretained(self)
-            .map { owner, fetchedQuestions in
-                owner.questions.append(contentsOf: fetchedQuestions)
-                return owner.questions
-            }
-            .bind(to: fetchedQuestionsRelay)
-            .disposed(by: disposeBag)
 
         // 스크롤이 끝에 도달했을 때 추가 질문을 로드 (isLoading이 false일 때만 실행)
-        input.reachedScrollEnd
+        let loadMore = input.reachedScrollEnd
             .withUnretained(self)
-            .filter { owner, _ in !owner.isLoading } // 현재 로딩 중이 아닐 경우에만 실행
-            .flatMapLatest { owner, _ in
-                owner.isLoading = true // API 호출 전 로딩 상태를 true로 설정
-                owner.offset += owner.limit
-                return owner.questionHistoryRepository.fetchQuestions(
-                    offset: owner.offset,
-                    limit: owner.limit
-                )
+            .filter { owner, _ in !owner.isLoading }
+            .map { owner, _ in
+                owner.fetchQuestions()
             }
-            .do(onCompleted: { [weak self] in self?.isLoading = false }) // API 호출이 끝나면 로딩 상태 해제
-            .withUnretained(self)
-            .map { owner, fetchedQuestions in
-                owner.questions.append(contentsOf: fetchedQuestions)
-                return owner.questions
-            }
+
+        Observable.merge(initialLoad, loadMore)
             .bind(to: fetchedQuestionsRelay)
             .disposed(by: disposeBag)
 
         return Output(
-            questions: fetchedQuestionsRelay.asDriver() // 질문 목록을 드라이버 형태로 반환하여 UI에서 활용 가능하도록 설정
+            questions: fetchedQuestionsRelay.asDriver()
         )
+    }
+
+    private func fetchQuestions() -> [QuestionAnswer] {
+        guard !isLoading else {
+            return []
+        }
+        isLoading = true
+        let fetchedQuestions = questionHistoryRepository.fetchQuestions(
+            offset: offset,
+            limit: limit
+        )
+        questions += fetchedQuestions
+        offset += fetchedQuestions.count
+        isLoading = false
+        return questions
     }
 }

@@ -21,7 +21,6 @@ final class DefaultQuestionCoordinator: QuestionCoordinator {
     // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var questionHistoryViewController: QuestionHistoryViewController
@@ -107,8 +106,4 @@ extension DefaultQuestionCoordinator {
             }).disposed(by: disposeBag)
         navigationController.pushViewController(bookDetailViewController, animated: true)
     }
-    // TODO: 추후 커스텀 nav 구현 시 필요
-    //  private func dismissBookDetailScreen() {
-//    navigationController.dismiss(animated: true)
-    //  }
 }

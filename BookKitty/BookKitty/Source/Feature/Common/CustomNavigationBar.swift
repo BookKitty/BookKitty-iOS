@@ -42,6 +42,8 @@ final class CustomNavigationBar: UIView {
         $0.configuration = config
     }
 
+    private let titleLabel = BodyLabel(weight: .extraBold)
+
     private lazy var rightButton = UIButton()
 
     private let separator = UIView().then {
@@ -74,13 +76,23 @@ final class CustomNavigationBar: UIView {
         addSubview(rightButton)
 
         rightButton.snp.makeConstraints {
-            $0.trailing.equalToSuperview().inset(Vars.spacing24)
+            $0.trailing.equalToSuperview().inset(Vars.spacing8)
             $0.verticalEdges.equalToSuperview()
         }
 
         rightButton.rx.tap
             .bind(to: rightButtonTapped)
             .disposed(by: disposeBag)
+    }
+
+    func setupTitle(with title: String) {
+        titleLabel.text = title
+
+        addSubview(titleLabel)
+
+        titleLabel.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
     }
 
     private func configureHierarchy() {

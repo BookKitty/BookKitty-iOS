@@ -13,7 +13,6 @@ final class TabBarCoordinator: Coordinator {
     // MARK: - Internal
 
     weak var finishDelegate: CoordinatorFinishDelegate?
-    var parentCoordinator: Coordinator?
     var childCoordinators: [Coordinator] = []
     var navigationController: UINavigationController
     var tabBarController: TabBarController
@@ -42,14 +41,11 @@ final class TabBarCoordinator: Coordinator {
         // childCoordinators에 각 Tab에 해당하는 Coordinator 등록
         addChildCoordinator(homeCoordinator, qnaCoordinator, bookCoordinator)
 
-        // 각 Coordinator의 부모 코디네이터를 TabBarCoordinator로 지정
-        homeCoordinator.parentCoordinator = self
-        qnaCoordinator.parentCoordinator = self
-        bookCoordinator.parentCoordinator = self
         // 각 Coordinator start()메서드 호출
         homeCoordinator.start()
         qnaCoordinator.start()
         bookCoordinator.start()
+
         // TabBarController의 controllers 프로퍼티에 각 coordinator의 rootViewController 등록
         tabBarController.setViewControllers(
             homeCoordinator.homeViewController,
@@ -61,6 +57,7 @@ final class TabBarCoordinator: Coordinator {
             .bind(onNext: { owner, _ in
                 owner.showAddBookFlow()
             }).disposed(by: disposeBag)
+
         tabBarViewModel.navigateToAddQuestion
             .withUnretained(self)
             .bind(onNext: { owner, _ in
@@ -75,7 +72,6 @@ extension TabBarCoordinator {
         let addBookCoordinator = AddBookCoordinator(navigationController)
         addChildCoordinator(addBookCoordinator)
         addBookCoordinator.finishDelegate = self
-        addBookCoordinator.parentCoordinator = self
         addBookCoordinator.start()
     }
 
@@ -83,7 +79,6 @@ extension TabBarCoordinator {
         let addQuestionCoordinator = AddQuestionCoordinator(navigationController)
         addChildCoordinator(addQuestionCoordinator)
         addQuestionCoordinator.finishDelegate = self
-        addQuestionCoordinator.parentCoordinator = self
         addQuestionCoordinator.start()
     }
 }

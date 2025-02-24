@@ -1,5 +1,5 @@
 import BookMatchCore
-import BookMatchKit
+import BookOCRKit
 import Foundation
 import RxCocoa
 import RxSwift
@@ -10,13 +10,16 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Nested Types
 
     struct Input {
-        let leftBarButtonTapTrigger: Observable<Void>
         let cameraPermissionCancelButtonTapTrigger: Observable<Void>
+        let leftBarButtonTapTrigger: Observable<Void>
+        let addBookByTextButtonTapTrigger: Observable<Void>
+        let confirmButtonTapTrigger: Observable<Book>
         let capturedImage: Observable<UIImage>
     }
 
     struct Output {
-        let error: Observable<AlertPresentableError> // 에러 처리
+        let bookMatchSuccess: PublishRelay<Book>
+        let error: PublishRelay<AlertPresentableError> // 에러 처리
     }
 
     // MARK: - Properties
@@ -26,16 +29,19 @@ final class AddBookViewModel: ViewModelType {
     // MARK: - Private
 
     let navigateBackRelay = PublishRelay<Void>()
+    let navigateToAddBookByText = PublishRelay<Void>()
 
     private let errorRelay = PublishRelay<AlertPresentableError>()
+    private let bookMatchSuccessRelay = PublishRelay<Book>()
+
     private let bookRepository: BookRepository
-    private let bookMatchKit: BookMatchable
+    private let bookOCRKit: BookMatchable
 
     // MARK: - Lifecycle
 
-    init(bookRepository: BookRepository, bookMatchKit: BookMatchable) {
+    init(bookRepository: BookRepository, bookOCRKit: BookMatchable) {
         self.bookRepository = bookRepository
-        self.bookMatchKit = bookMatchKit
+        self.bookOCRKit = bookOCRKit
     }
 
     // MARK: - Functions
@@ -48,52 +54,68 @@ final class AddBookViewModel: ViewModelType {
         .bind(to: navigateBackRelay)
         .disposed(by: disposeBag)
 
+        input.addBookByTextButtonTapTrigger
+            .bind(to: navigateToAddBookByText)
+            .disposed(by: disposeBag)
+
         input.capturedImage
             .flatMapLatest { [weak self] image -> Observable<Book> in
                 guard self != nil else {
                     return .empty()
                 }
 
-                return Observable.create { [weak self] observer in
-                    Task {
-                        do {
-                            let book = try await self?.bookMatchKit.matchBook(image)
-                            guard let book else {
-                                throw AddBookError.bookNotFound
+                return Observable.create { observer in
+                    let disposable = self?.bookOCRKit.recognizeBookFromImage(image)
+                        .subscribe(
+                            onSuccess: { book in
+                                let finalBook = Book(
+                                    isbn: book.isbn,
+                                    title: book.title,
+                                    author: book.author,
+                                    publisher: book.publisher,
+                                    thumbnailUrl: URL(string: book.image),
+                                    isOwned: true,
+                                    createdAt: Date(),
+                                    updatedAt: Date(),
+                                    description: book.description,
+                                    price: book.discount ?? "",
+                                    pubDate: book.pubdate ?? ""
+                                )
+
+                                observer.onNext(finalBook)
+                                observer.onCompleted()
+
+                            },
+                            onFailure: { error in
+                                BookKittyLogger
+                                    .error("Error: \(error.localizedDescription)")
+                                switch error {
+                                case BookMatchError.networkError:
+                                    self?.errorRelay.accept(NetworkError.networkUnstable)
+                                case BookMatchError.noMatchFound:
+                                    self?.errorRelay.accept(AddBookError.bookNotFound)
+                                default:
+                                    self?.errorRelay.accept(AddBookError.unknown)
+                                }
                             }
-                            let finalBook = Book(
-                                isbn: book.isbn,
-                                title: book.title,
-                                author: book.author,
-                                publisher: book.publisher,
-                                thumbnailUrl: URL(string: book.image),
-                                isOwned: true,
-                                description: book.description,
-                                price: book.discount ?? "",
-                                pubDate: book.pubdate ?? ""
-                            )
+                        )
 
-                            observer.onNext(finalBook)
-                            observer.onCompleted()
-                        } catch BookMatchError.networkError {
-                            observer.onError(NetworkError.networkUnstable)
-                        } catch BookMatchError.noMatchFound {
-                            observer.onError(AddBookError.bookNotFound)
-                        } catch {
-                            BookKittyLogger.error("Error: \(error.localizedDescription)")
-                            observer.onError(AddBookError.unknown)
-                        }
+                    return Disposables.create {
+                        disposable?.dispose()
                     }
-
-                    return Disposables.create()
                 }
             }
             .observe(on: MainScheduler.instance)
+            .bind(to: bookMatchSuccessRelay)
+            .disposed(by: disposeBag)
+
+        input.confirmButtonTapTrigger
             .subscribe(with: self, onNext: { owner, book in
                 let isSaved = owner.bookRepository.saveBook(book: book)
                 if isSaved {
                     owner.navigateBackRelay.accept(())
                 } else {
+                    BookKittyLogger.log("중복된 책 에러 발생")
                     owner.errorRelay.accept(AddBookError.duplicatedBook)
                 }
             }, onError: { owner, error in
@@ -106,7 +128,8 @@ final class AddBookViewModel: ViewModelType {
             .disposed(by: disposeBag)
 
         return Output(
-            error: errorRelay.asObservable()
+            bookMatchSuccess: bookMatchSuccessRelay,
+            error: errorRelay
         )
     }
 }

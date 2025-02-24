@@ -20,4 +20,6 @@ protocol BookRepository {
 
     func addBookToShelf(isbn: String) -> Bool // 나의 책장에 책 추가하기(책 상세페이지에서 미소유
     func exceptBookFromShelf(isbn: String) -> Bool // 나의 책장에서 책 제외하기
+
+    func recodeOwnedBooksCount()
 }

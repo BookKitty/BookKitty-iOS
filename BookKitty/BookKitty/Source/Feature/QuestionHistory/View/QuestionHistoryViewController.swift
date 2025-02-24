@@ -7,6 +7,7 @@
 //
 
 import DesignSystem
+import FirebaseAnalytics
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -52,6 +53,12 @@ final class QuestionHistoryViewController: BaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "QuestionHistoryViewController"
+    }
+
     // MARK: - Overridden Functions
 
     // MARK: - Internal
@@ -94,30 +101,21 @@ final class QuestionHistoryViewController: BaseViewController {
     }
 
     override func configureHierarchy() {
-        view.addSubview(questionTableView)
-
-        // titleLabel을 포함할 containerView 생성
-        let headerView = UIView(frame: CGRect(
-            x: 0,
-            y: 0,
-            width: view.bounds.width,
-            height: 42 + Vars.paddingReg
-        ))
-        headerView.addSubview(titleLabel)
-
-        // titleLabel 제약조건 설정
-        titleLabel.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.bottom.equalToSuperview().inset(Vars.paddingSmall)
-        }
-
-        questionTableView.tableHeaderView = headerView
+        [
+            titleLabel,
+            questionTableView,
+        ].forEach { view.addSubview($0) }
     }
 
     override func configureLayout() {
+        titleLabel.snp.makeConstraints { make in
+            make.top.leading.equalTo(view.safeAreaLayoutGuide).offset(Vars.spacing20)
+        }
+
         questionTableView.snp.makeConstraints { make in
-            make.verticalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(titleLabel.snp.bottom).offset(Vars.spacing24)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(Vars.paddingSmall)
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }

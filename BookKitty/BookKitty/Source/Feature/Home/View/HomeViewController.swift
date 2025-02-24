@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import FirebaseAnalytics
 import RxCocoa
 import RxDataSources
 import RxRelay
@@ -72,6 +73,12 @@ class HomeViewController: BaseViewController {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "HomeViewController"
     }
 
     // MARK: - Overridden Functions
@@ -152,15 +159,15 @@ class HomeViewController: BaseViewController {
 
         output.error
             .withUnretained(self)
-            .subscribe(onNext: { error in
-                print("Error occurred : \(error)")
+            .subscribe(onNext: { _, error in
+                BookKittyLogger.error("에러 발생 : \(error.localizedDescription)")
+                // TODO: 에러 팝업 연결
             })
             .disposed(by: disposeBag)
 
         recommendedBooksCollectionView.rx.itemSelected
             .withLatestFrom(output.recommendedBooks) { indexPath, sectionOfBooks in
                 let books = sectionOfBooks[0].items
-                print("gek")
                 return books[indexPath.item]
             }
             .bind(to: bookSelectedRelay)

@@ -56,8 +56,6 @@ final class QuestionDetailViewModel: ViewModelType {
 
     // MARK: - Functions
 
-    // 뒤로가기도 코디네이터에서 navigation 하는지?
-
     func transform(_ input: Input) -> Output {
         input.viewDidLoad
             .subscribe(with: self, onNext: { owner, _ in
@@ -87,8 +85,10 @@ final class QuestionDetailViewModel: ViewModelType {
 
         input.deleteButtonTapped
             .subscribe(with: self) { owner, _ in
-                _ = owner.questionHistoryRepository
-                    .deleteQuestionAnswer(uuid: owner.questionAnswer.id)
+                if !owner.questionHistoryRepository
+                    .deleteQuestionAnswer(uuid: owner.questionAnswer.id) {
+                    BookKittyLogger.error("질문 내역 삭제 실패!")
+                }
                 owner.dismissViewController.accept(())
             }
             .disposed(by: disposeBag)

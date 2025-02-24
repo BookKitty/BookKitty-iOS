@@ -19,6 +19,9 @@ final class MyLibraryViewController: BaseViewController {
 
     // MARK: - Private
 
+    private var isLoadingMore = false
+    private var wasBottom = false
+
     private let bookTappedRelay = PublishRelay<Book>()
     private let reachedScrollEndRelay = PublishRelay<Void>()
 
@@ -65,6 +68,12 @@ final class MyLibraryViewController: BaseViewController {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "MyLibraryViewController"
     }
 
     // MARK: - Overridden Functions
@@ -164,16 +173,38 @@ extension MyLibraryViewController {
     }
 }
 
-// TODO: 고도화 필요
 extension MyLibraryViewController: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard scrollView.contentSize.height > scrollView.bounds.height else {
+        guard scrollView.contentSize.height > scrollView.bounds.height,
+              !isLoadingMore else {
             return
         }
 
-        if scrollView.contentOffset.y > scrollView.contentSize.height - scrollView.bounds.height {
-            reachedScrollEndRelay.accept(())
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let scrollViewHeight = scrollView.bounds.height
+        let threshold: CGFloat = 50
+        let isBottom = offsetY + scrollViewHeight + threshold > contentHeight
+
+        if isBottom {
+            if !wasBottom {
+                wasBottom = true
+                isLoadingMore = true
+                reachedScrollEndRelay.accept(())
+            }
+        } else {
+            wasBottom = false
         }
+    }
+
+    func scrollViewDidEndDragging(_: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            isLoadingMore = false
+        }
+    }
+
+    func scrollViewDidEndDecelerating(_: UIScrollView) {
+        isLoadingMore = false
     }
 }
 

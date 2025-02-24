@@ -18,4 +18,5 @@ protocol BookCoreDataManageable {
     func selectBooksWithIsbnArray(isbnList: [String], context: NSManagedObjectContext)
         -> [BookEntity]
     func modelToEntity(model: Book, context: NSManagedObjectContext) -> BookEntity
+    func readOwnedBooksCount(context: NSManagedObjectContext) -> Int
 }
