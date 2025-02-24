@@ -152,11 +152,12 @@ extension NeoImageWrapper where Base: UIImageView {
         
         Task { @MainActor in
             do {
-                let (result, downloadTask) = try await setImageAsync(
+                let (result, _) = try await setImageAsync(
                     with: url,
                     placeholder: placeholder,
                     options: options
                 )
+                
                 completion?(.success(result))
             } catch {
                 await task.fail()

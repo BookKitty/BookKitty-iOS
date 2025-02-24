@@ -1,5 +1,5 @@
-import XCTest
 @testable import NeoImage
+import XCTest
 
 final class NeoImageTests: XCTestCase {
     func testExample() throws {

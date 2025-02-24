@@ -9,11 +9,13 @@ let package = Package(
     products: [
         .library(
             name: "NeoImage",
-            targets: ["NeoImage"]),
+            targets: ["NeoImage"]
+        ),
     ],
     targets: [
         .target(
-            name: "NeoImage"),
+            name: "NeoImage"
+        ),
         .testTarget(
             name: "NeoImageTests",
             dependencies: ["NeoImage"]
