@@ -9,14 +9,14 @@ public protocol NeoImageCompatible: AnyObject { }
 
 extension NeoImageCompatible {
     /// neo 네임스페이스를 통해 NeoImage의 기능에 접근할 수 있습니다.
-    public var neo: NeoImageWrapper<Self> {
-        get { return NeoImageWrapper(self) }
+    public var neo: NeoImageWrapper<UIImageView> {
+        get { return NeoImageWrapper(self as! UIImageView) }
         set { }
     }
 }
 
 /// NeoImage 기능에 접근하기 위한 네임스페이스 역할을 하는 wrapper 구조체
-public struct NeoImageWrapper<Base> {
+public struct NeoImageWrapper<Base: Sendable>: Sendable {
     public let base: Base
     /// 여기서 Base는 이미지 캐시 및 이미지 데이터가 주입되는 UIImageView를 의미합니다.
     public init(_ base: Base) {
@@ -146,21 +146,25 @@ extension NeoImageWrapper where Base: UIImageView {
         with url: URL?,
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil,
-        completion: ((Result<ImageLoadingResult, Error>) -> Void)? = nil
-    ) async -> ImageTask? {
-        do {
-            let (result, task) = try await setImageAsync(
-                with: url,
-                placeholder: placeholder,
-                options: options
-            )
-            
-            completion?(.success(result))
-            return task
-        } catch {
-            completion?(.failure(error))
-            return nil
+        completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
+    ) -> ImageTask? {
+        let task = ImageTask()
+        
+        Task { @MainActor in
+            do {
+                let (result, downloadTask) = try await setImageAsync(
+                    with: url,
+                    placeholder: placeholder,
+                    options: options
+                )
+                completion?(.success(result))
+            } catch {
+                await task.fail()
+                completion?(.failure(error))
+            }
         }
+        
+        return task
     }
     
     private func processImage(_ image: UIImage, options: NeoImageOptions?) async throws -> UIImage {

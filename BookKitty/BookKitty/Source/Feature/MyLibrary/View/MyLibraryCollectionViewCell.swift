@@ -6,7 +6,8 @@
 //
 
 import DesignSystem
-import Kingfisher
+//import Kingfisher
+import NeoImage
 import SnapKit
 import UIKit
 
@@ -42,8 +43,12 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
     // MARK: - Functions
 
     // TODO: 고도화 필요
-    func configureCell(imageUrl: URL?) {
-        cellImageView.kf.setImage(with: imageUrl)
+    func configureCell(imageUrl: URL?) async {
+        do {
+            try await cellImageView.neo.setImage(with: imageUrl)
+        } catch {
+            print("error")
+        }
     }
 
     private func configureHierarchy() {
