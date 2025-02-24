@@ -62,6 +62,7 @@ public final class ImageCache: @unchecked Sendable {
             expiration: expiration
         )
     }
+    
     /// 캐시로부터 저장된 이미지를 가져옵니다.
     /// 1차적으로 오버헤드가 적은 메모리를 먼저 확인합니다.
     /// 이후 메모리에 없을 경우, 디스크를 확인합니다.
