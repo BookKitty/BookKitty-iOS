@@ -30,8 +30,7 @@ class DiskStorage<T: DataTransformable>: @unchecked Sendable {
         }
         // Disk에 대한 접근이 패키지 외부에서 동시에 이루어질 경우, 동일한 위치에 다른 데이터가 덮어씌워지는 data race 상황이 됩니다. 이를 방지하고자, 기존
         // Kingfisher에서는 DispatchQueue를 통해  직렬화 큐를 구현한 후, store(Write), value(Read)를 직렬화 큐에 전송하여
-        // 순차적인
-        // 실행이 보장되게 하였습니다.
+        // 순차적인 실행이 보장되게 하였습니다.
         // 이를 Swift Concurrency로 변경하고자, 동일한 직렬화 기능을 수행하는 Actor 클래스로 대체하였습니다.
         try await serialActor.run {
             // 별도로 메서드를 통해 기한을 전달하지 않으면, 기본값으로 config.expiration인 7일로 정의합니다.

@@ -13,16 +13,6 @@ public class SessionDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
 
     // MARK: - Functions
 
-    func cancelTasks(for url: URL) {
-        tasks[url]?.cancel()
-        tasks[url] = nil
-    }
-
-    func cancelAllTasks() {
-        tasks.values.forEach { $0.cancel() }
-        tasks.removeAll()
-    }
-
     /// 필수 델리게이트 메서드만 구현
     public func urlSession(
         _: URLSession,
@@ -42,5 +32,15 @@ public class SessionDelegate: NSObject, URLSessionDataDelegate, @unchecked Senda
             return .cancel
         }
         return .allow
+    }
+
+    func cancelTasks(for url: URL) {
+        tasks[url]?.cancel()
+        tasks[url] = nil
+    }
+
+    func cancelAllTasks() {
+        tasks.values.forEach { $0.cancel() }
+        tasks.removeAll()
     }
 }
