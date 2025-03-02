@@ -5,7 +5,7 @@
 //  Created by 임성수 on 2/4/25.
 //
 
-import Kingfisher
+import NeoImage
 import SnapKit
 import UIKit
 
@@ -110,14 +110,16 @@ extension HeightFixedImageView {
             return
         }
 
-        kf.setImage(
+        let options = NeoImageOptions(
+            transition: .fade(0.2),
+            retryStrategy: .times(3)
+        )
+
+        neo.setImage(
             with: url,
             placeholder: UIImage(named: "DefaultBookImage", in: Bundle.module, compatibleWith: nil),
-            options: [
-                .transition(.fade(0.2)), // 부드러운 페이드 효과
-                .cacheOriginalImage, // 원본 이미지 캐싱
-            ],
-            completionHandler: { [weak self] result in
+            options: options,
+            completion: { [weak self] result in
                 guard let self else {
                     return
                 }

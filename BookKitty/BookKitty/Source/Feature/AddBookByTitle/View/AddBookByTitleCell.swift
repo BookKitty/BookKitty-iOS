@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import NeoImage
 import SnapKit
 import Then
 import UIKit
@@ -52,7 +53,7 @@ final class AddBookByTitleCell: UICollectionViewCell {
     // MARK: - Functions
 
     func configureCell(imageLink: String, bookTitle: String, author: String) {
-        imageView.kf.setImage(with: URL(string: imageLink))
+        imageView.neo.setImage(with: URL(string: imageLink))
         bookTitleLabel.text = bookTitle
         bookAuthorLabel.text = author
         bookTitleLabel.lineBreakMode = .byTruncatingTail

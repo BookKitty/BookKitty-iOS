@@ -22,6 +22,7 @@
 		E5A6B99E2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
 		E5DE19642D62A7D3007D37E2 /* BookOCRKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5DE19632D62A7D3007D37E2 /* BookOCRKit */; };
 		E5FC698C2D52414B002875FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5FC698B2D52414B002875FD /* SnapKit */; };
+		E5FFE2F02D6A3F4200A0F7CF /* NeoImage in Frameworks */ = {isa = PBXBuildFile; productRef = E5FFE2EF2D6A3F4200A0F7CF /* NeoImage */; };
 		E93048662D559553008E9467 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = E93048652D559553008E9467 /* RxCocoa */; };
 		E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = E97DC36F2D50C161009ADFEA /* DesignSystem */; };
 /* End PBXBuildFile section */
@@ -87,6 +88,7 @@
 				606DA2402D4206F200C7FAA3 /* RxRelay in Frameworks */,
 				E97DC3702D50C161009ADFEA /* DesignSystem in Frameworks */,
 				4584C5AF2D685AB300173282 /* FirebaseAnalytics in Frameworks */,
+				E5FFE2F02D6A3F4200A0F7CF /* NeoImage in Frameworks */,
 				60A1CC0E2D54A2DB00091568 /* BookRecommendationKit in Frameworks */,
 				606DA2422D4206F200C7FAA3 /* RxSwift in Frameworks */,
 				4584C5B32D685AB300173282 /* FirebaseCrashlytics in Frameworks */,
@@ -170,6 +172,7 @@
 				4584C5AE2D685AB300173282 /* FirebaseAnalytics */,
 				4584C5B02D685AB300173282 /* FirebaseCore */,
 				4584C5B22D685AB300173282 /* FirebaseCrashlytics */,
+				E5FFE2EF2D6A3F4200A0F7CF /* NeoImage */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -346,7 +349,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SUHZ238M29;
+				DEVELOPMENT_TEAM = H856SYKNM8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -385,7 +388,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SUHZ238M29;
+				DEVELOPMENT_TEAM = H856SYKNM8;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BookKitty/App/Info.plist;
@@ -703,6 +706,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E5FC698A2D52414B002875FD /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		E5FFE2EF2D6A3F4200A0F7CF /* NeoImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = NeoImage;
 		};
 		E93048652D559553008E9467 /* RxCocoa */ = {
 			isa = XCSwiftPackageProductDependency;

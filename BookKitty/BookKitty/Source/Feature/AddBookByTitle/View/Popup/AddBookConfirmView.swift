@@ -6,7 +6,7 @@
 //
 
 import DesignSystem
-import Kingfisher
+import NeoImage
 import RxSwift
 import SnapKit
 import Then
@@ -77,7 +77,7 @@ final class AddBookConfirmView: UIView {
 
     func configure(thumbnailUrl: URL?, title: String) {
         bookTitleLabel.text = title
-        bookThumbnailImageView.kf.setImage(with: thumbnailUrl)
+        bookThumbnailImageView.neo.setImage(with: thumbnailUrl)
     }
 
     private func configureBackground() {
