@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import LogKit
 
 /// Book 엔티티를 관리하는 객체
 final class BookCoreDataManager: BookCoreDataManageable {
@@ -45,10 +46,10 @@ final class BookCoreDataManager: BookCoreDataManageable {
         do {
             _ = modelToEntity(model: model, context: context)
             try context.save()
-            BookKittyLogger.log("책 저장 성공")
+            LogKit.log("책 저장 성공")
             return true
         } catch {
-            BookKittyLogger.log("책 저장 실패: \(error.localizedDescription)")
+            LogKit.log("책 저장 실패: \(error.localizedDescription)")
             return false
         }
     }
@@ -83,13 +84,13 @@ final class BookCoreDataManager: BookCoreDataManageable {
         do {
             if let bookEntity = try context.fetch(request).first {
                 if bookEntity.isbn == isbn {
-                    BookKittyLogger.log("책 데이터 가져오기 성공: \(bookEntity)")
+                    LogKit.log("책 데이터 가져오기 성공: \(bookEntity)")
                     return bookEntity
                 }
             }
             return nil
         } catch {
-            BookKittyLogger.log("책 데이터 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("책 데이터 가져오기 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -120,10 +121,10 @@ final class BookCoreDataManager: BookCoreDataManageable {
 
         do {
             let fetchedEntity = try context.fetch(request)
-            BookKittyLogger.log("책장 책 가져오기 성공")
+            LogKit.log("책장 책 가져오기 성공")
             return fetchedEntity
         } catch {
-            BookKittyLogger.log("책장 책 목록 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("책장 책 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -142,10 +143,10 @@ final class BookCoreDataManager: BookCoreDataManageable {
 
         do {
             let fetchedEntity = try context.fetch(request)
-            BookKittyLogger.log("ISBN 목록으로 책 데이터 가져오기 성공")
+            LogKit.log("ISBN 목록으로 책 데이터 가져오기 성공")
             return fetchedEntity
         } catch {
-            BookKittyLogger.log("ISBN 목록으로 책 데이터 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("ISBN 목록으로 책 데이터 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -184,7 +185,7 @@ final class BookCoreDataManager: BookCoreDataManageable {
         do {
             return try context.count(for: request)
         } catch {
-            BookKittyLogger.log("소유한 책 개수 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("소유한 책 개수 가져오기 실패: \(error.localizedDescription)")
             return 0
         }
     }

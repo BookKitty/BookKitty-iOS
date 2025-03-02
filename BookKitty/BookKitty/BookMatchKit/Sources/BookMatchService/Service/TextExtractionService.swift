@@ -1,5 +1,6 @@
 import BookMatchCore
 import CoreImage
+import LogKit
 import NaturalLanguage
 import RxSwift
 import UIKit
@@ -61,16 +62,21 @@ public final class TextExtractionService: TextExtractable {
                             return .error(BookMatchError.CoreMLError("No Result from CoreML"))
                         }
 
-                        BookMatchLogger.textsExtracted(texts)
+                        LogKit.info(
+                            "OCR로 추출된 텍스트: \(texts.joined(separator: ", "))",
+                            subSystem: .bookOCR,
+                            category: .lifecycle
+                        )
+
                         return .just(texts)
                     }
             }
-            .catch { [weak self] error in
+            .catch { [weak self] _ in
                 guard let self else {
                     return .error(BookMatchError.deinitError)
                 }
 
-                BookMatchLogger.error(error, context: "extract Text")
+                LogKit.error("extract Text", subSystem: .bookOCR)
 
                 return performOCR(on: image)
             }
@@ -151,7 +157,12 @@ public final class TextExtractionService: TextExtractable {
                     $0.topCandidates(1).first?.string
                 }
 
-                BookMatchLogger.textExtracted(recognizedText)
+                LogKit.info(
+                    "OCR로 추출된 텍스트: \(recognizedText.joined(separator: ", "))",
+                    subSystem: .bookOCR,
+                    category: .lifecycle
+                )
+
                 single(.success(recognizedText))
             }
 
@@ -167,8 +178,8 @@ public final class TextExtractionService: TextExtractable {
 
             return Disposables.create()
         }
-        .catch { error in
-            BookMatchLogger.error(error, context: "performOCR")
+        .catch { _ in
+            LogKit.error("performOCR", subSystem: .bookOCR)
             return .just([])
         }
     }
@@ -217,12 +228,12 @@ public final class TextExtractionService: TextExtractable {
             context: nil,
             options: nil
         ) else {
-            BookMatchLogger.detectorInitializationFailed()
+            LogKit.error("CIDetector 초기화 실패", subSystem: .bookOCR)
             return image
         }
 
         guard let feature = detector.features(in: image).first as? CIRectangleFeature else {
-            BookMatchLogger.textSlopeDetectionFailed()
+            LogKit.error("텍스트 기울기 감지 실패", subSystem: .bookOCR)
             return image
         }
 

@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import LogKit
 
 final class CoreDataStack {
     // MARK: - Static Properties
@@ -43,7 +44,7 @@ final class CoreDataStack {
         do {
             try context.save()
         } catch {
-            BookKittyLogger.log("저장 실패: \(error.localizedDescription)")
+            LogKit.log("저장 실패: \(error.localizedDescription)")
         }
     }
 }

@@ -38,6 +38,7 @@ let package = Package(
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "6.8.0"),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
         .package(path: "../NetworkKit"),
+        .package(path: "../LogKit"),
     ],
     targets: [
         .target(
@@ -45,6 +46,7 @@ let package = Package(
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI", "BookMatchStrategy", "BookMatchService",
+                .product(name: "LogKit", package: "LogKit"),
             ]
         ),
         .target(
@@ -52,6 +54,7 @@ let package = Package(
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI", "BookMatchService",
+                .product(name: "LogKit", package: "LogKit"),
             ]
         ),
         .target(
@@ -59,12 +62,14 @@ let package = Package(
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore",
+                .product(name: "LogKit", package: "LogKit"),
             ]
         ),
         .target(
             name: "BookMatchCore",
             dependencies: [
                 "RxSwift", "SwiftFormat",
+                .product(name: "LogKit", package: "LogKit"),
             ]
         ),
         .target(
@@ -72,6 +77,7 @@ let package = Package(
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore", "BookMatchAPI",
+                .product(name: "LogKit", package: "LogKit"),
             ],
             resources: [
                 .process("Resources/MyObjectDetector5_1.mlmodel"),
@@ -83,6 +89,7 @@ let package = Package(
                 "RxSwift", "SwiftFormat",
                 "BookMatchCore",
                 .product(name: "NetworkKit", package: "NetworkKit"),
+                .product(name: "LogKit", package: "LogKit"),
             ]
         ),
         .testTarget(
@@ -90,6 +97,9 @@ let package = Package(
             dependencies: [
                 "RxSwift", "SwiftFormat",
                 "BookOCRKit", "BookRecommendationKit", "BookMatchCore",
+            ],
+            resources: [
+                .process("Resources/images"),
             ]
         ),
     ]

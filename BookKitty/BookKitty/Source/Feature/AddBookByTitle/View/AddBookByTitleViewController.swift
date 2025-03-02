@@ -6,6 +6,7 @@
 //
 
 import DesignSystem
+import LogKit
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -197,7 +198,7 @@ extension AddBookByTitleViewController: CustomSearchBarDelegate {
 extension AddBookByTitleViewController: UICollectionViewDelegate {
     func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let selectedBook = dataSource.itemIdentifier(for: indexPath) else {
-            BookKittyLogger.error("선택된 Book 존재하지 않음")
+            LogKit.error("선택된 Book 존재하지 않음")
             return
         }
 
