@@ -6,6 +6,7 @@
 //
 
 import CoreText
+import LogKit
 import UIKit
 
 /// 현재 프로젝트에 사용되는 폰트 종류를 선언.
@@ -26,24 +27,26 @@ extension UIFont {
     /// 폰트 등록 메서드
     public static func registerFont(name: String, extension ext: String) {
         guard let fontURL = Bundle.module.url(forResource: name, withExtension: ext) else {
-            DSLogger.log("폰트 파일을 찾을 수 없음: \(name).\(ext)")
+            LogKit.error("폰트 파일을 찾을 수 없음: \(name).\(ext)", subSystem: .designSystem)
             return
         }
 
         guard let fontDataProvider = CGDataProvider(url: fontURL as CFURL),
               let fontRef = CGFont(fontDataProvider)
         else {
-            DSLogger.log("폰트 등록 실패: \(name).\(ext)")
+            LogKit.error("폰트 등록 실패: \(name).\(ext)", subSystem: .designSystem)
             return
         }
 
         var error: Unmanaged<CFError>?
 
         if !CTFontManagerRegisterGraphicsFont(fontRef, &error) {
-            DSLogger
-                .error("폰트 등록 중 오류 발생: \(name), \(String(describing: error?.takeRetainedValue()))")
+            LogKit.error(
+                "폰트 등록 중 오류 발생: \(name), \(String(describing: error?.takeRetainedValue()))",
+                subSystem: .designSystem
+            )
         } else {
-            DSLogger.log("폰트 등록 완료: \(name)")
+            LogKit.log("폰트 등록 완료: \(name)", subSystem: .designSystem)
         }
     }
 

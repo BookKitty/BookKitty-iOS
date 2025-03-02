@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LogKit
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -87,7 +88,7 @@ final class QuestionDetailViewModel: ViewModelType {
             .subscribe(with: self) { owner, _ in
                 if !owner.questionHistoryRepository
                     .deleteQuestionAnswer(uuid: owner.questionAnswer.id) {
-                    BookKittyLogger.error("질문 내역 삭제 실패!")
+                    LogKit.error("질문 내역 삭제 실패!")
                 }
                 owner.dismissViewController.accept(())
             }

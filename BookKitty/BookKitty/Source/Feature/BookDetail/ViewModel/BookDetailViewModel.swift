@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LogKit
 import RxCocoa
 import RxRelay
 import RxSwift
@@ -65,11 +66,11 @@ final class BookDetailViewModel: ViewModelType {
                 // TODO: 오류 처리
                 case true:
                     if !owner.bookRepository.exceptBookFromShelf(isbn: bookDetail.isbn) {
-                        BookKittyLogger.error("책장에서 책 제외 실패")
+                        LogKit.error("책장에서 책 제외 실패")
                     }
                 case false:
                     if !owner.bookRepository.addBookToShelf(isbn: bookDetail.isbn) {
-                        BookKittyLogger.error("책장에 책 추가 실패")
+                        LogKit.error("책장에 책 추가 실패")
                     }
                 }
             })

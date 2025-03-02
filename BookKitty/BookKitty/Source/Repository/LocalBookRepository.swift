@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import Foundation
+import LogKit
 import RxSwift
 
 struct LocalBookRepository: BookRepository {
@@ -77,7 +78,7 @@ struct LocalBookRepository: BookRepository {
             isbnList: isbnList,
             context: context
         )
-        BookKittyLogger.log("ISBN 배열로부터 책 가져오기 성공")
+        LogKit.log("ISBN 배열로부터 책 가져오기 성공", category: .lifecycle)
         return bookEntities.compactMap { bookCoreDataManager.entityToModel(entity: $0) }
     }
 
@@ -104,7 +105,7 @@ struct LocalBookRepository: BookRepository {
             }
         }
 
-        BookKittyLogger.log("최근 추천된 책 불러오기 성공")
+        LogKit.log("최근 추천된 책 불러오기 성공", category: .lifecycle)
         return books
     }
 
@@ -117,7 +118,7 @@ struct LocalBookRepository: BookRepository {
         do {
             let filteredBooks = data.filter {
                 if bookCoreDataManager.selectBookByIsbn(isbn: $0.isbn, context: context) != nil {
-                    BookKittyLogger.log("\($0.title) 책은 이미 저장되어 있으므로, 저장할 책 목록에서 제외합니다.")
+                    LogKit.log("\($0.title) 책은 이미 저장되어 있으므로, 저장할 책 목록에서 제외합니다.")
                     return false
                 }
                 return true
@@ -128,15 +129,15 @@ struct LocalBookRepository: BookRepository {
                 context: context
             )
             guard bookEntities.count == data.count else {
-                BookKittyLogger.log("반환 전후 갯수 다름;")
+                LogKit.error("반환 전후 갯수 다름;")
                 return false
             }
 
             try context.save()
-            BookKittyLogger.log("책 저장 성공")
+            LogKit.log("책 저장 성공")
             return true
         } catch {
-            BookKittyLogger.log("책 저장 실패: \(error.localizedDescription)")
+            LogKit.log("책 저장 실패: \(error.localizedDescription)")
             return false
         }
     }
@@ -148,7 +149,7 @@ struct LocalBookRepository: BookRepository {
     /// - Returns: 성공 여부 Bool 반환.
     func saveBook(book: Book) -> Bool {
         if bookCoreDataManager.selectBookByIsbn(isbn: book.isbn, context: context) != nil {
-            BookKittyLogger.log("\(book.title) 책은 이미 저장되어 있습니다.")
+            LogKit.log("\(book.title) 책은 이미 저장되어 있습니다.")
             return false
         }
 
@@ -167,10 +168,10 @@ struct LocalBookRepository: BookRepository {
                 book.updatedAt = Date()
             }
             try context.save()
-            BookKittyLogger.log("책장에 책 등록 성공")
+            LogKit.log("책장에 책 등록 성공")
             return true
         } catch {
-            BookKittyLogger.log("책장에 책 등록 실패: \(error.localizedDescription)")
+            LogKit.log("책장에 책 등록 실패: \(error.localizedDescription)")
             return false
         }
     }
@@ -187,10 +188,10 @@ struct LocalBookRepository: BookRepository {
                 book.updatedAt = Date()
             }
             try context.save()
-            BookKittyLogger.log("책장에 책 제거 성공")
+            LogKit.log("책장에 책 제거 성공")
             return true
         } catch {
-            BookKittyLogger.log("책장에 책 제거 실패: \(error.localizedDescription)")
+            LogKit.log("책장에 책 제거 실패: \(error.localizedDescription)")
             return false
         }
     }

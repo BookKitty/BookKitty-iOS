@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import Foundation
+import LogKit
 import RxSwift
 
 struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
@@ -85,7 +86,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
                 afterCount -= 1
                 return book
             }
-            BookKittyLogger.log("\(beforeCount)만큼 책 가져왔지만, \(afterCount)만큼 저장.")
+            LogKit.log("\(beforeCount)만큼 책 가져왔지만, \(afterCount)만큼 저장.")
             return bookCoreDataManager.modelToEntity(model: $0, context: context)
         }
 
@@ -101,7 +102,7 @@ struct LocalQuestionHistoryRepository: QuestionHistoryRepository {
             try context.save()
             return questionEntity.id
         } catch {
-            BookKittyLogger.log("저장 실패: \(error.localizedDescription)")
+            LogKit.log("저장 실패: \(error.localizedDescription)")
             return nil
         }
     }

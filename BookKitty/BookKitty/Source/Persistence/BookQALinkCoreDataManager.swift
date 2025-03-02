@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import LogKit
 
 /// BookQuestionAnswerLink 엔티티를 관리하는 객체
 final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
@@ -22,10 +23,10 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
 
         do {
             let fetchresult = try context.fetch(fetchRequest)
-            BookKittyLogger.log("최근 추천책 조회 성공")
+            LogKit.log("최근 추천책 조회 성공")
             return fetchresult
         } catch {
-            BookKittyLogger.log("최근 추천책 조회 실패: \(error.localizedDescription)")
+            LogKit.log("최근 추천책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -46,7 +47,7 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
         linkEntity.questionAnswer = questionAnswerEntity
         linkEntity.createdAt = Date()
 
-        BookKittyLogger.log("BookQuestionAnswerLinkEntity 생성 성공")
+        LogKit.log("BookQuestionAnswerLinkEntity 생성 성공")
 
         return linkEntity
     }
@@ -74,7 +75,7 @@ final class BookQALinkCoreDataManager: BookQALinkCoreDataManageable {
             // 각 링크 엔티티에서 `book`을 추출
             return linkedEntities.compactMap(\.book)
         } catch {
-            BookKittyLogger.log("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
+            LogKit.log("질문 ID에 연결된 책 조회 실패: \(error.localizedDescription)")
             return []
         }
     }

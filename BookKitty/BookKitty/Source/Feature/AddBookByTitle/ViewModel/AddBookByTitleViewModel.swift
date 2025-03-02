@@ -7,6 +7,7 @@
 
 import BookOCRKit
 import Foundation
+import LogKit
 import RxCocoa
 import RxSwift
 
@@ -51,12 +52,12 @@ final class AddBookByTitleViewModel: ViewModelType {
         input.addBookButtonTapped
             .withUnretained(self)
             .map { owner, book in
-                BookKittyLogger.log("책 추가 버튼 탭")
+                LogKit.log("책 추가 버튼 탭")
                 if !owner.bookRepository.saveBook(book: book) {
-                    BookKittyLogger.error("책 저장 실패")
+                    LogKit.error("책 저장 실패")
                 }
                 if !owner.bookRepository.addBookToShelf(isbn: book.isbn) {
-                    BookKittyLogger.error("책 내 서재 추가 실패")
+                    LogKit.error("책 내 서재 추가 실패")
                 }
                 // TODO: 에러 처리 필요
             }
@@ -68,7 +69,7 @@ final class AddBookByTitleViewModel: ViewModelType {
             .flatMapLatest { owner, searchResult in
                 owner.bookOcrKit.searchBookFromText(searchResult)
                     .catch { error in
-                        BookKittyLogger.log("책 검색 실패: \(error.localizedDescription)")
+                        LogKit.error("책 검색 실패: \(error.localizedDescription)")
                         // TODO: 에러 처리 필요
                         return .just([])
                     }
