@@ -261,7 +261,7 @@ public final class TextExtractionService: TextExtractable {
 
     private func correctKoreanText(_ text: String) -> String {
         let replacements: [String: String] = [
-            "뛌끼": "뜨끼", "햐야": "해야", "따름": "따름",
+            "뛌끼": "뜨끼", "햐야": "해야", "따릉": "따름",
             "(\\b\\w+\\b) \\1": "$1", // 반복 단어 제거
             "(?<=[가-힣])\\s+(?=[을를이가])": "", // 조사 띄어쓰기 교정
         ]
