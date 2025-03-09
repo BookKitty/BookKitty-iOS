@@ -1,9 +1,13 @@
-enum CacheError: Error {
+import Foundation
+
+enum CacheError: Sendable, Error {
     // 데이터 관련 에러
     case invalidData
     case invalidImage
     case dataToImageConversionFailed
     case imageToDataConversionFailed
+
+    case fileEnumeratorCreationFailed
 
     // 저장소 관련 에러
     case diskStorageError(Error)
@@ -15,6 +19,14 @@ enum CacheError: Error {
     case cannotCreateDirectory(Error)
     case cannotWriteToFile(Error)
     case cannotReadFromFile(Error)
+
+    case invalidURLResource
+    case cannotConvertToData(object: Sendable)
+    case cannotSetCacheFileAttribute(
+        filePath: String,
+        attributes: [FileAttributeKey: Sendable],
+        error: any Error
+    )
 
     /// 캐시 키 관련 에러
     case invalidCacheKey
@@ -52,6 +64,27 @@ enum CacheError: Error {
             return "The cache key is invalid"
         case let .unknown(error):
             return "Unknown error: \(error.localizedDescription)"
+        default:
+            return ""
         }
+    }
+}
+
+public enum NeoImageError: Error {
+    case requestError(reason: RequestErrorReason)
+    case responseError(reason: ResponseErrorReason)
+
+    // MARK: - Nested Types
+
+    public enum RequestErrorReason: Sendable {
+        case invalidURL(request: URLRequest)
+        case emptyRequest
+        case taskCancelled(task: SessionDataTask, token: Int)
+    }
+
+    public enum ResponseErrorReason: Sendable {
+        case URLSessionError(description: String)
+        case cancelled
+        case invalidImageData
     }
 }

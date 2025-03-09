@@ -111,8 +111,7 @@ extension HeightFixedImageView {
         }
 
         let options = NeoImageOptions(
-            transition: .fade(0.2),
-            retryStrategy: .times(3)
+            transition: .fade(0.2)
         )
 
         neo.setImage(

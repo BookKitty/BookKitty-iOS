@@ -44,102 +44,97 @@ extension NeoImageWrapper where Base: UIImageView {
             throw CacheError.invalidData
         }
 
-        guard let url else {
-            await MainActor.run { [weak base] in
-                guard let base else {
-                    return
-                }
-                base.image = placeholder
-            }
-
-            throw CacheError.invalidData
-        }
-
-        // placeholder 먼저 설정
         if let placeholder {
             await MainActor.run { [weak base] in
                 guard let base else {
                     return
                 }
                 base.image = placeholder
-                print("\(url): Placeholder 설정 완료")
             }
         }
+        // TODO: gray로 차선책 placeholder 렌더 넣기
 
+        guard let url else {
+            throw CacheError.invalidData
+        }
+
+        // TODO: ImageTask 연결하기
         // UIImageView에 연결된 ImageTask를 가져옵니다
         // 현재 진행 중인 다운로드 작업이 있는지 확인하는데 사용됩니다
-        if let task = objc_getAssociatedObject(base, ImageTaskKey.associatedKey) as? ImageTask {
+        if let task = objc_getAssociatedObject(
+            base,
+            NeoImageConstants.associatedKey
+        ) as? ImageTask {
             await task.cancel()
             await setImageDownloadTask(nil)
-            print("\(url): 기존 Task 존재하여 취소")
-        }
-
-        let cacheKey = url.absoluteString
-
-        // 메모리 또는 디스크 캐시에서 이미지 데이터 확인
-        if let cachedData = try? await ImageCache.shared.retrieveImage(forKey: cacheKey),
-           let cachedImage = UIImage(data: cachedData) {
-            print("\(url): 기존 저장소에 이미지 존재 확인")
-
-            // 캐시된 이미지 처리
-            let processedImage = try await processImage(cachedImage, options: options)
-
-            await MainActor.run { [weak base] in
-                guard let base else {
-                    return
-                }
-                base.image = processedImage
-                print("\(url): 메모리에 위치한 이미지로 로드")
-
-                applyTransition(to: base, with: options?.transition)
-            }
-
-            return (
-                ImageLoadingResult(
-                    image: processedImage,
-                    url: url,
-                    originalData: cachedData
-                ),
-                nil
-            )
         }
 
         let imageTask = ImageTask()
-
         await setImageDownloadTask(imageTask)
 
-        let downloadResult = try await ImageDownloadManager.shared.downloadImage(with: url)
-        print("\(url): 이미지 다운로드 완료")
+        // NeoImageManager를 사용해 이미지 다운로드 (캐시 확인 + 이미지 후처리)
+        let downloadResult = try await NeoImageManager.shared.downloadImage(
+            with: url,
+            options: options
+        )
         try Task.checkCancellation()
 
-        let processedImage = try await processImage(downloadResult.image, options: options)
-        try Task.checkCancellation()
-
-        // 캐시 저장
-        if let data = processedImage.jpegData(compressionQuality: 0.8) {
-            try await ImageCache.shared.store(data, forKey: url.absoluteString)
-            print("\(url): 이미지 캐싱 완료")
-        }
-
-        // 최종 UI 업데이트
+        // UI 업데이트
         await MainActor.run { [weak base] in
             guard let base else {
                 return
             }
-
-            base.image = processedImage
-            print("\(url): 후처리된 이미지 렌더 완료")
+            base.image = downloadResult.image
             applyTransition(to: base, with: options?.transition)
         }
+//        imageTask.setDownloadTask(down)
+        return (downloadResult, imageTask)
+    }
 
-        return (
-            ImageLoadingResult(
-                image: processedImage,
-                url: url,
-                originalData: downloadResult.originalData
-            ),
-            imageTask
+    // MARK: - Wrapper
+
+    /// `Public Async API`
+    /// async/await 패턴이 적용된 환경에서 사용가능한 래퍼 메서드입니다.
+    public func setImage(
+        with url: URL?,
+        placeholder: UIImage? = nil,
+        options: NeoImageOptions? = nil
+    ) async throws -> ImageLoadingResult {
+        let (result, _) = try await setImageAsync(
+            with: url,
+            placeholder: placeholder,
+            options: options
         )
+
+        return result
+    }
+
+    /// `Public Completion Handler API`
+    @discardableResult
+    public func setImage(
+        with url: URL?,
+        placeholder: UIImage? = nil,
+        options: NeoImageOptions? = nil,
+        completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
+    ) -> ImageTask? {
+        let task = ImageTask()
+
+        Task { @MainActor in
+            do {
+                let (result, _) = try await setImageAsync(
+                    with: url,
+                    placeholder: placeholder,
+                    options: options
+                )
+
+                completion?(.success(result))
+            } catch {
+                await task.fail()
+                completion?(.failure(error))
+            }
+        }
+
+        return task
     }
 
     @MainActor
@@ -170,60 +165,6 @@ extension NeoImageWrapper where Base: UIImageView {
         }
     }
 
-    // MARK: - Public Async API
-
-    /// async/await 패턴이 적용된 환경에서 사용가능한 래퍼 메서드입니다.
-    public func setImage(
-        with url: URL?,
-        placeholder: UIImage? = nil,
-        options: NeoImageOptions? = nil
-    ) async throws -> ImageLoadingResult {
-        let (result, _) = try await setImageAsync(
-            with: url,
-            placeholder: placeholder,
-            options: options
-        )
-
-        return result
-    }
-
-    // MARK: - Public Completion Handler API
-
-    @discardableResult
-    public func setImage(
-        with url: URL?,
-        placeholder: UIImage? = nil,
-        options: NeoImageOptions? = nil,
-        completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
-    ) -> ImageTask? {
-        let task = ImageTask()
-
-        Task { @MainActor in
-            do {
-                let (result, _) = try await setImageAsync(
-                    with: url,
-                    placeholder: placeholder,
-                    options: options
-                )
-
-                completion?(.success(result))
-            } catch {
-                await task.fail()
-                completion?(.failure(error))
-            }
-        }
-
-        return task
-    }
-
-    private func processImage(_ image: UIImage, options: NeoImageOptions?) async throws -> UIImage {
-        if let processor = options?.processor {
-            return try await processor.process(image)
-        }
-
-        return image
-    }
-
     // MARK: - Task Management
 
     /// UIImageView는 기본적으로 ImageTask를 저장할 프로퍼티가 없습니다.
@@ -245,7 +186,7 @@ extension NeoImageWrapper where Base: UIImageView {
 
         objc_setAssociatedObject(
             base, // 대상 객체 (UIImageView)
-            ImageTaskKey.associatedKey, // 키 값
+            NeoImageConstants.associatedKey, // 키 값
             task, // 저장할 값
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC // 메모리 관리 정책
         )
