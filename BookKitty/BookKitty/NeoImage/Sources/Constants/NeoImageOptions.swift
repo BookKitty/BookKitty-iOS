@@ -11,10 +11,6 @@ import UIKit
 public struct NeoImageOptions: Sendable {
     // MARK: - Properties
 
-    /// 이미지 프로세서
-    public let processor: ImageProcessing?
-
-    /// 이미지 전환 효과
     public let transition: ImageTransition
 
     /// 캐시 만료 정책
@@ -24,11 +20,10 @@ public struct NeoImageOptions: Sendable {
     // MARK: - Lifecycle
 
     public init(
-        processor: ImageProcessing? = nil,
         transition: ImageTransition = .none,
         cacheExpiration: StorageExpiration = .days(7)
     ) {
-        self.processor = processor
+        NeoLogger.shared.debug("initialized")
         self.transition = transition
         self.cacheExpiration = cacheExpiration
     }

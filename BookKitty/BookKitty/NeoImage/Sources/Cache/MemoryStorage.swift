@@ -1,6 +1,6 @@
 import Foundation
 
-public class MemoryStorage: @unchecked Sendable {
+public actor MemoryStorage {
     // MARK: - Properties
 
     var keys = Set<String>()
@@ -9,8 +9,7 @@ public class MemoryStorage: @unchecked Sendable {
     private let storage = NSCache<NSString, StorageObject>()
     private let totalCostLimit: Int
 
-    private var cleanTimer: Timer?
-    private let lock = NSLock()
+    private var cleanTask: Task<Void, Never>?
 
     // MARK: - Lifecycle
 
@@ -19,27 +18,19 @@ public class MemoryStorage: @unchecked Sendable {
         self.totalCostLimit = totalCostLimit
         storage.totalCostLimit = totalCostLimit
 
-        cleanTimer = .scheduledTimer(withTimeInterval: 120, repeats: true) { [weak self] _ in
-            guard let self else {
-                return
-            }
-            removeExpired()
+        NeoLogger.shared.debug("initialized")
+
+        Task {
+            await setupCleanTask()
         }
     }
 
     // MARK: - Functions
 
     public func removeExpired() {
-        lock.lock()
-        defer { lock.unlock() }
         for key in keys {
             let nsKey = key as NSString
             guard let object = storage.object(forKey: nsKey) else {
-                // This could happen if the object is moved by cache `totalCostLimit` or
-                // `countLimit` rule.
-                // We didn't remove the key yet until now, since we do not want to introduce
-                // additional lock.
-                // See https://github.com/onevcat/Kingfisher/issues/1233
                 keys.remove(key)
                 continue
             }
@@ -51,26 +42,14 @@ public class MemoryStorage: @unchecked Sendable {
         }
     }
 
-    /// 캐시에서 있는지 여부를 조회
-    public func isCached(forKey key: String) -> Bool {
-        guard let _ = value(forKey: key, extendingExpiration: .none) else {
-            return false
-        }
-        return true
-    }
-
     /// 캐시에서 제거
     public func remove(forKey key: String) {
-        lock.lock()
-        defer { lock.unlock() }
         storage.removeObject(forKey: key as NSString)
         keys.remove(key)
     }
 
     /// Removes all values in this storage.
     public func removeAll() {
-        lock.lock()
-        defer { lock.unlock() }
         storage.removeAllObjects()
         keys.removeAll()
     }
@@ -81,10 +60,8 @@ public class MemoryStorage: @unchecked Sendable {
         forKey key: String,
         expiration: StorageExpiration? = nil
     ) {
-        lock.lock()
-        defer { lock.unlock() }
         let expiration = expiration ?? NeoImageConstants.expiration
-        // The expiration indicates that already expired, no need to store.
+
         guard !expiration.isExpired else {
             return
         }
@@ -100,11 +77,30 @@ public class MemoryStorage: @unchecked Sendable {
         guard let object = storage.object(forKey: key as NSString) else {
             return nil
         }
+
         if object.isExpired {
             return nil
         }
+
         object.extendExpiration(extendingExpiration)
         return object.value
+    }
+
+    private func setupCleanTask() {
+        // Timer 대신 Task로 주기적인 정리 작업 수행
+        cleanTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 120 * 1_000_000_000)
+
+                // 취소 확인
+                if Task.isCancelled {
+                    break
+                }
+
+                // 만료된 항목 제거
+                removeExpired()
+            }
+        }
     }
 }
 

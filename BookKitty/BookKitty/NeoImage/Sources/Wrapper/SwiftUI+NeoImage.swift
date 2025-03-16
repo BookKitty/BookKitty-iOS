@@ -7,7 +7,7 @@ class NeoImageBinder: ObservableObject {
     // MARK: - Properties
 
     /// 다운로드 작업 정보
-    var imageTask: ImageTask?
+    var downloadTask: DownloadTask?
     // 이미지 로딩 상태와 결과
     @Published var loaded = false
     @Published var animating = false
@@ -38,7 +38,7 @@ class NeoImageBinder: ObservableObject {
     }
 
     /// 이미지 로딩 시작
-    func start(url: URL?, options: NeoImageOptions?) async {
+    func start(url: URL?, options _: NeoImageOptions?) async {
         guard let url else {
             loading = false
             markLoaded()
@@ -48,28 +48,44 @@ class NeoImageBinder: ObservableObject {
         loading = true
         progress = .init()
 
-        do {
-            // 이미지 매니저를 통해 다운로드
-            let result = try await NeoImageManager.shared.downloadImage(with: url, options: options)
+        // 캐시에서 먼저 확인
+        let cacheKey = url.absoluteString
+        if let cachedData = try? await ImageCache.shared.retrieveImage(key: cacheKey),
+           let cachedImage = UIImage(data: cachedData) {
+            loadedImage = cachedImage
+            loading = false
+            markLoaded()
+            return
+        }
 
-            await MainActor.run {
-                loadedImage = result.image
-                loading = false
-                markLoaded()
-            }
+        // 기존 다운로드 작업이 있으면 취소
+        if let task = downloadTask {
+            await task.cancel()
+            downloadTask = nil
+        }
+
+        do {
+            // 다운로드 태스크 생성 및 저장
+            let task = try await ImageDownloader.default.createTask(with: url)
+            downloadTask = task
+
+            // 다운로드 수행
+            let result = try await ImageDownloader.default.downloadImage(with: task, for: url)
+
+            loadedImage = result.image
+            loading = false
+            markLoaded()
         } catch {
-            await MainActor.run {
-                loadedImage = nil
-                loading = false
-                markLoaded()
-            }
+            loadedImage = nil
+            loading = false
+            markLoaded()
         }
     }
 
     /// 로딩 취소
     func cancel() async {
-        await imageTask?.cancel()
-        imageTask = nil
+        await downloadTask?.cancel()
+        downloadTask = nil
         loading = false
     }
 }
@@ -183,22 +199,10 @@ public struct NeoImage: View {
         return result
     }
 
-    /// 이미지 프로세서 설정 모디파이어
-    public func processor(_ processor: ImageProcessing) -> NeoImage {
-        var result = self
-        result.options = NeoImageOptions(
-            processor: processor,
-            transition: result.options.transition,
-            cacheExpiration: result.options.cacheExpiration
-        )
-        return result
-    }
-
     /// 페이드 트랜지션 설정
     public func fade(duration: TimeInterval = 0.3) -> NeoImage {
         var result = self
         result.options = NeoImageOptions(
-            processor: result.options.processor,
             transition: .fade(duration),
             cacheExpiration: result.options.cacheExpiration
         )
@@ -259,7 +263,7 @@ public struct NeoImage: View {
                 // 성공 콜백 호출
                 let result = ImageLoadingResult(image: image, url: url, originalData: Data())
                 onSuccess?(result)
-            } else if url != nil {
+            } else if url != nil, binder.loadedImage == nil {
                 // 실패 콜백 호출
                 onFailure?(NeoImageError.responseError(reason: .invalidImageData))
             }

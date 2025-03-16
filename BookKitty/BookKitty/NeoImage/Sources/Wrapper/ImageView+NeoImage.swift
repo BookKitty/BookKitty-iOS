@@ -37,11 +37,12 @@ extension NeoImageWrapper where Base: UIImageView {
         with url: URL?,
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil
-    ) async throws -> (ImageLoadingResult, ImageTask?) {
+    ) async throws -> ImageLoadingResult {
         // 이미지뷰가 실제로 화면에 표시되어 있는지 여부 파악,
         // 이는 Swift 6로 오면서 비동기 작업으로 간주되기 시작함.
+        let startTime = Date()
         guard await base.window != nil else {
-            throw CacheError.invalidData
+            throw NeoImageError.responseError(reason: .invalidImageData)
         }
 
         if let placeholder {
@@ -52,76 +53,90 @@ extension NeoImageWrapper where Base: UIImageView {
                 base.image = placeholder
             }
         }
-        // TODO: gray로 차선책 placeholder 렌더 넣기
 
-        guard let url else {
-            throw CacheError.invalidData
+        guard let url
+        else {
+            throw NeoImageError.responseError(reason: .networkError(description: "url invalid"))
         }
 
-        // TODO: ImageTask 연결하기
-        // UIImageView에 연결된 ImageTask를 가져옵니다
-        // 현재 진행 중인 다운로드 작업이 있는지 확인하는데 사용됩니다
+        let cacheKey = url.absoluteString
+
+        if let cachedData = try? await ImageCache.shared.retrieveImage(key: cacheKey),
+           let cachedImage = UIImage(data: cachedData) {
+            await MainActor.run { [weak base] in
+                guard let base else {
+                    return
+                }
+                base.image = cachedImage
+                applyTransition(to: base, with: options?.transition)
+                let elapsedTime = Date().timeIntervalSince(startTime)
+                print("loaded in \(String(format: "%.3f", elapsedTime)) seconds")
+            }
+
+            return ImageLoadingResult(
+                image: cachedImage,
+                url: url,
+                originalData: cachedData
+            )
+        }
+
         if let task = objc_getAssociatedObject(
             base,
-            NeoImageConstants.associatedKey
-        ) as? ImageTask {
-            await task.cancel()
-            await setImageDownloadTask(nil)
+            &AssociatedKeys.downloadTask
+        ) as? DownloadTask {
+            try await task.cancelWithError()
+            setImageDownloadTask(nil)
         }
 
-        let imageTask = ImageTask()
-        await setImageDownloadTask(imageTask)
+        let downloadTask = try await ImageDownloader.default.createTask(with: url)
+        setImageDownloadTask(downloadTask)
 
-        // NeoImageManager를 사용해 이미지 다운로드 (캐시 확인 + 이미지 후처리)
-        let downloadResult = try await NeoImageManager.shared.downloadImage(
-            with: url,
-            options: options
-        )
-        try Task.checkCancellation()
-
+        let result = try await ImageDownloader.default.downloadImage(with: downloadTask, for: url)
         // UI 업데이트
         await MainActor.run { [weak base] in
             guard let base else {
                 return
             }
-            base.image = downloadResult.image
+            base.image = result.image
             applyTransition(to: base, with: options?.transition)
         }
-//        imageTask.setDownloadTask(down)
-        return (downloadResult, imageTask)
+
+        return result
     }
 
     // MARK: - Wrapper
 
     /// `Public Async API`
     /// async/await 패턴이 적용된 환경에서 사용가능한 래퍼 메서드입니다.
+    @discardableResult
     public func setImage(
         with url: URL?,
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil
     ) async throws -> ImageLoadingResult {
-        let (result, _) = try await setImageAsync(
+        let currentTime = Date()
+        let result = try await setImageAsync(
             with: url,
             placeholder: placeholder,
             options: options
         )
 
+        print(
+            "**setImageAsync Done: \(String(format: "%.6f", Date().timeIntervalSince(currentTime)))"
+        )
         return result
     }
 
     /// `Public Completion Handler API`
-    @discardableResult
     public func setImage(
         with url: URL?,
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil,
         completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
-    ) -> ImageTask? {
-        let task = ImageTask()
-
+    ) {
         Task { @MainActor in
             do {
-                let (result, _) = try await setImageAsync(
+                let result = try await setImageAsync(
                     with: url,
                     placeholder: placeholder,
                     options: options
@@ -129,12 +144,9 @@ extension NeoImageWrapper where Base: UIImageView {
 
                 completion?(.success(result))
             } catch {
-                await task.fail()
                 completion?(.failure(error))
             }
         }
-
-        return task
     }
 
     @MainActor
@@ -167,11 +179,11 @@ extension NeoImageWrapper where Base: UIImageView {
 
     // MARK: - Task Management
 
-    /// UIImageView는 기본적으로 ImageTask를 저장할 프로퍼티가 없습니다.
+    /// UIImageView는 기본적으로 DownloadTask를 저장할 프로퍼티가 없습니다.
     ///
-    /// 따라서, Objective-C의 런타임 기능을 사용해 UIImageView 인스턴스에 ImageTask를 동적으로 연결하여 저장합니다,
+    /// 따라서, Objective-C의 런타임 기능을 사용해 UIImageView 인스턴스에 DownloadTask를 동적으로 연결하여 저장합니다,
     /// 현재 진행중인 이미지 다운로드 작업 추적에 사용됩니다.
-    private func setImageDownloadTask(_ task: ImageTask?) async {
+    public func setImageDownloadTask(_ task: DownloadTask?) {
         // 모든 NSObject의 하위 클래스에 대해 사용할 수 있는 메서드이며, SWift에서는 @obj 마킹이 된 클래스도 대상으로 설정이 가능합니다.
         // 순수 Swift 타입인 struct와 enum, class에는 사용이 불가하기 때문에, NSObject를 상속하거나 @objc 속성을 사용해야 합니다.
         // - `UIView` 및 모든 하위 클래스
@@ -183,10 +195,9 @@ extension NeoImageWrapper where Base: UIImageView {
         // - NSArray
         // - NSDictionary
         // - URLSession
-
         objc_setAssociatedObject(
             base, // 대상 객체 (UIImageView)
-            NeoImageConstants.associatedKey, // 키 값
+            &AssociatedKeys.downloadTask, // 키 값
             task, // 저장할 값
             .OBJC_ASSOCIATION_RETAIN_NONATOMIC // 메모리 관리 정책
         )

@@ -36,6 +36,8 @@ public final class ImageCache: Sendable {
             fileManager: .default
         )
 
+        NeoLogger.shared.debug("initialized")
+
         Task { @MainActor in
             let notifications: [(Notification.Name, Selector)]
             notifications = [
@@ -50,7 +52,7 @@ public final class ImageCache: Sendable {
                     name: notification.0,
                     object: nil
                 )
-            } // 각 알림에 대해 옵저버 등록
+            }
         }
     }
 
@@ -59,46 +61,46 @@ public final class ImageCache: Sendable {
     /// 메모리와 디스크 캐시에 모두 데이터를 저장합니다.
     public func store(
         _ data: Data,
-        forKey key: String,
-        expiration: StorageExpiration? = nil
+        forKey key: String
     ) async throws {
-        memoryStorage.store(value: data, forKey: key, expiration: expiration)
+        await memoryStorage.store(value: data, forKey: key)
 
-        try await diskStorage.store(
-            value: data,
-            forKey: key,
-            expiration: expiration
-        )
+        try await diskStorage.store(value: data, forKey: key)
     }
 
-    public func retrieveImage(forKey key: String) async throws -> Data? {
-        if let memoryData = memoryStorage.value(forKey: key) {
+    public func retrieveImage(key: String) async throws -> Data? {
+        if let memoryData = await memoryStorage.value(forKey: key) {
+            print("Retriving from memory")
             return memoryData
         }
 
         let diskData = try await diskStorage.value(forKey: key)
 
         if let diskData {
-            memoryStorage.store(
-                value: diskData,
-                forKey: key,
-                expiration: .days(7)
-            )
+            await memoryStorage.store(value: diskData, forKey: key, expiration: .days(7))
         }
 
         return diskData
     }
 
     /// 메모리와 디스크 모두에 존재하는 모든 데이터를 제거합니다.
-    public func clearCache() async throws {
-        memoryStorage.removeAll()
+    public func clearCache() {
+        Task {
+            do {
+                await memoryStorage.removeAll()
 
-        try await diskStorage.removeAll()
+                try await diskStorage.removeAll()
+            } catch {
+                NeoLogger.shared.error("diskStorage clear failed")
+            }
+        }
     }
 
     @objc
     public func clearMemoryCache() {
-        memoryStorage.removeAll()
+        Task {
+            await memoryStorage.removeAll()
+        }
     }
 
     @objc
