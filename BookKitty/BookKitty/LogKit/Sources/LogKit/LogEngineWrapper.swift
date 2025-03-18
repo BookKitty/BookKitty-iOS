@@ -1,26 +1,41 @@
 import Foundation
 import OSLog
 
+/// 로거를 식별하기 위한 키 구조체
 struct LoggerKey: Hashable {
     let subSystem: LogSubSystem
     let category: LogCategory
 }
 
-/// 단순히 전역 액터 속성만 정의하는 것이 아니라, 로깅 인터페이스도 제공
-@globalActor
-public actor LogKitActor {
+/// 로깅 엔진의 싱글톤 래퍼 클래스
+/// 스레드 안전성 및 FIFO 순서대로 작업됨을 보장하기 위해 시리얼 큐를 사용하여 로깅 작업을 처리합니다.
+final class LogEngineWrapper: @unchecked Sendable {
     // MARK: - Static Properties
 
-    public static let shared = LogKitActor()
+    /// 공유 인스턴스
+    public static let shared = LogEngineWrapper()
 
     // MARK: - Properties
+    
+    /// 로깅 작업을 직렬화하기 위한 시리얼 큐
+    private let queue = DispatchQueue(label: "com.bookKitty.logkit.serial", qos: .utility)
 
-    /// _LogKit의 인스턴스를 직접 관리
-    private let logKit = _LogKit()
+    /// 실제 로깅 작업을 수행하는 엔진 인스턴스
+    private let logEngine = LogEngine()
+    
+    private init() {}
 
     // MARK: - Functions
 
-    /// _LogKit의 메서드를 액터 내부에서 호출
+    /// 로그를 기록하는 메인 메서드
+    /// - Parameters:
+    ///   - level: 로그 레벨
+    ///   - message: 로그 메시지
+    ///   - subSystem: 로그 서브시스템 (기본값: .app)
+    ///   - category: 로그 카테고리 (기본값: .general)
+    ///   - file: 로그가 발생한 파일
+    ///   - function: 로그가 발생한 함수
+    ///   - line: 로그가 발생한 라인 번호
     public func log(
         _ level: LogLevel,
         message: String,
@@ -30,35 +45,47 @@ public actor LogKitActor {
         function: String = #function,
         line: Int = #line
     ) {
-        // 액터 내부에서는 await 없이 동기적으로 호출 가능
-        logKit.log(
-            level,
-            message: message,
-            subSystem: subSystem,
-            category: category,
-            file: file,
-            function: function,
-            line: line
-        )
+        queue.async {
+            self.logEngine.log(
+                level,
+                message: message,
+                subSystem: subSystem,
+                category: category,
+                file: file,
+                function: function,
+                line: line
+            )
+        }
     }
 }
 
-final class _LogKit {
+/// 실제 로깅 작업을 수행하는 엔진 클래스
+final class LogEngine {
     // MARK: - Properties
 
-    /// @globalActor를 사용해 shared 인스턴스에만 격리 도메인을 지정하는 것은 동시성 격리를 부분적으로 선택적으로 적용
-    /// 어떤 부분이 격리되어야 하고 어떤 부분이 일반 동기 코드로 실행되어도 되는지 더 세밀하게 제어
-    /// 실제로 모든 코드가 항상 격리될 필요는 없기 때문에 성능상 이점도 존재
-    /// 공유 자원에 대한 접근은 조정해야 하지만, 모든 기능이 액터 내부에 있을 필요는 없는 경우 적합
+    /// 로그 타임스탬프 포맷팅을 위한 DateFormatter
     private let dateFormatter: DateFormatter
+    
+    /// 파일 연산을 위한 FileManager 인스턴스
     private let fileManager: FileManager
+    
+    /// 서브시스템과 카테고리별 로거 캐시
     private var loggers: [LoggerKey: Logger] = [:]
 
-    private let appStartTime: String
+    /// 로그 엔진 시작 시간 문자열
+    private let logEngineStartTime: String
+    
+    /// 현재 CSV 파일 ID
     private var currentCSVFileID = 1
+    
+    /// 현재 CSV 파일 URL
     private var currentCSVFileURL: URL?
+    
+    /// 현재 CSV 파일 크기
     private var currentCSVFileSize: UInt64 = 0
-    private let maxCSVFileSize: UInt64 = 60 * 1024 // 60KB
+    
+    /// 최대 CSV 파일 크기 (60KB)
+    private let maxCSVFileSize: UInt64 = 60 * 1024
 
     // MARK: - Lifecycle
 
@@ -70,7 +97,7 @@ final class _LogKit {
 
         let startTimeFormatter = DateFormatter()
         startTimeFormatter.dateFormat = "yyyyMMdd_HHmm"
-        appStartTime = startTimeFormatter.string(from: Date())
+        logEngineStartTime = startTimeFormatter.string(from: Date())
 
         initializeLoggers()
         createNewCSVFile()
@@ -136,7 +163,7 @@ final class _LogKit {
 
     private func createNewCSVFile() {
         let documentsPath = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        let fileName = "\(appStartTime)-\(currentCSVFileID).csv"
+        let fileName = "\(logEngineStartTime)-\(currentCSVFileID).csv"
         let fileURL = documentsPath.appendingPathComponent(fileName)
 
         // CSV 헤더 생성

@@ -15,7 +15,7 @@ public enum LogCategory: String, CaseIterable, Sendable {
     case lifecycle = "lifecycle"
 }
 
-public enum LogLevel: String {
+public enum LogLevel: String, Sendable {
     case debug = "DEBUG"
     case info = "INFO"
     case log = "LOG"
