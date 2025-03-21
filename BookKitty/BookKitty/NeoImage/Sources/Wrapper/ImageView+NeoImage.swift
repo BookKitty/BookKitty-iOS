@@ -36,11 +36,11 @@ extension NeoImageWrapper where Base: UIImageView {
     private func setImageAsync(
         with url: URL?,
         placeholder: UIImage? = nil,
-        options: NeoImageOptions? = nil
+        options: NeoImageOptions? = nil,
+        isPriority: Bool = false
     ) async throws -> ImageLoadingResult {
         // 이미지뷰가 실제로 화면에 표시되어 있는지 여부 파악,
         // 이는 Swift 6로 오면서 비동기 작업으로 간주되기 시작함.
-        let startTime = Date()
         guard await base.window != nil else {
             throw NeoImageError.responseError(reason: .invalidImageData)
         }
@@ -50,27 +50,27 @@ extension NeoImageWrapper where Base: UIImageView {
                 guard let base else {
                     return
                 }
+
                 base.image = placeholder
             }
         }
 
-        guard let url
-        else {
+        guard let url else {
             throw NeoImageError.responseError(reason: .networkError(description: "url invalid"))
         }
 
-        let cacheKey = url.absoluteString
+        let _hashedKey = url.absoluteString.sha256
+        let hashedKey = isPriority ? "priority_\(_hashedKey)" : _hashedKey
 
-        if let cachedData = try? await ImageCache.shared.retrieveImage(key: cacheKey),
+        if let cachedData = try? await ImageCache.shared.retrieveImage(hashedKey: hashedKey),
            let cachedImage = UIImage(data: cachedData) {
             await MainActor.run { [weak base] in
                 guard let base else {
                     return
                 }
+
                 base.image = cachedImage
                 applyTransition(to: base, with: options?.transition)
-                let elapsedTime = Date().timeIntervalSince(startTime)
-                print("loaded in \(String(format: "%.3f", elapsedTime)) seconds")
             }
 
             return ImageLoadingResult(
@@ -91,12 +91,17 @@ extension NeoImageWrapper where Base: UIImageView {
         let downloadTask = try await ImageDownloader.default.createTask(with: url)
         setImageDownloadTask(downloadTask)
 
-        let result = try await ImageDownloader.default.downloadImage(with: downloadTask, for: url)
-        // UI 업데이트
+        let result = try await ImageDownloader.default.downloadImage(
+            with: downloadTask,
+            for: url,
+            hashedKey: hashedKey
+        )
+
         await MainActor.run { [weak base] in
             guard let base else {
                 return
             }
+
             base.image = result.image
             applyTransition(to: base, with: options?.transition)
         }
@@ -114,17 +119,11 @@ extension NeoImageWrapper where Base: UIImageView {
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil
     ) async throws -> ImageLoadingResult {
-        let currentTime = Date()
-        let result = try await setImageAsync(
+        try await setImageAsync(
             with: url,
             placeholder: placeholder,
             options: options
         )
-
-        print(
-            "**setImageAsync Done: \(String(format: "%.6f", Date().timeIntervalSince(currentTime)))"
-        )
-        return result
     }
 
     /// `Public Completion Handler API`
@@ -132,6 +131,7 @@ extension NeoImageWrapper where Base: UIImageView {
         with url: URL?,
         placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil,
+        isPriority: Bool = false,
         completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
     ) {
         Task { @MainActor in
@@ -139,7 +139,8 @@ extension NeoImageWrapper where Base: UIImageView {
                 let result = try await setImageAsync(
                     with: url,
                     placeholder: placeholder,
-                    options: options
+                    options: options,
+                    isPriority: isPriority
                 )
 
                 completion?(.success(result))

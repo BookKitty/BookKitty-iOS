@@ -77,7 +77,7 @@ struct LocalBookRepository: BookRepository {
             isbnList: isbnList,
             context: context
         )
-        BookKittyLogger.log("ISBN 배열로부터 책 가져오기 성공")
+//        BookKittyLogger.log("ISBN 배열로부터 책 가져오기 성공")
         return bookEntities.compactMap { bookCoreDataManager.entityToModel(entity: $0) }
     }
 
