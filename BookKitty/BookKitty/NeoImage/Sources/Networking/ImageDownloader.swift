@@ -66,7 +66,8 @@ public final class ImageDownloader: Sendable {
     @discardableResult
     public func downloadImage(
         with downloadTask: DownloadTask,
-        for url: URL
+        for url: URL,
+        hashedKey: String
     ) async throws -> ImageLoadingResult {
         let imageData = try await downloadImageData(with: downloadTask)
 
@@ -74,10 +75,12 @@ public final class ImageDownloader: Sendable {
             throw NeoImageError.responseError(reason: .invalidImageData)
         }
 
-        let cacheKey = url.absoluteString
-        try? await ImageCache.shared.store(imageData, forKey: cacheKey)
+        try? await ImageCache.shared.store(
+            imageData,
+            for: hashedKey
+        )
 
-        NeoLogger.shared.debug("Image stored in cache with key: \(cacheKey)")
+        NeoLogger.shared.debug("Image stored in cache with key: \(url.absoluteString)")
 
         return ImageLoadingResult(
             image: image,

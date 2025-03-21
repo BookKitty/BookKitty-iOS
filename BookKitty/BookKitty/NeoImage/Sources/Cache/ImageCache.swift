@@ -31,10 +31,7 @@ public final class ImageCache: Sendable {
             totalCostLimit: min(Int.max, Int(memoryLimit))
         )
 
-        diskStorage = DiskStorage<Data>(
-            name: name,
-            fileManager: .default
-        )
+        diskStorage = DiskStorage<Data>(fileManager: .default)
 
         NeoLogger.shared.debug("initialized")
 
@@ -54,6 +51,10 @@ public final class ImageCache: Sendable {
                 )
             }
         }
+
+        Task {
+            await diskStorage.preloadPriorityToMemory()
+        }
     }
 
     // MARK: - Functions
@@ -61,23 +62,23 @@ public final class ImageCache: Sendable {
     /// 메모리와 디스크 캐시에 모두 데이터를 저장합니다.
     public func store(
         _ data: Data,
-        forKey key: String
+        for hashedKey: String
     ) async throws {
-        await memoryStorage.store(value: data, forKey: key)
+        await memoryStorage.store(value: data, for: hashedKey)
 
-        try await diskStorage.store(value: data, forKey: key)
+        try await diskStorage.store(value: data, for: hashedKey)
     }
 
-    public func retrieveImage(key: String) async throws -> Data? {
-        if let memoryData = await memoryStorage.value(forKey: key) {
-            print("Retriving from memory")
+    public func retrieveImage(hashedKey: String) async throws -> Data? {
+        if let memoryData = await memoryStorage.value(forKey: hashedKey) {
+            print("hashedKey from retrieveImage:", hashedKey)
             return memoryData
         }
 
-        let diskData = try await diskStorage.value(forKey: key)
+        let diskData = try await diskStorage.value(for: hashedKey)
 
         if let diskData {
-            await memoryStorage.store(value: diskData, forKey: key, expiration: .days(7))
+            await memoryStorage.store(value: diskData, for: hashedKey, expiration: .days(7))
         }
 
         return diskData

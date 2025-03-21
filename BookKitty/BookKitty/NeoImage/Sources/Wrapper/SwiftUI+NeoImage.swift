@@ -37,7 +37,6 @@ class NeoImageBinder: ObservableObject {
         loaded = true
     }
 
-    /// 이미지 로딩 시작
     func start(url: URL?, options _: NeoImageOptions?) async {
         guard let url else {
             loading = false
@@ -48,9 +47,8 @@ class NeoImageBinder: ObservableObject {
         loading = true
         progress = .init()
 
-        // 캐시에서 먼저 확인
-        let cacheKey = url.absoluteString
-        if let cachedData = try? await ImageCache.shared.retrieveImage(key: cacheKey),
+        let hashedKey = url.absoluteString.sha256
+        if let cachedData = try? await ImageCache.shared.retrieveImage(hashedKey: hashedKey),
            let cachedImage = UIImage(data: cachedData) {
             loadedImage = cachedImage
             loading = false
@@ -58,18 +56,15 @@ class NeoImageBinder: ObservableObject {
             return
         }
 
-        // 기존 다운로드 작업이 있으면 취소
         if let task = downloadTask {
             await task.cancel()
             downloadTask = nil
         }
 
         do {
-            // 다운로드 태스크 생성 및 저장
             let task = try await ImageDownloader.default.createTask(with: url)
             downloadTask = task
 
-            // 다운로드 수행
             let result = try await ImageDownloader.default.downloadImage(with: task, for: url)
 
             loadedImage = result.image
@@ -82,7 +77,6 @@ class NeoImageBinder: ObservableObject {
         }
     }
 
-    /// 로딩 취소
     func cancel() async {
         await downloadTask?.cancel()
         downloadTask = nil

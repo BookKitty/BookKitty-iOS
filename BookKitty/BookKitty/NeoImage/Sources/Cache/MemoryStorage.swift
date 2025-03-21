@@ -43,9 +43,9 @@ public actor MemoryStorage {
     }
 
     /// 캐시에서 제거
-    public func remove(forKey key: String) {
-        storage.removeObject(forKey: key as NSString)
-        keys.remove(key)
+    public func remove(forKey hashedKey: String) {
+        storage.removeObject(forKey: hashedKey as NSString)
+        keys.remove(hashedKey)
     }
 
     /// Removes all values in this storage.
@@ -57,7 +57,7 @@ public actor MemoryStorage {
     /// 캐시에 저장
     func store(
         value: Data,
-        forKey key: String,
+        for hashedKey: String,
         expiration: StorageExpiration? = nil
     ) {
         let expiration = expiration ?? NeoImageConstants.expiration
@@ -68,13 +68,17 @@ public actor MemoryStorage {
 
         let object = StorageObject(value as Data, expiration: expiration)
 
-        storage.setObject(object, forKey: key as NSString)
-        keys.insert(key)
+        storage.setObject(object, forKey: hashedKey as NSString)
+
+        keys.insert(hashedKey)
     }
 
     /// 캐시에서 조회
-    func value(forKey key: String, extendingExpiration: ExpirationExtending = .cacheTime) -> Data? {
-        guard let object = storage.object(forKey: key as NSString) else {
+    func value(
+        forKey hashedKey: String,
+        extendingExpiration: ExpirationExtending = .cacheTime
+    ) -> Data? {
+        guard let object = storage.object(forKey: hashedKey as NSString) else {
             return nil
         }
 
