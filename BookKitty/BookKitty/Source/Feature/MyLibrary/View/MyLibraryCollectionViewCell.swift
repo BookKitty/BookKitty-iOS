@@ -41,9 +41,18 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
 
     // MARK: - Functions
 
-    // TODO: 고도화 필요
     func configureCell(imageUrl: URL?) {
-        cellImageView.neo.setImage(with: imageUrl)
+        let startTime = Date()
+        
+        cellImageView.neo.setImage(with: imageUrl, isPriority: false) { result in
+            switch result {
+            case .success:
+                let elapsedTime = Date().timeIntervalSince(startTime)
+                print("loaded with NeoImage in \(String(format: "%.5f", elapsedTime)) seconds")
+            case let .failure(error):
+                print("Error loading image with Kingfisher: \(error)")
+            }
+        }
     }
 
     private func configureHierarchy() {
