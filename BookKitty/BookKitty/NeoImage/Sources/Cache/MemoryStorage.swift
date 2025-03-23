@@ -1,7 +1,6 @@
 import Foundation
 
 public actor MemoryStorage {
-    // MARK: - Properties
 
     var keys = Set<String>()
 
@@ -44,14 +43,47 @@ public actor MemoryStorage {
 
     /// 캐시에서 제거
     public func remove(forKey hashedKey: String) {
+        let otherKey: String
+        if hashedKey.hasPrefix("priority_") {
+            otherKey = hashedKey.replacingOccurrences(of: "priority_", with: "")
+        } else {
+            otherKey = "priority_" + hashedKey
+        }
+
         storage.removeObject(forKey: hashedKey as NSString)
         keys.remove(hashedKey)
+
+        storage.removeObject(forKey: otherKey as NSString)
+        keys.remove(otherKey)
     }
 
     /// Removes all values in this storage.
     public func removeAll() {
         storage.removeAllObjects()
         keys.removeAll()
+    }
+
+    public func removeAllExceptPriority() async {
+        let priorityKeys = keys.filter { $0.hasPrefix("priority_") }
+
+        var priorityImagesData: [String: Data] = [:]
+
+        for key in priorityKeys {
+            if let data = value(forKey: key) {
+                priorityImagesData[key] = data
+            }
+        }
+
+        removeAll()
+
+        for (key, data) in priorityImagesData {
+            store(value: data, for: key, expiration: .days(7))
+
+            let originalKey = key.replacingOccurrences(of: "priority_", with: "")
+            store(value: data, for: originalKey, expiration: .days(7))
+        }
+
+        NeoLogger.shared.info("메모리 캐시 정리 완료: 우선순위 이미지 \(priorityImagesData.count)개 유지")
     }
 
     /// 캐시에 저장

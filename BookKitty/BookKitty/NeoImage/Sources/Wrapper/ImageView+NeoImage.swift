@@ -35,7 +35,6 @@ extension NeoImageWrapper where Base: UIImageView {
     @discardableResult // Return type을 strict하게 확인하지 않습니다.
     private func setImageAsync(
         with url: URL?,
-        placeholder: UIImage? = nil,
         options: NeoImageOptions? = nil,
         isPriority: Bool = false
     ) async throws -> ImageLoadingResult {
@@ -45,14 +44,19 @@ extension NeoImageWrapper where Base: UIImageView {
             throw NeoImageError.responseError(reason: .invalidImageData)
         }
 
-        if let placeholder {
-            await MainActor.run { [weak base] in
-                guard let base else {
-                    return
-                }
-
-                base.image = placeholder
+        await MainActor.run { [weak base] in
+            guard let base else {
+                return
             }
+
+            let size = base.bounds.size
+            let renderer = UIGraphicsImageRenderer(size: size)
+            let lightGrayImage = renderer.image { context in
+                UIColor.lightGray.withAlphaComponent(0.3).setFill()
+                context.fill(CGRect(origin: .zero, size: size))
+            }
+
+            base.image = lightGrayImage
         }
 
         guard let url else {
@@ -116,12 +120,11 @@ extension NeoImageWrapper where Base: UIImageView {
     @discardableResult
     public func setImage(
         with url: URL?,
-        placeholder: UIImage? = nil,
+        placeholder _: UIImage? = nil,
         options: NeoImageOptions? = nil
     ) async throws -> ImageLoadingResult {
         try await setImageAsync(
             with: url,
-            placeholder: placeholder,
             options: options
         )
     }
@@ -129,7 +132,7 @@ extension NeoImageWrapper where Base: UIImageView {
     /// `Public Completion Handler API`
     public func setImage(
         with url: URL?,
-        placeholder: UIImage? = nil,
+        placeholder _: UIImage? = nil,
         options: NeoImageOptions? = nil,
         isPriority: Bool = false,
         completion: (@MainActor @Sendable (Result<ImageLoadingResult, Error>) -> Void)? = nil
@@ -138,7 +141,6 @@ extension NeoImageWrapper where Base: UIImageView {
             do {
                 let result = try await setImageAsync(
                     with: url,
-                    placeholder: placeholder,
                     options: options,
                     isPriority: isPriority
                 )

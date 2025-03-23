@@ -16,12 +16,12 @@ public actor DiskStorage<T: DataTransformable> {
     ) {
         self.fileManager = fileManager
         let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        
+
         directoryURL = url.appendingPathComponent(
             "com.neon.NeoImage.ImageCache.default",
             isDirectory: true
         )
-        
+
         Task {
             await setupCacheChecking()
             try? await prepareDirectory()
@@ -129,8 +129,18 @@ public actor DiskStorage<T: DataTransformable> {
 
     /// 특정 키에 해당하는 파일을 삭제하는 메서드
     func remove(for hashedKey: String) async throws {
+        let otherKey: String
+        if hashedKey.hasPrefix("priority_") {
+            otherKey = hashedKey.replacingOccurrences(of: "priority_", with: "")
+        } else {
+            otherKey = "priority_" + hashedKey
+        }
+
         let fileURL = cacheFileURL(for: hashedKey)
         try fileManager.removeItem(at: fileURL)
+
+        let otherKeyFileURL = cacheFileURL(for: otherKey)
+        try fileManager.removeItem(at: otherKeyFileURL)
     }
 
     /// 디렉토리 내의 모든 파일을 삭제하는 메서드
