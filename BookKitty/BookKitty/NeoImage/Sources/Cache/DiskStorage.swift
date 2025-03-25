@@ -30,13 +30,13 @@ public actor DiskStorage<T: DataTransformable> {
 
     // MARK: - Functions
 
-    func store(value: T, for hashedKey: String, expiration: StorageExpiration? = nil) async throws {
     func store(value: T, for hashedKey: String) async throws {
         guard storageReady else {
             throw NeoImageError.cacheError(reason: .storageNotReady)
         }
 
         let expiration = hashedKey.hasPrefix("priority_") ? NeoImageConstants
+            .expirationForPriority : NeoImageConstants.expiration
 
         guard !expiration.isExpired else {
             return
@@ -129,7 +129,6 @@ public actor DiskStorage<T: DataTransformable> {
 
     /// 특정 키에 해당하는 파일을 삭제하는 메서드
     func remove(for hashedKey: String) async throws {
-        } else {
         let fileURL = cacheFileURL(for: hashedKey)
         try fileManager.removeItem(at: fileURL)
     }
