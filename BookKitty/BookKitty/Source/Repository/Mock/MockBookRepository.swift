@@ -105,7 +105,5 @@ final class MockBookRepository: BookRepository {
     func recodeOwnedBooksCount() {
         let count = mockBookList.filter { $0.isOwned == true }
             .count
-
-        print(count)
     }
 }

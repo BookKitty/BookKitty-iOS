@@ -8,17 +8,23 @@ let package = Package(
     platforms: [.iOS(.v16)],
     products: [
         .library(
-            name: "NeoImage",
-            targets: ["NeoImage"]
+            name: "NeoImage", targets: ["NeoImage"]
         ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/onevcat/Kingfisher", from: "8.3.0"),
     ],
     targets: [
         .target(
-            name: "NeoImage"
+            name: "NeoImage",
+            path: "Sources"
         ),
         .testTarget(
-            name: "NeoImageTests",
-            dependencies: ["NeoImage"]
+            name: "ImageViewExtensionTests",
+            dependencies: [
+                "NeoImage",
+                .product(name: "Kingfisher", package: "Kingfisher"),
+            ]
         ),
     ]
 )
