@@ -43,8 +43,8 @@ final class MyLibraryCollectionViewCell: UICollectionViewCell {
 
     func configureCell(imageUrl: URL?) {
         let startTime = Date()
-        
-        cellImageView.neo.setImage(with: imageUrl, isPriority: false) { result in
+
+        cellImageView.neo.setImage(with: imageUrl, isPriority: true) { result in
             switch result {
             case .success:
                 let elapsedTime = Date().timeIntervalSince(startTime)

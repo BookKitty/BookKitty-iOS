@@ -31,11 +31,12 @@ public actor DiskStorage<T: DataTransformable> {
     // MARK: - Functions
 
     func store(value: T, for hashedKey: String, expiration: StorageExpiration? = nil) async throws {
+    func store(value: T, for hashedKey: String) async throws {
         guard storageReady else {
             throw NeoImageError.cacheError(reason: .storageNotReady)
         }
 
-        let expiration = expiration ?? NeoImageConstants.expiration
+        let expiration = hashedKey.hasPrefix("priority_") ? NeoImageConstants
 
         guard !expiration.isExpired else {
             return
@@ -111,7 +112,6 @@ public actor DiskStorage<T: DataTransformable> {
                 return obj
             case .cacheTime:
                 expirationDate = NeoImageConstants.expiration.estimatedExpirationSinceNow
-            // .expirationTime: 지정된 새로운 만료 시간으로 연장
             case let .expirationTime(storageExpiration):
                 expirationDate = storageExpiration.estimatedExpirationSinceNow
             }
@@ -129,18 +129,9 @@ public actor DiskStorage<T: DataTransformable> {
 
     /// 특정 키에 해당하는 파일을 삭제하는 메서드
     func remove(for hashedKey: String) async throws {
-        let otherKey: String
-        if hashedKey.hasPrefix("priority_") {
-            otherKey = hashedKey.replacingOccurrences(of: "priority_", with: "")
         } else {
-            otherKey = "priority_" + hashedKey
-        }
-
         let fileURL = cacheFileURL(for: hashedKey)
         try fileManager.removeItem(at: fileURL)
-
-        let otherKeyFileURL = cacheFileURL(for: otherKey)
-        try fileManager.removeItem(at: otherKeyFileURL)
     }
 
     /// 디렉토리 내의 모든 파일을 삭제하는 메서드
@@ -248,25 +239,22 @@ extension DiskStorage {
 
     func preloadPriorityToMemory() async {
         do {
-            let prefix = "priority_"
+            print(directoryURL)
             let fileURLs = try allFileURLs(for: [.isRegularFileKey, .nameKey])
-
             let prefixedFiles = fileURLs.filter { url in
                 let fileName = url.lastPathComponent
-                return fileName.hasPrefix(prefix)
+                return fileName.hasPrefix("priority_")
             }
 
             for fileURL in prefixedFiles {
-                let fileName = fileURL.lastPathComponent
-                let hashedKey = fileName.replacingOccurrences(of: "priority_", with: "")
+                let hashedKey = fileURL.lastPathComponent
 
-                print("fileURL from preload:", fileURL)
                 if let data = try? Data(contentsOf: fileURL) {
                     await ImageCache.shared.memoryStorage.store(value: data, for: hashedKey)
                 }
             }
 
-            NeoLogger.shared.info("우선순위 이미지 메모리 프리로드 완료")
+            NeoLogger.shared.debug("\(prefixedFiles.count)개의 우선순위 이미지 메모리 프리로드 완료")
         } catch {
             print("메모리 프리로드 중 오류 발생: \(error)")
         }

@@ -1,6 +1,7 @@
 import Foundation
 
 public actor MemoryStorage {
+    // MARK: - Properties
 
     var keys = Set<String>()
 
@@ -39,22 +40,6 @@ public actor MemoryStorage {
                 keys.remove(key)
             }
         }
-    }
-
-    /// 캐시에서 제거
-    public func remove(forKey hashedKey: String) {
-        let otherKey: String
-        if hashedKey.hasPrefix("priority_") {
-            otherKey = hashedKey.replacingOccurrences(of: "priority_", with: "")
-        } else {
-            otherKey = "priority_" + hashedKey
-        }
-
-        storage.removeObject(forKey: hashedKey as NSString)
-        keys.remove(hashedKey)
-
-        storage.removeObject(forKey: otherKey as NSString)
-        keys.remove(otherKey)
     }
 
     /// Removes all values in this storage.

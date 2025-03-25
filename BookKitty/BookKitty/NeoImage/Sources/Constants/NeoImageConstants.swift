@@ -4,4 +4,5 @@ public enum AssociatedKeys {
 
 public enum NeoImageConstants {
     public static let expiration = StorageExpiration.days(7)
+    public static let expirationForPriority = StorageExpiration.days(3)
 }

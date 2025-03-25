@@ -97,25 +97,43 @@ public final class ImageCache: Sendable {
         } else {
             otherKey = "priority_" + hashedKey
         }
-        
+
+        // 우선순위 키로 요청했는데, 일반 키로 저장되어있을때 -> 필요
+        // 우선순위 키로 요청했는데, 우선순위 키로 저장되어있을때 -> 동기화 잘 되어있음
+        // 일반 키로 요청했는데, 우선순위 키로 있을때 -> 다른 상황에서는 우선순위로 접근할 가능성 있음, 보류
+        // 일반 키로 요청했는데, 일반 키로 있을때, -> 동기화 잘 되어있음
+
         if let memoryData = await memoryStorage.value(forKey: hashedKey) {
             return memoryData
         }
-        
+
         if let memoryDataForOtherKey = await memoryStorage.value(forKey: otherKey) {
+            if isPriority {
+                changeDiskDirectoryToPriority(otherKey, memoryDataForOtherKey)
+            }
+
             return memoryDataForOtherKey
         }
-        
-        if let diskData = try await diskStorage.value(for: hashedKey){
-            await memoryStorage.store(value: diskData, for: hashedKey, expiration: .days(7))
+
+        if let diskData = try await diskStorage.value(for: hashedKey) {
+            await memoryStorage.store(value: diskData, for: hashedKey)
+
             return diskData
         }
-        
-        if let diskDataForOtherKey = try await diskStorage.value(for: otherKey){
-            await memoryStorage.store(value: diskDataForOtherKey, for: hashedKey, expiration: .days(7))
+
+        if let diskDataForOtherKey = try await diskStorage.value(for: otherKey) {
+            if isPriority {
+                changeDiskDirectoryToPriority(otherKey, diskDataForOtherKey)
+            }
+
+            await memoryStorage.store(
+                value: diskDataForOtherKey,
+                for: hashedKey
+            )
+
             return diskDataForOtherKey
         }
-        
+
         return nil
     }
 
@@ -142,6 +160,20 @@ public final class ImageCache: Sendable {
                 // 모든 이미지 제거
                 await memoryStorage.removeAll()
             }
+        }
+    }
+
+    func changeDiskDirectoryToPriority(_ originKey: String, _ value: Data) {
+        Task {
+            guard !originKey.hasPrefix("priority_"),
+                  await diskStorage.isCached(for: originKey)
+            else {
+                return
+            } // 접두사가 없는 상태에서 disk에 원본 키가 없어야함.
+            try await diskStorage.store(value: value, for: "priority_" + originKey)
+            try await diskStorage.remove(for: originKey)
+
+            NeoLogger.shared.debug("change diskStorage Directory Succeeded:\(Date())")
         }
     }
 
