@@ -48,7 +48,7 @@ public actor MemoryStorage {
         keys.removeAll()
     }
 
-    public func removeAllExceptPriority() async {
+    public func removeAllExceptPriority() {
         let priorityKeys = keys.filter { $0.hasPrefix("priority_") }
 
         var priorityImagesData: [String: Data] = [:]
