@@ -1,6 +1,7 @@
 import BookMatchAPI
 import BookMatchCore
 import BookMatchStrategy
+import LogKit
 import RxSwift
 
 public final class BookValidationService: BookValidatable {
@@ -45,7 +46,11 @@ public final class BookValidationService: BookValidatable {
         previousBooks: [RawBook],
         openAiAPI: OpenAIAPI
     ) -> Single<BookItem?> {
-        BookMatchLogger.bookConversionStarted(title: book.title, author: book.author)
+        LogKit.info(
+            "도서 매칭 중: \(book.title) : \(book.author)",
+            subSystem: .bookRecommendation,
+            category: .lifecycle
+        )
 
         var retryCount = 0
         var currentBook = book
@@ -71,9 +76,10 @@ public final class BookValidationService: BookValidatable {
                             candidates.append((matchedBook, result.similarity))
                             retryCount += 1
 
-                            BookMatchLogger.retryingBookMatch(
-                                attempt: retryCount,
-                                currentBook: matchedBook
+                            LogKit.info(
+                                "GPT에게 도서 재요청 및 재시도: \(retryCount)/3 - 현재 도서 = \(matchedBook.title) : \(matchedBook.author)",
+                                subSystem: .bookRecommendation,
+                                category: .lifecycle
                             )
 
                             return openAiAPI.getAdditionalBook(

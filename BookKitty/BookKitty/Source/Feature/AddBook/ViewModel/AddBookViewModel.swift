@@ -1,6 +1,7 @@
 import BookMatchCore
 import BookOCRKit
 import Foundation
+import LogKit
 import RxCocoa
 import RxSwift
 import UIKit
@@ -87,8 +88,7 @@ final class AddBookViewModel: ViewModelType {
 
                             },
                             onFailure: { error in
-                                BookKittyLogger
-                                    .error("Error: \(error.localizedDescription)")
+                                LogKit.error("Error: \(error.localizedDescription)")
                                 switch error {
                                 case BookMatchError.networkError:
                                     self?.errorRelay.accept(NetworkError.networkUnstable)
@@ -115,12 +115,12 @@ final class AddBookViewModel: ViewModelType {
                 if isSaved {
                     owner.navigateBackRelay.accept(())
                 } else {
-                    BookKittyLogger.log("중복된 책 에러 발생")
+                    LogKit.error("중복된 책 에러 발생")
                     owner.errorRelay.accept(AddBookError.duplicatedBook)
                 }
             }, onError: { owner, error in
                 guard let error = error as? AlertPresentableError else {
-                    BookKittyLogger.debug("error is not AlertPresentableError")
+                    LogKit.debug("error is not AlertPresentableError")
                     return
                 }
                 owner.errorRelay.accept(error)

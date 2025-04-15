@@ -18,6 +18,7 @@
 		606DA2452D42076100C7FAA3 /* Then in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2442D42076100C7FAA3 /* Then */; };
 		606DA2482D42079900C7FAA3 /* Differentiator in Frameworks */ = {isa = PBXBuildFile; productRef = 606DA2472D42079900C7FAA3 /* Differentiator */; };
 		60A1CC0E2D54A2DB00091568 /* BookRecommendationKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */; };
+		E56D6D062D73E8C500B6E6E9 /* LogKit in Frameworks */ = {isa = PBXBuildFile; productRef = E56D6D052D73E8C500B6E6E9 /* LogKit */; };
 		E5A6B99D2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
 		E5A6B99E2D5F54C300A2E06D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E5A6B99C2D5F54C300A2E06D /* PrivacyInfo.xcprivacy */; };
 		E5DE19642D62A7D3007D37E2 /* BookOCRKit in Frameworks */ = {isa = PBXBuildFile; productRef = E5DE19632D62A7D3007D37E2 /* BookOCRKit */; };
@@ -81,6 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E56D6D062D73E8C500B6E6E9 /* LogKit in Frameworks */,
 				606DA2452D42076100C7FAA3 /* Then in Frameworks */,
 				E93048662D559553008E9467 /* RxCocoa in Frameworks */,
 				E5FC698C2D52414B002875FD /* SnapKit in Frameworks */,
@@ -173,6 +175,7 @@
 				4584C5B02D685AB300173282 /* FirebaseCore */,
 				4584C5B22D685AB300173282 /* FirebaseCrashlytics */,
 				E5FFE2EF2D6A3F4200A0F7CF /* NeoImage */,
+				E56D6D052D73E8C500B6E6E9 /* LogKit */,
 			);
 			productName = BookKitty;
 			productReference = 60551C652D40E6E800CFC16A /* BookKitty.app */;
@@ -697,6 +700,10 @@
 		60A1CC0D2D54A2DB00091568 /* BookRecommendationKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BookRecommendationKit;
+		};
+		E56D6D052D73E8C500B6E6E9 /* LogKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = LogKit;
 		};
 		E5DE19632D62A7D3007D37E2 /* BookOCRKit */ = {
 			isa = XCSwiftPackageProductDependency;

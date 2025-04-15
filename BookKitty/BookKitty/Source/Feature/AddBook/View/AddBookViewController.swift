@@ -1,5 +1,6 @@
 import AVFoundation
 import DesignSystem
+import LogKit
 import RxCocoa
 import RxSwift
 import SnapKit
@@ -292,7 +293,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             return
         }
 
-        BookKittyLogger.log("📸 이미지 캡처 성공")
+        LogKit.log("이미지 캡처 성공")
         capturedImageRelay.accept(image)
     }
 
@@ -348,7 +349,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
             captureSession.sessionPreset = .photo
 
             guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-                BookKittyLogger.error("🚨 카메라 장치를 찾을 수 없음")
+                LogKit.error("카메라 장치를 찾을 수 없음")
                 return
             }
 
@@ -378,7 +379,7 @@ extension AddBookViewController: AVCapturePhotoCaptureDelegate {
                     }
                 }
             } catch {
-                BookKittyLogger.error("🚨 카메라 초기화 실패: \(error.localizedDescription)")
+                LogKit.error("카메라 초기화 실패: \(error.localizedDescription)")
             }
         }
     }

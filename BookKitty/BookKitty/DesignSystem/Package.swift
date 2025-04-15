@@ -21,6 +21,7 @@ let package = Package(
         .package(url: "https://github.com/devxoul/Then.git", from: "3.0.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.5.1"),
         .package(path: "../NeoImage"),
+        .package(path: "../LogKit"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -32,6 +33,7 @@ let package = Package(
                 .product(name: "Then", package: "Then"),
                 .product(name: "Lottie", package: "lottie-spm"),
                 .product(name: "NeoImage", package: "NeoImage"),
+                .product(name: "LogKit", package: "LogKit"),
             ],
             resources: [
                 .process("Resource/Fonts"),

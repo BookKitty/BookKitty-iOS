@@ -7,6 +7,7 @@
 
 import DesignSystem
 import FirebaseAnalytics
+import LogKit
 import RxCocoa
 import RxDataSources
 import RxRelay
@@ -160,7 +161,7 @@ class HomeViewController: BaseViewController {
         output.error
             .withUnretained(self)
             .subscribe(onNext: { _, error in
-                BookKittyLogger.error("에러 발생 : \(error.localizedDescription)")
+                LogKit.error("에러 발생 : \(error.localizedDescription)")
                 // TODO: 에러 팝업 연결
             })
             .disposed(by: disposeBag)

@@ -17,13 +17,17 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ReactiveX/RxSwift.git", .upToNextMajor(from: "6.0.0")),
         .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.55.0"),
+        .package(path: "../LogKit"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "NetworkKit",
-            dependencies: ["RxSwift", "SwiftFormat"]
+            dependencies: [
+                "RxSwift", "SwiftFormat",
+                .product(name: "LogKit", package: "LogKit"),
+            ]
         ),
         .testTarget(
             name: "NetworkKitTests",

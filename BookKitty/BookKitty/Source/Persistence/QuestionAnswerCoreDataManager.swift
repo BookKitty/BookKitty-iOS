@@ -7,6 +7,7 @@
 
 import CoreData
 import FirebaseAnalytics
+import LogKit
 
 /// QuestionAnswer 엔티티를 관리하는 객체
 final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
@@ -34,10 +35,10 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
 
         do {
             let fetchResult = try context.fetch(request)
-            BookKittyLogger.log("질문답변 목록 가져오기 성공")
+            LogKit.log("질문답변 목록 가져오기 성공")
             return fetchResult
         } catch {
-            BookKittyLogger.log("질문답변 목록 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("질문답변 목록 가져오기 실패: \(error.localizedDescription)")
             return []
         }
     }
@@ -54,13 +55,13 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         do {
             if let entity = try context.fetch(request).first {
                 if entity.id == uuid {
-                    BookKittyLogger.log("질문답변 데이터 가져오기 성공")
+                    LogKit.log("질문답변 데이터 가져오기 성공")
                     return entity
                 }
             }
             return nil
         } catch {
-            BookKittyLogger.log("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("질문답변 데이터 가져오기 실패: \(error.localizedDescription)")
             return nil
         }
     }
@@ -77,7 +78,7 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
 
         do {
             guard let questionEntity = try context.fetch(questionFetchRequest).first else {
-                BookKittyLogger.log("삭제할 질문답변을 찾을 수 없음")
+                LogKit.log("삭제할 질문답변을 찾을 수 없음")
                 return false
             }
 
@@ -93,10 +94,10 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
             context.delete(questionEntity) // 질문-답변도 함께 삭제
 
             try context.save()
-            BookKittyLogger.log("질문답변 삭제 성공")
+            LogKit.log("질문답변 삭제 성공")
             return true
         } catch {
-            BookKittyLogger.log("질문답변 삭제 실패: \(error.localizedDescription)")
+            LogKit.log("질문답변 삭제 실패: \(error.localizedDescription)")
             return false
         }
     }
@@ -107,7 +108,7 @@ final class QuestionAnswerCoreDataManager: QuestionAnswerCoreDataManageable {
         do {
             return try context.count(for: request)
         } catch {
-            BookKittyLogger.log("질문 개수 가져오기 실패: \(error.localizedDescription)")
+            LogKit.log("질문 개수 가져오기 실패: \(error.localizedDescription)")
             return 0
         }
     }

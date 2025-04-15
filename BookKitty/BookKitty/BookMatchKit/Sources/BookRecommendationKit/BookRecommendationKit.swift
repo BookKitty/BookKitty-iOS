@@ -2,6 +2,7 @@ import BookMatchAPI
 import BookMatchCore
 import BookMatchService
 import CoreFoundation
+import LogKit
 import RxSwift
 import UIKit
 
@@ -50,7 +51,7 @@ public final class BookRecommendationKit: BookRecommendable {
     ///   - ownedBooks: 사용자가 보유한 도서 목록
     /// - Returns: 추천된 도서 목록
     public func recommendBooks(from ownedBooks: [OwnedBook]) -> Single<[BookItem]> {
-        BookMatchLogger.recommendationStarted(question: nil)
+        LogKit.info("보유 도서에 대한 도서 추천 시작", subSystem: .bookRecommendation)
 
         return openAiAPI.getBookRecommendation(ownedBooks: ownedBooks)
             // `flatMap` - GPT 추천 결과를 `실제 도서로 변환`
@@ -111,7 +112,7 @@ public final class BookRecommendationKit: BookRecommendable {
     /// - Throws: BookMatchError.questionShort (질문이 4글자 미만인 경우)
     public func recommendBooks(for question: String, from ownedBooks: [OwnedBook])
         -> Single<BookMatchModuleOutput> {
-        BookMatchLogger.recommendationStarted(question: question)
+        LogKit.info("도서 추천 시작 - 질문: \(question)", subSystem: .bookRecommendation)
 
         return openAiAPI.getBookRecommendation(question: question, ownedBooks: ownedBooks)
             // `do` - 사이드 이펙트 처리하며 스트림을 계속 진행해야하는 상황이므로 선택, Subscribe는 체이닝이 종료되는 시점에 사용
@@ -123,7 +124,7 @@ public final class BookRecommendationKit: BookRecommendable {
                 미보유 도서 기반 추천 목록: \(result.newBooks.map(\.title))
                 """
 
-                BookMatchLogger.gptResponseReceived(result: resultString)
+                LogKit.info("GPT로부터 도서추천반환됨: \(resultString)", subSystem: .bookRecommendation)
             })
             // `flatMap` - 추천 결과를 실제 도서로 변환
             // - Note: GPT 추천 결과를 실제 도서 정보로 변환할 때 사용.
@@ -133,9 +134,9 @@ public final class BookRecommendationKit: BookRecommendable {
                 books: [BookItem]
             )> in
                 guard let self else {
-                    BookMatchLogger.error(
-                        BookMatchError.deinitError,
-                        context: "추천 절차"
+                    LogKit.error(
+                        "추천 절차: \(BookMatchError.deinitError.description)",
+                        subSystem: .bookRecommendation
                     )
 
                     return .error(BookMatchError.deinitError)
@@ -187,9 +188,9 @@ public final class BookRecommendationKit: BookRecommendable {
             //         3. BookMatchModuleOutput 형식으로 최종 변환
             .flatMap { [weak self] result -> Single<BookMatchModuleOutput> in
                 guard let self else {
-                    BookMatchLogger.error(
-                        BookMatchError.deinitError,
-                        context: "도서 매칭 절차"
+                    LogKit.error(
+                        "도서 매칭 절차: \(BookMatchError.deinitError.description)",
+                        subSystem: .bookRecommendation
                     )
 
                     return .error(BookMatchError.deinitError)
@@ -216,7 +217,7 @@ public final class BookRecommendationKit: BookRecommendable {
                     RawBook(title: $0.title, author: $0.author)
                 }
 
-                BookMatchLogger.descriptionStarted()
+                LogKit.info("도서 추천이유 작성 중...", subSystem: .bookRecommendation)
 
                 return openAiAPI.getDescription(
                     question: question,
@@ -231,9 +232,9 @@ public final class BookRecommendationKit: BookRecommendable {
                 .map { description in
                     let newBooks = Array(Set(result.books))
 
-                    BookMatchLogger.recommendationCompleted(
-                        ownedCount: filteredOwnedBooks.count,
-                        newCount: newBooks.count
+                    LogKit.info(
+                        "도서추천 완료 - 보유도서 추천 \(filteredOwnedBooks.count)개, 미보유도서 추천 \(newBooks.count)개",
+                        subSystem: .bookRecommendation
                     )
 
                     return BookMatchModuleOutput(
@@ -244,7 +245,7 @@ public final class BookRecommendationKit: BookRecommendable {
                 }
             }
             .catch { error in
-                BookMatchLogger.error(error, context: "도서 추천")
+                LogKit.error("도서 추천: \(error.localizedDescription)", subSystem: .bookRecommendation)
 
                 if let bookMatchError = error as? BookMatchError {
                     switch bookMatchError {

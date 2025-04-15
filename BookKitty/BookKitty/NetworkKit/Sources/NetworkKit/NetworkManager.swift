@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import LogKit
 import RxSwift
 
 /// 네트워크 기능을 수행하는 객체
@@ -93,7 +94,10 @@ extension NetworkManager {
             return nil
         }
 
-        NetworkEventLogger.requestDidFinish(request)
+        LogKit.debug("API 호출 완료 / URL: \(request.url?.absoluteString ?? "")",
+            subSystem: .app,
+            category: .network
+        )
 
         return request
     }
@@ -110,7 +114,11 @@ extension NetworkManager {
         }
 
         if !(200 ... 299).contains(response.statusCode) {
-            NetworkEventLogger.responseDidFinish(data, response)
+            LogKit.debug(
+                "API 응답 완료 / StatusCode: \(response.statusCode)  ---> Body: \(JSONtoPrettyString(data) ?? "Empty")",
+                subSystem: .app,
+                category: .network
+            )
         }
 
         return response
@@ -151,6 +159,22 @@ extension NetworkManager {
             // 값 전달
             observer(.success(responseData))
         }
+    }
+
+    public func JSONtoPrettyString(_ data: Data?) -> String? {
+        guard let data else {
+            return nil
+        }
+        if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+           let prettyJsonData = try? JSONSerialization.data(
+               withJSONObject: jsonObject,
+               options: .prettyPrinted
+           ),
+           let prettyPrintedString = String(data: prettyJsonData, encoding: .utf8) {
+            return prettyPrintedString
+        }
+
+        return String(data: data, encoding: .utf8) ?? ""
     }
 }
 

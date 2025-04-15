@@ -2,6 +2,7 @@ import BookMatchAPI
 import BookMatchCore
 import BookMatchService
 import BookMatchStrategy
+import LogKit
 import RxSwift
 import UIKit
 
@@ -46,7 +47,7 @@ public final class BookOCRKit: BookMatchable {
     /// - Returns: 매칭된 도서 정보 또는 nil
     /// - Throws: 초기 단어부터 검색된 결과가 나오지 않을 때
     public func recognizeBookFromImage(_ image: UIImage) -> Single<BookItem> {
-        BookMatchLogger.matchingStarted()
+        LogKit.info("도서매칭 시작", subSystem: .bookOCR, category: .lifecycle)
 
         return textExtractionService.extractText(from: image)
             // `flatMap` - 텍스트 추출 결과를 도서 검색 결과로 변환
@@ -61,15 +62,15 @@ public final class BookOCRKit: BookMatchable {
                 return searchService.searchProgressively(from: textData)
                     .flatMap { results in
                         guard !results.isEmpty else { // 유의미한 책 검색결과가 나오지 않았을 경우, 에러를 반환합니다
-                            BookMatchLogger.error(
-                                BookMatchError.noMatchFound,
-                                context: "Book Search"
+                            LogKit.error(
+                                "Book Search: \(BookMatchError.noMatchFound.description)",
+                                subSystem: .bookOCR
                             )
 
                             return .error(BookMatchError.noMatchFound)
                         }
 
-                        BookMatchLogger.searchResultsReceived(count: results.count)
+                        LogKit.info("추출된 텍스트로  \(results.count)개의 책 검색됨.", subSystem: .bookOCR)
                         return .just(results)
                     }
             }
@@ -92,9 +93,9 @@ public final class BookOCRKit: BookMatchable {
                                     downloadedImage
                                 )
 
-                                BookMatchLogger.similarityCalculated(
-                                    bookTitle: book.title,
-                                    score: similarity
+                                LogKit.info(
+                                    "'\(book.title)'에 대한 이미지 유사도: \(similarity)",
+                                    subSystem: .bookOCR
                                 )
 
                                 return .just((book, similarity))
@@ -113,7 +114,7 @@ public final class BookOCRKit: BookMatchable {
                     throw BookMatchError.noMatchFound
                 }
 
-                BookMatchLogger.matchingCompleted(success: true, bookTitle: bestMatchedBook.title)
+                LogKit.info("도서 매칭 완료: \(bestMatchedBook.title)", subSystem: .bookOCR)
                 return bestMatchedBook
             }
     }
